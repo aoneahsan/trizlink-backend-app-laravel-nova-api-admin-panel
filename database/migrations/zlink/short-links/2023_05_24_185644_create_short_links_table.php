@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('uniqueId')->nullable();
             $table->unsignedBigInteger('userId');
             $table->unsignedBigInteger('workspaceId');
-            $table->unsignedBigInteger('folderId')->default(1);
 
             $table->string('type')->nullable();
             $table->json('target')->nullable();
             $table->string('title')->nullable();
+            $table->string('folderId')->nullable();
             $table->string('featureImg')->nullable();
             $table->text('description')->nullable();
             $table->string('pixelIds')->nullable();

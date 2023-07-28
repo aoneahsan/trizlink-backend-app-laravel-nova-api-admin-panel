@@ -62,7 +62,6 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::post('/logout', 'logout');
         });
 
-
         // File Upload Controller APIs
         Route::controller(FileUploadController::class)->group(function () {
             Route::post('/file-upload/getSingleFileUrl', 'getSingleFileUrl');

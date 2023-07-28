@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('workspace_members', function (Blueprint $table) {
+        Schema::create('workspace_members_old_2', function (Blueprint $table) {
             // $table->id();
             $table->primary(['user_id', 'work_space_id']);
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('workspace_members');
+        Schema::dropIfExists('workspace_members_old_2');
     }
 };
