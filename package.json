@@ -20,9 +20,9 @@
     "productivity"
   ],
   "engines": {
-    "node": "16.20.0",
+    "node": "=18.17.0",
     "npm": "Please use yarn",
-    "yarn": "1.22.19"
+    "yarn": "=1.22.19"
   },
   "badges": [
     {
@@ -45,8 +45,8 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "axios": "^1.1.2",
-    "laravel-vite-plugin": "^0.7.2",
-    "vite": "^4.0.0"
+    "axios": "^1.4.0",
+    "laravel-vite-plugin": "^0.7.8",
+    "vite": "^4.4.7"
   }
 }
