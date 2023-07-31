@@ -56,6 +56,7 @@ class WorkSpaceController extends Controller
             'title' => 'required|string|max:200',
             'timezone' => 'required|string|max:200',
             'workspaceImage' => 'nullable|string',
+            'internalPost' => 'nullable|boolean',
             'workspaceData' => 'nullable|json',
 
             'sortOrderNo' => 'nullable|integer',
@@ -75,6 +76,7 @@ class WorkSpaceController extends Controller
                 'title' => $request->has('title') ? $request->title : null,
                 'timezone' => $request->has('timezone') ? $request->timezone : null,
                 'workspaceImage' => $request->has('workspaceImage') ? $request->workspaceImage : null,
+                'internalPost' => $request->has('internalPost') ? $request->internalPost : false,
                 'workspaceData' => $request->has('workspaceData') ? (is_string($request->workspaceData) ? json_decode($request->workspaceData) : $request->workspaceData) : null,
 
                 'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
@@ -137,6 +139,7 @@ class WorkSpaceController extends Controller
             'title' => 'required|string|max:200',
             'timezone' => 'required|string|max:200',
             'workspaceImage' => 'nullable|string',
+            'internalPost' => 'nullable|boolean',
             'workspaceData' => 'nullable|json',
 
             'sortOrderNo' => 'nullable|integer',
@@ -156,6 +159,7 @@ class WorkSpaceController extends Controller
                     'title' => $request->has('title') ? $request->title : $item->workspaceName,
                     'timezone' => $request->has('timezone') ? $request->timezone : $item->timezone,
                     'workspaceImage' => $request->has('workspaceImage') ? $request->workspaceImage : $item->workspaceImage,
+                    'internalPost' => $request->has('internalPost') ? $request->internalPost : $item->internalPost,
                     'workspaceData' => $request->has('workspaceData') ? (is_string($request->workspaceData) ? json_decode($request->workspaceData) : $request->workspaceData) : $request->workspaceData,
 
 

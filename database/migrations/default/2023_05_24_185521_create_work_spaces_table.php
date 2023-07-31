@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('timezone')->nullable();
             $table->string('workspaceImage')->nullable();
+            $table->boolean('internalPost')->default(false)->nullable();
             $table->json('workspaceData')->nullable();
 
             $table->integer('sortOrderNo')->default(0)->nullable();

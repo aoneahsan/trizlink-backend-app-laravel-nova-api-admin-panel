@@ -21,6 +21,7 @@ class WorkSpaceResource extends JsonResource
             'workspaceTimezone' => $this->timezone,
             'workspaceData' => $this->workspaceData,
             'workspaceImage' => $this->workspaceImage,
+            'internalPost' =>  $this->internalPost,
             'user' => $this->user ? [
                 'id' => $this->user->uniqueId,
                 'username' => $this->user->name,
