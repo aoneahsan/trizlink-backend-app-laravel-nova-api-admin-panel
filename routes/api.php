@@ -18,6 +18,7 @@ use App\Http\Controllers\Zaions\ZLink\LinkInBios\LinkInBioController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\ShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\CustomDomainController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\EmbededWidgetController;
+use App\Http\Controllers\Zaions\ZLink\TimeSlot\TimeSlotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -163,12 +164,12 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         });
 
         // Time slot
-        Route::controller(LinkInBioController::class)->group(function () {
-            Route::get('/user/workspaces/{workspaceId}/link-in-bio', 'index');
-            Route::post('/user/workspaces/{workspaceId}/link-in-bio', 'store');
-            Route::get('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'show');
-            Route::put('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'update');
-            Route::delete('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'destroy');
+        Route::controller(TimeSlotController::class)->group(function () {
+            Route::get('/user/workspaces/{workspaceId}/time-slot', 'index');
+            Route::post('/user/workspaces/{workspaceId}/time-slot', 'store');
+            Route::get('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'show');
+            Route::put('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'update');
+            Route::delete('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'destroy');
         });
 
         // ShortLink Custom domain
