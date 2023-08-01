@@ -11,20 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pixels', function (Blueprint $table) {
+        Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
             $table->string('uniqueId')->nullable();
             $table->unsignedBigInteger('userId');
+            $table->unsignedBigInteger('workspaceId');
 
-            $table->string('platform')->nullable();
-            $table->string('title')->nullable();
-            $table->string('pixelId')->nullable();
-
-            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->string('time')->nullable();
+            $table->string('day')->nullable();
+            $table->string('color')->nullable();
 
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(true)->nullable();
             $table->json('extraAttributes')->nullable();
+
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
+
             $table->softDeletes();
             $table->timestamps();
         });
@@ -35,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pixels');
+        Schema::dropIfExists('time_slots');
     }
 };

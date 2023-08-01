@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('utmTerm')->nullable();
             $table->string('utmContent')->nullable();
 
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(true)->nullable();
             $table->json('extraAttributes')->nullable();

@@ -157,6 +157,16 @@ enum PermissionsEnum: string
   case restore_linkInBio = 'restore_linkInBio';
   case forceDelete_linkInBio = 'forceDelete_linkInBio';
 
+    // time slot
+  case viewAny_timeSlot = 'viewAny_timeSlot';
+  case view_timeSlot = 'view_timeSlot';
+  case create_timeSlot = 'create_timeSlot';
+  case update_timeSlot = 'update_timeSlot';
+  case delete_timeSlot = 'delete_timeSlot';
+  case replicate_timeSlot = 'replicate_timeSlot';
+  case restore_timeSlot = 'restore_timeSlot';
+  case forceDelete_timeSlot = 'forceDelete_timeSlot';
+
     // lib Block
   case viewAny_libBlock = 'viewAny_libBlock';
   case view_libBlock = 'view_libBlock';

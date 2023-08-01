@@ -27,6 +27,9 @@ return new class extends Migration
             $table->string('folderForModel'); // 'shortLink' | 'linkInBio'
             $table->boolean('isDefault')->default(false)->nullable();
 
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
+
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(true);
             $table->json('extraAttributes')->nullable();

@@ -26,6 +26,8 @@ return new class extends Migration
             // this will tell us which type of predefined data is this (we will use this to get specific data from api)
             $table->string('preDefinedDataType')->nullable(); //  'musicPlatform' | 'messengerPlatform' | 'socialPlatform' | 'formField'
 
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+
             $table->boolean('isActive')->default(true)->nullable();
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->json('extraAttributes')->nullable();

@@ -162,6 +162,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspaces/{workspaceId}/get/linkInBio/folders', 'getLinkInBioFolders');
         });
 
+        // Time slot
+        Route::controller(LinkInBioController::class)->group(function () {
+            Route::get('/user/workspaces/{workspaceId}/link-in-bio', 'index');
+            Route::post('/user/workspaces/{workspaceId}/link-in-bio', 'store');
+            Route::get('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'show');
+            Route::put('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'update');
+            Route::delete('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'destroy');
+        });
+
         // ShortLink Custom domain
         Route::controller(CustomDomainController::class)->group(function () {
             Route::get('/user/ws/{workspaceId}/sl/{shortLinkId}/custom-domain', 'index');

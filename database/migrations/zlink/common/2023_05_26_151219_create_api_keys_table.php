@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('clientSecret')->nullable();
             $table->dateTime('expireDate')->nullable();
 
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(true);
             $table->json('extraAttributes')->nullable();

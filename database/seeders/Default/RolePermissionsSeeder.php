@@ -141,6 +141,15 @@ class RolePermissionsSeeder extends Seeder
         $replicateShortLinkPermission = Permission::create(['name' => PermissionsEnum::replicate_shortLink->name]);
         $restoreShortLinkPermission = Permission::create(['name' => PermissionsEnum::restore_shortLink->name]);
         $forceDeleteShortLinkPermission = Permission::create(['name' => PermissionsEnum::forceDelete_shortLink->name]);
+        // Time slot Model Permissions
+        $viewAnyTimeSlotPermission = Permission::create(['name' => PermissionsEnum::viewAny_timeSlot->name]);
+        $viewTimeSlotPermission = Permission::create(['name' => PermissionsEnum::view_timeSlot->name]);
+        $addTimeSlotPermission = Permission::create(['name' => PermissionsEnum::create_timeSlot->name]);
+        $updateTimeSlotPermission = Permission::create(['name' => PermissionsEnum::update_timeSlot->name]);
+        $deleteTimeSlotPermission = Permission::create(['name' => PermissionsEnum::delete_timeSlot->name]);
+        $replicateTimeSlotPermission = Permission::create(['name' => PermissionsEnum::replicate_timeSlot->name]);
+        $restoreTimeSlotPermission = Permission::create(['name' => PermissionsEnum::restore_timeSlot->name]);
+        $forceDeleteTimeSlotPermission = Permission::create(['name' => PermissionsEnum::forceDelete_timeSlot->name]);
         // Link-in-bio Model Permissions
         $viewAnyLinkInBioPermission = Permission::create(['name' => PermissionsEnum::viewAny_linkInBio->name]);
         $viewLinkInBioPermission = Permission::create(['name' => PermissionsEnum::view_linkInBio->name]);
@@ -333,6 +342,15 @@ class RolePermissionsSeeder extends Seeder
             $replicateShortLinkPermission,
             $restoreShortLinkPermission,
             $forceDeleteShortLinkPermission,
+            // Time slot
+            $viewAnyTimeSlotPermission,
+            $viewTimeSlotPermission,
+            $addTimeSlotPermission,
+            $updateTimeSlotPermission,
+            $deleteTimeSlotPermission,
+            $replicateTimeSlotPermission,
+            $restoreTimeSlotPermission,
+            $forceDeleteTimeSlotPermission,
             // Link-in-bio
             $viewAnyLinkInBioPermission,
             $viewLinkInBioPermission,

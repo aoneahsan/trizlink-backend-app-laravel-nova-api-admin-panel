@@ -7,6 +7,7 @@ use App\Models\ZLink\Analytics\UtmTag;
 use App\Models\ZLink\Common\Folder;
 use App\Models\ZLink\LinkInBios\LinkInBio;
 use App\Models\ZLink\ShortLinks\ShortLink;
+use App\Models\ZLink\TimeSlot\TimeSlot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,6 +42,11 @@ class WorkSpace extends Model
     public function linkInBio(): HasMany
     {
         return $this->hasMany(LinkInBio::class, 'workspaceId', 'id');
+    }
+
+    public function timeSlots(): HasMany
+    {
+        return $this->hasMany(TimeSlot::class, 'workspaceId', 'id');
     }
 
     public function folder(): HasMany

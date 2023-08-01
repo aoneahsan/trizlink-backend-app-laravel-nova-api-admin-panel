@@ -31,6 +31,10 @@ return new class extends Migration
             $table->boolean('isActive')->default(true)->nullable();
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->json('extraAttributes')->nullable();
+
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('shortLinkId')->references('id')->on('short_links')->onDelete('cascade');
+
             $table->softDeletes();
             $table->timestamps();
         });

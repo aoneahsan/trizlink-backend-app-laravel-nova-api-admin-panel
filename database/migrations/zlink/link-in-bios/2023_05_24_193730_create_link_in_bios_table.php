@@ -37,6 +37,10 @@ return new class extends Migration
             $table->string('favicon')->nullable();
             $table->boolean('isFavorite')->nullable();
 
+
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
+
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(true)->nullable();
             $table->json('extraAttributes')->nullable();
