@@ -12,6 +12,7 @@ use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\UtmTagController;
 use App\Http\Controllers\Zaions\ZLink\Common\ApiKeyController;
 use App\Http\Controllers\Zaions\ZLink\Common\FolderController;
+use App\Http\Controllers\Zaions\ZLink\Label\LabelController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LibBlockController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LibPredefinedDataController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LinkInBioController;
@@ -170,6 +171,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'show');
             Route::put('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'update');
             Route::delete('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'destroy');
+        });
+
+        // Label
+        Route::controller(LabelController::class)->group(function () {
+            Route::get('/user/workspaces/{workspaceId}/label', 'index');
+            Route::post('/user/workspaces/{workspaceId}/label', 'store');
+            Route::get('/user/workspaces/{workspaceId}/label/{itemId}', 'show');
+            Route::put('/user/workspaces/{workspaceId}/label/{itemId}', 'update');
+            Route::delete('/user/workspaces/{workspaceId}/label/{itemId}', 'destroy');
         });
 
         // ShortLink Custom domain

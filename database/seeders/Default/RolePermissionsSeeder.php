@@ -150,6 +150,15 @@ class RolePermissionsSeeder extends Seeder
         $replicateTimeSlotPermission = Permission::create(['name' => PermissionsEnum::replicate_timeSlot->name]);
         $restoreTimeSlotPermission = Permission::create(['name' => PermissionsEnum::restore_timeSlot->name]);
         $forceDeleteTimeSlotPermission = Permission::create(['name' => PermissionsEnum::forceDelete_timeSlot->name]);
+        // Label Model Permissions
+        $viewAnyLabelPermission = Permission::create(['name' => PermissionsEnum::viewAny_label->name]);
+        $viewLabelPermission = Permission::create(['name' => PermissionsEnum::view_label->name]);
+        $addLabelPermission = Permission::create(['name' => PermissionsEnum::create_label->name]);
+        $updateLabelPermission = Permission::create(['name' => PermissionsEnum::update_label->name]);
+        $deleteLabelPermission = Permission::create(['name' => PermissionsEnum::delete_label->name]);
+        $replicateLabelPermission = Permission::create(['name' => PermissionsEnum::replicate_label->name]);
+        $restoreLabelPermission = Permission::create(['name' => PermissionsEnum::restore_label->name]);
+        $forceDeleteLabelPermission = Permission::create(['name' => PermissionsEnum::forceDelete_label->name]);
         // Link-in-bio Model Permissions
         $viewAnyLinkInBioPermission = Permission::create(['name' => PermissionsEnum::viewAny_linkInBio->name]);
         $viewLinkInBioPermission = Permission::create(['name' => PermissionsEnum::view_linkInBio->name]);
@@ -351,6 +360,15 @@ class RolePermissionsSeeder extends Seeder
             $replicateTimeSlotPermission,
             $restoreTimeSlotPermission,
             $forceDeleteTimeSlotPermission,
+            // Label
+            $viewAnyLabelPermission,
+            $viewLabelPermission,
+            $addLabelPermission,
+            $updateLabelPermission,
+            $deleteLabelPermission,
+            $replicateLabelPermission,
+            $restoreLabelPermission,
+            $forceDeleteLabelPermission,
             // Link-in-bio
             $viewAnyLinkInBioPermission,
             $viewLinkInBioPermission,

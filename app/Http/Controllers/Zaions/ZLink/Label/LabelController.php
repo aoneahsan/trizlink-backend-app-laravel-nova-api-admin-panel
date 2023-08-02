@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers\Zaions\ZLink\TimeSlot;
+namespace App\Http\Controllers\Zaions\ZLink\Label;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Zaions\ZLink\TimeSlot\TimeSlotResource;
+use App\Http\Resources\Zaions\ZLink\Label\LabelResource;
 use App\Models\Default\WorkSpace;
-use App\Models\ZLink\TimeSlot\TimeSlot;
-use App\Zaions\Enums\PermissionsEnum;
-use App\Zaions\Enums\ResponseCodesEnum;
-use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Models\ZLink\Label\Label;
 use Illuminate\Http\Request;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Support\Facades\Gate;
+use App\Zaions\Enums\PermissionsEnum;
+use App\Zaions\Enums\ResponseCodesEnum;
+use App\Zaions\Enums\ResponseMessagesEnum;
 
-class TimeSlotController extends Controller
+class LabelController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,7 +25,7 @@ class TimeSlotController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_timeSlot->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
@@ -35,16 +35,16 @@ class TimeSlotController extends Controller
                 ]);
             }
 
-            $itemsCount = TimeSlot::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->count();
+            $itemsCount = Label::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->count();
 
-            $items = TimeSlot::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->get();
+            $items = Label::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->get();
 
             return response()->json([
                 'success' => true,
                 'errors' => [],
                 'message' => 'Request Completed Successfully!',
                 'data' => [
-                    'items' => TimeSlotResource::collection($items),
+                    'items' => LabelResource::collection($items),
                     'itemsCount' => $itemsCount
                 ],
                 'status' => 200
@@ -64,7 +64,7 @@ class TimeSlotController extends Controller
     {
         $currentUser = $request->user();
 
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_timeSlot->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
@@ -75,22 +75,20 @@ class TimeSlotController extends Controller
         }
 
         $request->validate([
-            'time' => 'required|string|max:250',
-            'day' => 'required|string|max:250',
-            'color' => 'required|string|max:250',
+            'title' => 'required|string|max:250',
+            'color' => 'nullable|string|max:250',
             'sortOrderNo' => 'nullable|integer',
             'isActive' => 'nullable|boolean',
             'extraAttributes' => 'nullable|json',
         ]);
 
         try {
-            $result = TimeSlot::create([
+            $result = Label::create([
                 'uniqueId' => uniqid(),
                 'userId' => $currentUser->id,
                 'workspaceId' => $workspace->id,
 
-                'time' => $request->has('time') ? $request->time : null,
-                'day' => $request->has('day') ? $request->day : null,
+                'title' => $request->has('title') ? $request->title : null,
                 'color' => $request->has('color') ? $request->color : null,
 
                 'isActive' => $request->has('isActive') ? $request->isActive : null,
@@ -101,7 +99,7 @@ class TimeSlotController extends Controller
 
             if ($result) {
                 return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new TimeSlotResource($result)
+                    'item' => new LabelResource($result)
                 ]);
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([]);
@@ -121,7 +119,7 @@ class TimeSlotController extends Controller
     {
         $currentUser = $request->user();
 
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_timeSlot->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
@@ -132,22 +130,21 @@ class TimeSlotController extends Controller
         }
 
         try {
-            $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+            $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
 
             if ($item) {
                 return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new TimeSlotResource($item)
+                    'item' => new LabelResource($item)
                 ]);
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Time slot not found!']
+                    'item' => ['Label not found!']
                 ]);
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -171,21 +168,19 @@ class TimeSlotController extends Controller
         }
 
         $request->validate([
-            'time' => 'required|string|max:250',
-            'day' => 'required|string|max:250',
-            'color' => 'required|string|max:250',
+            'title' => 'required|string|max:250',
+            'color' => 'nullable|string|max:250',
             'sortOrderNo' => 'nullable|integer',
             'isActive' => 'nullable|boolean',
             'extraAttributes' => 'nullable|json',
         ]);
 
         try {
-            $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+            $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
 
             if ($item) {
                 $item->update([
-                    'time' => $request->has('time') ? $request->time : $item->time,
-                    'day' => $request->has('day') ? $request->day : $item->day,
+                    'title' => $request->has('title') ? $request->title : $item->title,
                     'color' => $request->has('color') ? $request->color : $item->color,
 
                     'isActive' => $request->has('isActive') ? $request->isActive : $item->isActive,
@@ -194,14 +189,14 @@ class TimeSlotController extends Controller
                     'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
                 ]);
 
-                $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+                $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
 
                 return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new TimeSlotResource($item)
+                    'item' => new LabelResource($item)
                 ]);
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Time slot not found!']
+                    'item' => ['Label not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -219,7 +214,7 @@ class TimeSlotController extends Controller
     {
         $currentUser = $request->user();
 
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_timeSlot->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
@@ -230,14 +225,14 @@ class TimeSlotController extends Controller
         }
 
         try {
-            $item = TimeSlot::where('uniqueId', $itemId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
+            $item = Label::where('uniqueId', $itemId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->forceDelete();
                 return ZHelpers::sendBackRequestCompletedResponse(['item' => ['success' => true]]);
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Time slot not found!']
+                    'item' => ['Label not found!']
                 ]);
             }
         } catch (\Throwable $th) {
