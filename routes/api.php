@@ -5,6 +5,7 @@ use App\Http\Controllers\Zaions\Common\FileUploadController;
 use App\Http\Controllers\Zaions\StaticPageController;
 use App\Http\Controllers\Zaions\Testing\TestController;
 use App\Http\Controllers\Zaions\User\UserController;
+use App\Http\Controllers\Zaions\User\UserSettingController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkSpaceController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceMemberController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
@@ -85,6 +86,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::post('/user/username/update', 'updateUsername');
             // Route::get('/user/{token}', '')->name('password.reset');
             Route::post('/user/delete', 'destroy');
+        });
+
+        // Workspace
+        Route::controller(UserSettingController::class)->group(function () {
+            Route::get('/user/settings', 'index');
+            Route::post('/user/settings', 'store');
+            Route::get('/user/settings/{type}', 'show');
+            Route::put('/user/settings/{itemId}', 'update');
+            Route::delete('/user/settings/{itemId}', 'destroy');
         });
 
         // Workspace

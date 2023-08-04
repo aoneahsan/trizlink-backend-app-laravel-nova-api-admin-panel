@@ -2,11 +2,13 @@
 
 namespace App\Models\Default;
 
+use App\Models\Zaions\User\UserSetting;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\RolesEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -77,6 +79,11 @@ class User extends Authenticatable
     public function workSpace(): HasMany
     {
         return $this->hasMany(workSpace::class, 'userId', 'id');
+    }
+
+    public function userSettings(): HasMany
+    {
+        return $this->HasMany(UserSetting::class, 'userId', 'id');
     }
 
     // User can belong to many workspace as member (added by other user)

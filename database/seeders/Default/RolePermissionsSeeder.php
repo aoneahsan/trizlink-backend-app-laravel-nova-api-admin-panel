@@ -114,6 +114,15 @@ class RolePermissionsSeeder extends Seeder
         $replicateWorkspacePermission = Permission::create(['name' => PermissionsEnum::replicate_workspace->name]);
         $restoreWorkspacePermission = Permission::create(['name' => PermissionsEnum::restore_workspace->name]);
         $forceDeleteWorkspacePermission = Permission::create(['name' => PermissionsEnum::forceDelete_workspace->name]);
+        // UserSetting Model Permissions
+        $viewAnyUserSettingPermission = Permission::create(['name' => PermissionsEnum::viewAny_userSetting->name]);
+        $viewUserSettingPermission = Permission::create(['name' => PermissionsEnum::view_userSetting->name]);
+        $addUserSettingPermission = Permission::create(['name' => PermissionsEnum::create_userSetting->name]);
+        $updateUserSettingPermission = Permission::create(['name' => PermissionsEnum::update_userSetting->name]);
+        $deleteUserSettingPermission = Permission::create(['name' => PermissionsEnum::delete_userSetting->name]);
+        $replicateUserSettingPermission = Permission::create(['name' => PermissionsEnum::replicate_userSetting->name]);
+        $restoreUserSettingPermission = Permission::create(['name' => PermissionsEnum::restore_userSetting->name]);
+        $forceDeleteUserSettingPermission = Permission::create(['name' => PermissionsEnum::forceDelete_userSetting->name]);
         // Pixel Model Permissions
         $viewAnyPixelPermission = Permission::create(['name' => PermissionsEnum::viewAny_pixel->name]);
         $viewPixelPermission = Permission::create(['name' => PermissionsEnum::view_pixel->name]);
@@ -324,6 +333,15 @@ class RolePermissionsSeeder extends Seeder
             $replicateWorkspacePermission,
             $restoreWorkspacePermission,
             $forceDeleteWorkspacePermission,
+            // UserSetting
+            $viewAnyUserSettingPermission,
+            $viewUserSettingPermission,
+            $addUserSettingPermission,
+            $updateUserSettingPermission,
+            $deleteUserSettingPermission,
+            $replicateUserSettingPermission,
+            $restoreUserSettingPermission,
+            $forceDeleteUserSettingPermission,
             // Pixel
             $viewAnyPixelPermission,
             $viewPixelPermission,

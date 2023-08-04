@@ -117,6 +117,16 @@ enum PermissionsEnum: string
   case detach_utm_tag_from_workspace = 'detach_utm_tag_from_workspace';
   case update_workspace_utm_tag = 'update_workspace_utm_tag';
 
+    // Workspace
+  case viewAny_userSetting = 'viewAny_userSetting';
+  case view_userSetting = 'view_userSetting';
+  case create_userSetting = 'create_userSetting';
+  case update_userSetting = 'update_userSetting';
+  case delete_userSetting = 'delete_userSetting';
+  case replicate_userSetting = 'replicate_userSetting';
+  case restore_userSetting = 'restore_userSetting';
+  case forceDelete_userSetting = 'forceDelete_userSetting';
+
     // Pixel
   case viewAny_pixel = 'viewAny_pixel';
   case view_pixel = 'view_pixel';

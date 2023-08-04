@@ -225,28 +225,28 @@ class ShortLinkController extends Controller
 
             if ($item) {
                 $item->update([
-                    'type' => $request->has('type') ? $request->type : $request->type,
-                    'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : $request->target,
-                    'title' => $request->has('title') ? $request->title : $request->title,
-                    'featureImg' => $request->has('featureImg') ? $request->featureImg : $request->featureImg,
-                    'description' => $request->has('description') ? $request->description : $request->description,
-                    'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : $request->pixelIds,
-                    'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : $request->utmTagInfo,
-                    'shortUrl' => $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : $request->shortUrl,
-                    'folderId' => $request->has('folderId') ? $request->folderId : $request->folderId,
-                    'notes' => $request->has('notes') ? $request->notes : $request->notes,
-                    'tags' => $request->has('tags') ? $request->tags : $request->tags,
-                    'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : $request->abTestingRotatorLinks,
-                    'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : $request->geoLocationRotatorLinks,
-                    'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : $request->linkExpirationInfo,
-                    'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : $request->password,
-                    'favicon' => $request->has('favicon') ? $request->favicon : $request->favicon,
-                    'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
+                    'type' => $request->has('type') ? $request->type : $item->type,
+                    'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : $item->target,
+                    'title' => $request->has('title') ? $request->title : $item->title,
+                    'featureImg' => $request->has('featureImg') ? $request->featureImg : $item->featureImg,
+                    'description' => $request->has('description') ? $request->description : $item->description,
+                    'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : $item->pixelIds,
+                    'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : $item->utmTagInfo,
+                    'shortUrl' => $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : $item->shortUrl,
+                    'folderId' => $request->has('folderId') ? $request->folderId : $item->folderId,
+                    'notes' => $request->has('notes') ? $request->notes : $item->notes,
+                    'tags' => $request->has('tags') ? $request->tags : $item->tags,
+                    'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : $item->abTestingRotatorLinks,
+                    'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : $item->geoLocationRotatorLinks,
+                    'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : $item->linkExpirationInfo,
+                    'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : $item->password,
+                    'favicon' => $request->has('favicon') ? $request->favicon : $item->favicon,
+                    'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : $item->isFavorite,
 
                     'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo :
-                        $request->sortOrderNo,
-                    'isActive' => $request->has('isActive') ? $request->isActive : $request->isActive,
-                    'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $request->extraAttributes,
+                        $item->sortOrderNo,
+                    'isActive' => $request->has('isActive') ? $item->isActive : $request->isActive,
+                    'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
                 ]);
 
                 $item = ShortLink::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();

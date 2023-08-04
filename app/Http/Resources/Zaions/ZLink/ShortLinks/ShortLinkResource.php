@@ -37,8 +37,8 @@ class ShortLinkResource extends JsonResource
             'sortOrderNo' => $this->sortOrderNo,
             'isActive' => $this->isActive,
             'extraAttributes' => $this->extraAttributes,
-            'createdAt' => $this->created_at,
-            'updatedAt' => $this->updated_at
+            'createdAt' => $this->created_at->diffForHumans(),
+            'updatedAt' => $this->updated_at->diffForHumans()
         ];
     }
 }
