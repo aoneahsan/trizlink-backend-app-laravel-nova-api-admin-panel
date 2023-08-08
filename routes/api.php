@@ -92,7 +92,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         Route::controller(UserSettingController::class)->group(function () {
             Route::get('/user/settings', 'index');
             Route::post('/user/settings', 'store');
-            Route::get('/user/settings/{type}', 'show');
+            Route::get('/user/settings/{type}/{workspaceUniqueId}', 'show');
             Route::put('/user/settings/{itemId}', 'update');
             Route::delete('/user/settings/{itemId}', 'destroy');
         });

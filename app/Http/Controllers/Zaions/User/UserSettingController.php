@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Zaions\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserSettingResource;
 use App\Models\Default\UserSetting;
+use App\Models\Default\WorkSpace;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
@@ -60,14 +61,31 @@ class UserSettingController extends Controller
             $request->validate([
                 'type' => 'required|string|max:200',
                 'settings' => 'nullable|json',
+                'workspaceUniqueId' => 'nullable|string|max:200',
 
                 'sortOrderNo' => 'nullable|integer',
                 'isActive' => 'nullable|boolean',
                 'extraAttributes' => 'nullable|json',
             ]);
 
+
+            $workspaceId = null;
+
+            if ($request->has('workspaceUniqueId')) {
+                $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $request->workspaceUniqueId)->first();
+
+                if (!$workspace) {
+                    return ZHelpers::sendBackRequestFailedResponse([
+                        'item' => ['workspace not found!']
+                    ]);
+                } else {
+                    $workspaceId = $workspace->id;
+                }
+            }
+
             $result = UserSetting::create([
                 'uniqueId' => uniqid(),
+                'workspaceUniqueId' => $workspaceId,
 
                 'userId' => $currentUser->id,
                 'type' => $request->has('type') ? $request->type : null,
@@ -96,14 +114,24 @@ class UserSettingController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $type)
+    public function show(Request $request, $type, $workspaceUniqueId)
     {
         try {
             $currentUser = $request->user();
 
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_userSetting->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $item = UserSetting::where('type', $type)->where('userId', $currentUser->id)->first();
+            $item = null;
+
+            if ($workspaceUniqueId) {
+
+                $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $request->workspaceUniqueId)->first();
+
+                $item = UserSetting::where('type', $type)->where('userId', $currentUser->id)->where('workspaceUniqueId', $workspace->id)->first();
+            } else {
+                $item = UserSetting::where('type', $type)->where('userId', $currentUser->id)->first();
+            }
+
 
             if ($item) {
                 return ZHelpers::sendBackRequestCompletedResponse([
@@ -135,6 +163,7 @@ class UserSettingController extends Controller
 
             $request->validate([
                 'type' => 'required|string|max:200',
+                'workspaceUniqueId' => 'nullable|string|max:200',
                 'settings' => 'nullable|json',
 
                 'sortOrderNo' => 'nullable|integer',
@@ -145,9 +174,25 @@ class UserSettingController extends Controller
 
             $item = UserSetting::where('type', $type)->where('userId', $currentUser->id)->first();
 
+            $workspaceId = $item->workspaceUniqueId;
+
+            if ($request->has('workspaceUniqueId')) {
+                $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $request->workspaceUniqueId)->first();
+
+                if (!$workspace) {
+                    return ZHelpers::sendBackRequestFailedResponse([
+                        'item' => ['workspace not found!']
+                    ]);
+                } else {
+                    $workspaceId = $workspace->id;
+                }
+            }
+
+
             if ($item) {
                 $item->update([
                     'type' => $request->has('type') ? $request->type : $item->type,
+                    'workspaceUniqueId' => $workspaceId,
                     'settings' => $request->has('settings') ? ZHelpers::zJsonDecode($request->settings) : $request->settings,
 
                     'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : $item->isActive,

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('uniqueId')->nullable();
             $table->unsignedBigInteger('userId');
+            $table->unsignedBigInteger('workspaceUniqueId')->nullable();
 
             $table->json('settings')->nullable();
             $table->string('type')->nullable();
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->boolean('isActive')->default(true)->nullable();
             $table->json('extraAttributes')->nullable();
             $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('workspaceUniqueId')->references('id')->on('work_spaces')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });
