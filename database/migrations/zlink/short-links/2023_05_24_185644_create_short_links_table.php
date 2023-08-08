@@ -25,7 +25,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('pixelIds')->nullable();
             $table->json('utmTagInfo')->nullable();
-            $table->json('shortUrl')->nullable();
+            $table->string('shortUrlDomain')->nullable(); // "zaions.com"
+            $table->string('shortUrlPath')->nullable(); // "/zaions"
             $table->string('notes')->nullable();
             $table->string('tags')->nullable();
             $table->json('abTestingRotatorLinks')->nullable();
