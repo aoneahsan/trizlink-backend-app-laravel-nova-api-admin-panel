@@ -12,6 +12,9 @@ use App\Zaions\Enums\ResponseMessagesEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
+
+use function Spatie\SslCertificate\length;
 
 class ShortLinkController extends Controller
 {
@@ -82,7 +85,9 @@ class ShortLinkController extends Controller
             'description' => 'nullable|string|max:1000',
             'pixelIds' => 'nullable|string|max:250',
             'utmTagInfo' => 'nullable|json',
-            'shortUrl' => 'nullable|json',
+            // 'shortUrl' => 'nullable|json',
+            'shortUrlDomain' => 'nullable|string',
+            'shortUrlPath' => 'nullable|string|max:6',
             'folderId' => 'nullable|string',
             'notes' => 'nullable|string|max:250',
             'tags' => 'nullable|string|max:250',
@@ -110,7 +115,9 @@ class ShortLinkController extends Controller
                 'description' => $request->has('description') ? $request->description : null,
                 'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : null,
                 'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : null,
-                'shortUrl' =>  $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : null,
+                // 'shortUrl' =>  $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : null,
+                'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : null,
+                'shortUrlPath' => $request->has('shortUrlPath') ? $request->shortUrlPath : null,
                 'folderId' => $request->has('folderId') ? $request->folderId : null,
                 'notes' => $request->has('notes') ? $request->notes : null,
                 'tags' => $request->has('tags') ? $request->tags : null,
@@ -204,7 +211,9 @@ class ShortLinkController extends Controller
             'description' => 'nullable|string|max:1000',
             'pixelIds' => 'nullable|string|max:250',
             'utmTagInfo' => 'nullable|json',
-            'shortUrl' => 'nullable|json',
+            // 'shortUrl' => 'nullable|json',
+            'shortUrlDomain' => 'nullable|string',
+            'shortUrlPath' => 'nullable|string|max:6',
             'folderId' => 'nullable|string',
             'notes' => 'nullable|string|max:250',
             'tags' => 'nullable|string|max:250',
@@ -232,7 +241,8 @@ class ShortLinkController extends Controller
                     'description' => $request->has('description') ? $request->description : $item->description,
                     'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : $item->pixelIds,
                     'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : $item->utmTagInfo,
-                    'shortUrl' => $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : $item->shortUrl,
+                    'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : $item->shortUrlDomain,
+                    'shortUrlPath' => $request->has('shortUrlPath') ? $request->shortUrlPath : $item->shortUrlPath,
                     'folderId' => $request->has('folderId') ? $request->folderId : $item->folderId,
                     'notes' => $request->has('notes') ? $request->notes : $item->notes,
                     'tags' => $request->has('tags') ? $request->tags : $item->tags,
@@ -291,6 +301,65 @@ class ShortLinkController extends Controller
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([
                     'item' => ['Short link not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    /**
+     * Check if shortUrlPath is available.
+     *
+     * @param  int  $itemId
+     * @return \Illuminate\Http\Response
+     */
+    public function checkShortUrlPathAvailable(Request $request, $workspaceId, $value)
+    {
+        try {
+            $currentUser = $request->user();
+
+            if ($currentUser) {
+
+                // we are defining short url path length exeat 6 digit.
+                if ($value && Str::length($value) === 6) {
+
+
+                    $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+                    if (!$workspace) {
+                        return ZHelpers::sendBackInvalidParamsResponse([
+                            "item" => ['No workspace found!']
+                        ]);
+                    }
+
+                    $item = ShortLink::where('shortUrlPath', $value)->first();
+
+                    if ($item) {
+                        return ZHelpers::sendBackRequestFailedResponse([
+                            'item' => [
+                                'isAvailable' => false,
+                                'message' => 'Not available'
+                            ]
+                        ]);
+                    } else {
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => [
+                                'isAvailable' => true,
+                                'message' => 'Available'
+                            ]
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackRequestFailedResponse([
+                        'item' => [
+                            'message' => 'value must be exeat to 6'
+                        ]
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackRequestFailedResponse([
+                    'item' => ['User not found!']
                 ]);
             }
         } catch (\Throwable $th) {

@@ -21,7 +21,6 @@ class ShortLink extends Model
         'extraAttributes' => 'array',
         'target' => 'array',
         'utmTagInfo' => 'array',
-        'shortUrl' => 'array',
         'abTestingRotatorLinks' => 'array',
         'geoLocationRotatorLinks' => 'array',
         'linkExpirationInfo' => 'array',

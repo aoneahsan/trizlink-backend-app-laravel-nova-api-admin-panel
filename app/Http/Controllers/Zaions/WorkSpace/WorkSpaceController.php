@@ -54,7 +54,7 @@ class WorkSpaceController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:200',
-            'timezone' => 'required|string|max:200',
+            'timezone' => 'nullable|string|max:200',
             'workspaceImage' => 'nullable|string',
             'internalPost' => 'nullable|boolean',
             'workspaceData' => 'nullable|json',
@@ -137,7 +137,7 @@ class WorkSpaceController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:200',
-            'timezone' => 'required|string|max:200',
+            'timezone' => 'nullable|string|max:200',
             'workspaceImage' => 'nullable|string',
             'internalPost' => 'nullable|boolean',
             'workspaceData' => 'nullable|json',

@@ -132,6 +132,9 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspaces/{workspaceId}/short-links/{itemId}', 'show');
             Route::put('/user/workspaces/{workspaceId}/short-links/{itemId}', 'update');
             Route::delete('/user/workspaces/{workspaceId}/short-links/{itemId}', 'destroy');
+
+
+            Route::get('/user/workspaces/{workspaceId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
         });
 
         // Pixel
