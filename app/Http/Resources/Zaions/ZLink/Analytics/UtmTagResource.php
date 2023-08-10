@@ -24,8 +24,8 @@ class UtmTagResource extends JsonResource
             'utmContent' => $this->utmContent,
             'isActive' => $this->isActive,
             'extraAttributes' => $this->extraAttributes,
-            'createdAt' => $this->created_at,
-            'updatedAt' => $this->updated_at
+            'createdAt' => $this->created_at->diffForHumans(),
+            'updatedAt' => $this->updated_at->diffForHumans()
         ];
     }
 }

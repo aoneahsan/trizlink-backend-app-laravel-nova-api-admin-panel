@@ -65,44 +65,64 @@ class ShortLinkController extends Controller
      */
     public function store(Request $request, $workspaceId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
-            ]);
-        }
-
-        $request->validate([
-            'type' => 'required|string|max:250',
-            'target' => 'required|json',
-            'title' => 'required|string|max:250',
-            'featureImg' => 'nullable|string|max:250',
-            'description' => 'nullable|string|max:1000',
-            'pixelIds' => 'nullable|string|max:250',
-            'utmTagInfo' => 'nullable|json',
-            // 'shortUrl' => 'nullable|json',
-            'shortUrlDomain' => 'nullable|string',
-            'shortUrlPath' => 'nullable|string|max:6',
-            'folderId' => 'nullable|string',
-            'notes' => 'nullable|string|max:250',
-            'tags' => 'nullable|string|max:250',
-            'abTestingRotatorLinks' => 'nullable|json',
-            'geoLocationRotatorLinks' => 'nullable|json',
-            'linkExpirationInfo' => 'nullable|json',
-            'password' => 'nullable|json',
-            'favicon' => 'nullable|string',
-            'isFavorite' => 'nullable|boolean',
-            'sortOrderNo' => 'nullable|integer',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-
         try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $request->validate([
+                'type' => 'required|string|max:250',
+                'target' => 'required|json',
+                'title' => 'required|string|max:250',
+                'shortUrlPath' => 'nullable|string|max:6',
+                'shortUrlDomain' => 'nullable|string|max:250',
+                'featureImg' => 'nullable|string|max:250',
+                'description' => 'nullable|string|max:1000',
+                'pixelIds' => 'nullable|string|max:250',
+                'utmTagInfo' => 'nullable|json',
+                // 'shortUrl' => 'nullable|json',
+                'folderId' => 'nullable|string',
+                'notes' => 'nullable|string|max:250',
+                'tags' => 'nullable|string|max:250',
+                'abTestingRotatorLinks' => 'nullable|json',
+                'geoLocationRotatorLinks' => 'nullable|json',
+                'linkExpirationInfo' => 'nullable|json',
+                'password' => 'nullable|json',
+                'favicon' => 'nullable|string',
+                'isFavorite' => 'nullable|boolean',
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
+
+            $shortLinkUrlPath = $request->shortUrlPath;
+
+            if ($request->has('shortUrlPath') && Str::length($request->shortUrlPath) === 6) {
+                $checkShortUrlPath = ShortLink::where('shortUrlPath', $request->shortUrlPath)->first();
+
+                if ($checkShortUrlPath) {
+                    return ZHelpers::sendBackRequestFailedResponse([
+                        'shortUrlPath' => 'custom path has been taken.'
+                    ]);
+                }
+            } else {
+                do {
+                    $generatedShortUrlPath = ZHelpers::zGenerateRandomString();
+                    $checkShortUrlPath = ShortLink::where('shortUrlPath', $generatedShortUrlPath)->exists();
+
+                    $shortLinkUrlPath = $generatedShortUrlPath;
+                } while ($checkShortUrlPath);
+            }
+
             $result = ShortLink::create([
                 'uniqueId' => uniqid(),
                 'userId' => $currentUser->id,
@@ -117,7 +137,7 @@ class ShortLinkController extends Controller
                 'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : null,
                 // 'shortUrl' =>  $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : null,
                 'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : null,
-                'shortUrlPath' => $request->has('shortUrlPath') ? $request->shortUrlPath : null,
+                'shortUrlPath' => $shortLinkUrlPath,
                 'folderId' => $request->has('folderId') ? $request->folderId : null,
                 'notes' => $request->has('notes') ? $request->notes : null,
                 'tags' => $request->has('tags') ? $request->tags : null,
@@ -142,6 +162,7 @@ class ShortLinkController extends Controller
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
+            // return ZHelpers::sendBackRequestFailedResponse($th);
         }
     }
 
@@ -336,17 +357,20 @@ class ShortLinkController extends Controller
                     $item = ShortLink::where('shortUrlPath', $value)->first();
 
                     if ($item) {
-                        return ZHelpers::sendBackRequestFailedResponse([
+                        return ZHelpers::sendBackRequestCompletedResponse([
                             'item' => [
                                 'isAvailable' => false,
-                                'message' => 'Not available'
+                                'message' => 'Not available',
+                                'value' => $value
+
                             ]
                         ]);
                     } else {
                         return ZHelpers::sendBackRequestCompletedResponse([
                             'item' => [
                                 'isAvailable' => true,
-                                'message' => 'Available'
+                                'message' => 'Available',
+                                'value' => $value
                             ]
                         ]);
                     }

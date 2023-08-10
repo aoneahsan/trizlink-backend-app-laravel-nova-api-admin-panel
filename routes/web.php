@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Zaions\TestingController;
+use App\Models\ZLink\ShortLinks\ShortLink;
 use App\Zaions\Enums\RolesEnum;
+use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
@@ -24,18 +26,11 @@ Route::get('/', function () {
 // Route::get('/z-testing', [TestingController::class, 'zTestingRouteRes']);
 Route::get('/z-testing', function () {
 
-
-    $wsRoles = [
-        RolesEnum::ws_administrator->name => RolesEnum::ws_administrator->name,
-        RolesEnum::ws_contributor->name => RolesEnum::ws_contributor->name,
-        RolesEnum::ws_approver->name => RolesEnum::ws_approver->name,
-        RolesEnum::ws_guest->name => RolesEnum::ws_guest->name
-    ];
-
-    $roles = Role::whereIn('name', $wsRoles)->pluck('name', 'id');
+    $generatedShortUrlPath = ZHelpers::zGenerateRandomString();
+    $checkShortUrlPath = ShortLink::where('shortUrlPath', $generatedShortUrlPath)->exists();
 
 
-    dd($roles);
+    dd($checkShortUrlPath);
 });
 
 Route::redirect('/', config('nova.path'));

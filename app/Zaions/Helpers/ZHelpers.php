@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Mockery\Undefined;
+use \Illuminate\Validation\ValidationException;
 
 class ZHelpers
 {
@@ -232,15 +233,29 @@ class ZHelpers
   // send back server error response
   public static function sendBackServerErrorResponse(\Throwable $th)
   {
-    return response()->json([
-      'errors' => [
-        'error' => [$th->getMessage()]
-      ],
-      'data' => [],
-      'success' => false,
-      'status' => 500,
-      'message' => 'Error Occurred, try again later.'
-    ], 500);
+
+    if ($th instanceof ValidationException) {
+      return response()->json(
+        [
+          'errors' => $th->errors(),
+          'data' => [],
+          'success' => false,
+          'status' => 500,
+          'message' => 'Error Occurred, try again later.'
+        ],
+        500
+      );
+    } else {
+      return response()->json([
+        'errors' => [
+          'error' => [$th->getMessage()]
+        ],
+        'data' => [],
+        'success' => false,
+        'status' => 500,
+        'message' => 'Error Occurred, try again later.'
+      ], 500);
+    }
   }
 
   // check if file exists
@@ -337,5 +352,20 @@ class ZHelpers
     } catch (\Throwable $th) {
       return null;
     }
+  }
+
+  public static function zGenerateRandomString($length = 6)
+  {
+    $characters = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz';
+    $charactersLength = strlen($characters);
+
+    $randomString = '';
+
+    for ($i = 0; $i < $length; $i++) {
+      $randomIndex = rand(0, $charactersLength - 1);
+      $randomString .= $characters[$randomIndex];
+    }
+
+    return $randomString;
   }
 }
