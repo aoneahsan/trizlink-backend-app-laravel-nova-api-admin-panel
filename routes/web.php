@@ -23,14 +23,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/z-testing', [TestingController::class, 'zTestingRouteRes']);
-Route::get('/z-testing', function () {
+Route::get('/z-testing', [TestingController::class, 'zTestingRouteRes']);
+// Route::get('/z-testing', function () {
 
-    $generatedShortUrlPath = ZHelpers::zGenerateRandomString();
-    $checkShortUrlPath = ShortLink::where('shortUrlPath', $generatedShortUrlPath)->exists();
+//     $generatedShortUrlPath = ZHelpers::zGenerateRandomString();
+//     $checkShortUrlPath = ShortLink::where('shortUrlPath', $generatedShortUrlPath)->exists();
 
 
-    dd($checkShortUrlPath);
-});
+//     dd($checkShortUrlPath);
+// });
 
 Route::redirect('/', config('nova.path'));
