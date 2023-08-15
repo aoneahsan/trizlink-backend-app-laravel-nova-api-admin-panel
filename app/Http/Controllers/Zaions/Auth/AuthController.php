@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Zaions\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
 use App\Models\Default\User;
+use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Validation\Rule;
 use Laravel\Fortify\Http\Requests\LoginRequest;
 use Laravel\Fortify\Rules\Password;
 use Laravel\Socialite\Facades\Socialite;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -38,6 +40,11 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+
+        $userRole = Role::where('name', RolesEnum::user->name)->get();
+
+        $user->assignRole($userRole);
 
         $token = $user->createToken('auth');
 

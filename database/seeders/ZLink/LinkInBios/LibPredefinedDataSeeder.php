@@ -533,6 +533,174 @@ class LibPredefinedDataSeeder extends Seeder
             ],
         ];
 
+        $preDefinedThemes = [
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#0077ff',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'gradient',
+                    'bgGradientColors' => [
+                        'startColor' => '#ffd634',
+                        'endColor' => '#ef129e',
+                        'direction' => 0,
+                    ],
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'gradient',
+                    'bgGradientColors' => [
+                        'startColor' => '#4e0f87',
+                        'endColor' => '#a834ff',
+                        'direction' => 0,
+                    ],
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#00789e',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#0f0078',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#03bc71',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#ff0000',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#ffcb00',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#0077ff',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#8c34ff',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#93d9f7',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#cf3d3d',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#000000',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+
+            [
+                'uniqueId' => uniqid(),
+                'userId' => $user->id,
+                "background" => [
+                    'bgType' => 'solidColor',
+                    'bgSolidColor' => '#ffffff',
+                ],
+                "preDefinedDataType" => LibPreDefinedDataModalEnum::themes->name,
+                "isActive" => true
+            ],
+        ];
+
+        foreach ($preDefinedThemes as  $value) {
+            LibPredefinedData::create($value);
+        }
+
         foreach ($perDefinedDataArray as  $value) {
             LibPredefinedData::create($value);
         }

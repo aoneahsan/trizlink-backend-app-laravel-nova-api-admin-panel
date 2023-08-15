@@ -468,6 +468,7 @@ class RolePermissionsSeeder extends Seeder
             // $canBeImpersonatePermission // this is commented by ahsan, as no one in app should impersonate super admin user account
         ];
 
+        // can 
         $adminRolePermissions = array_filter($superAdminRolePermissions, function ($permission) {
             return !Str::of($permission->name)->contains('restore_') && !Str::of($permission->name)->contains('forceDelete_');
         });
@@ -475,8 +476,9 @@ class RolePermissionsSeeder extends Seeder
         // add canBeImpersonatePermission Permission
         array_push($adminRolePermissions, $canBeImpersonatePermission);
 
+        // can only update/delete his own data
         $userRolePermissions = array_filter($adminRolePermissions, function ($permission) {
-            return !Str::of($permission->name)->contains('delete_') && !Str::of($permission->name)->contains('update_') && !Str::of($permission->name)->contains('_user') && !Str::of($permission->name)->contains('_role') && !Str::of($permission->name)->contains('_permission') && !Str::of($permission->name)->contains('Impersonate_');
+            return (!Str::of($permission->name)->contains('_user') && !Str::of($permission->name)->endsWith('_userSetting')) && !Str::of($permission->name)->contains('_role') && !Str::of($permission->name)->contains('_permission') && !Str::of($permission->name)->contains('Impersonate_');
         });
 
         // Assign permissions to roles

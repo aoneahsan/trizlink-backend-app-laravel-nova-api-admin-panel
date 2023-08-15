@@ -177,7 +177,7 @@ enum PermissionsEnum: string
   case restore_timeSlot = 'restore_timeSlot';
   case forceDelete_timeSlot = 'forceDelete_timeSlot';
 
-    // time slot
+    // label
   case viewAny_label = 'viewAny_label';
   case view_label = 'view_label';
   case create_label = 'create_label';
