@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Zaions\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
 use App\Models\Default\User;
+use App\Notifications\TestNotification;
+use App\Notifications\UserAccount\LastLogoutNotification;
+use App\Notifications\UserAccount\NewDeviceLoginNotification;
+use App\Zaions\Enums\NotificationTypeEnum;
 use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
@@ -68,6 +72,13 @@ class AuthController extends Controller
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('auth');
 
+                $notificationData = [
+                    'userId' => $user->id,
+                    'message' => 'login ' . $token->accessToken->created_at->diffForHumans(),
+                ];
+
+                $user->notify(new NewDeviceLoginNotification($notificationData));
+
                 return response()->json([
                     'success' => true,
                     'errors' => [],
@@ -107,6 +118,13 @@ class AuthController extends Controller
         $user = User::where('id', $request->user()->id)->first();
         if ($user) {
             $user->tokens()->delete();
+
+            $notificationData = [
+                'userId' => $user->id,
+                'message' => 'logout',
+            ];
+
+            $user->notify(new LastLogoutNotification($notificationData));
 
             return response()->json([
                 'success' => true,

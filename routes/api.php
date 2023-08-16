@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Zaions\Auth\AuthController;
 use App\Http\Controllers\Zaions\Common\FileUploadController;
+use App\Http\Controllers\Zaions\Notification\NotificationController;
 use App\Http\Controllers\Zaions\StaticPageController;
 use App\Http\Controllers\Zaions\Testing\TestController;
 use App\Http\Controllers\Zaions\User\UserController;
@@ -88,13 +89,24 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::post('/user/delete', 'destroy');
         });
 
-        // Workspace
+        // user
         Route::controller(UserSettingController::class)->group(function () {
             Route::get('/user/settings', 'index');
             Route::post('/user/settings', 'store');
             Route::get('/user/settings/{type}/{workspaceUniqueId}', 'show');
             Route::put('/user/settings/{itemId}', 'update');
             Route::delete('/user/settings/{itemId}', 'destroy');
+        });
+
+        // notification
+        Route::controller(NotificationController::class)->group(function () {
+            Route::get('/user/notification/type/{type}', 'unReadNotification');
+            Route::put('/user/notification/type/{type}/markAsRead/{id}', 'markAsRead');
+            Route::put('/user/notification/type/{type}/markAllAsRead', 'markAllAsRead');
+            // Route::post('/user/settings', 'store');
+            // Route::get('/user/settings/{type}/{workspaceUniqueId}', 'show');
+            // Route::put('/user/settings/{itemId}', 'update');
+            // Route::delete('/user/settings/{itemId}', 'destroy');
         });
 
         // Workspace

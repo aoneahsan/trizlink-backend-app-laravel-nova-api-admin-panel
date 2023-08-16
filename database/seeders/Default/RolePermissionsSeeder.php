@@ -42,6 +42,15 @@ class RolePermissionsSeeder extends Seeder
         $replicateUserPermission = Permission::create(['name' => PermissionsEnum::replicate_user->name]);
         $restoreUserPermission = Permission::create(['name' => PermissionsEnum::restore_user->name]);
         $forceDeleteUserPermission = Permission::create(['name' => PermissionsEnum::forceDelete_user->name]);
+        // Notification Model Permissions
+        $viewAnyNotificationPermission = Permission::create(['name' => PermissionsEnum::viewAny_notification->name]);
+        $viewNotificationPermission = Permission::create(['name' => PermissionsEnum::view_notification->name]);
+        $addNotificationPermission = Permission::create(['name' => PermissionsEnum::create_notification->name]);
+        $updateNotificationPermission = Permission::create(['name' => PermissionsEnum::update_notification->name]);
+        $deleteNotificationPermission = Permission::create(['name' => PermissionsEnum::delete_notification->name]);
+        $replicateNotificationPermission = Permission::create(['name' => PermissionsEnum::replicate_notification->name]);
+        $restoreNotificationPermission = Permission::create(['name' => PermissionsEnum::restore_notification->name]);
+        $forceDeleteNotificationPermission = Permission::create(['name' => PermissionsEnum::forceDelete_notification->name]);
         // Roles Model Permissions
         $viewAnyRolePermission = Permission::create(['name' => PermissionsEnum::viewAny_role->name]);
         $viewRolePermission = Permission::create(['name' => PermissionsEnum::view_role->name]);
@@ -261,6 +270,15 @@ class RolePermissionsSeeder extends Seeder
             $replicateUserPermission,
             $restoreUserPermission,
             $forceDeleteUserPermission,
+            // Notification
+            $viewAnyNotificationPermission,
+            $viewNotificationPermission,
+            $addNotificationPermission,
+            $updateNotificationPermission,
+            $deleteNotificationPermission,
+            $replicateNotificationPermission,
+            $restoreNotificationPermission,
+            $forceDeleteNotificationPermission,
             // Role
             $viewAnyRolePermission,
             $viewRolePermission,

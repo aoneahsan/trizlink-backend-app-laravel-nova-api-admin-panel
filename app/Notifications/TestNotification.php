@@ -59,22 +59,31 @@ class TestNotification extends Notification
         ];
     }
 
+    // public function toDatabase(object $notifiable): array
+    // {
+    //     return [
+    //         'ldhf' => 'asd',
+    //         'anyData1' => $this->anyData1,
+    //         'anyData2' => $this->anyData2,
+    //         'dslfkjf' => [
+    //             'df' => '44',
+    //             'sdfsf' => [
+    //                 0 => 21312,
+    //                 1 => true,
+    //                 'sdf0' => [
+    //                     'sdfsd' => 0001
+    //                 ]
+    //             ]
+    //         ]
+    //     ];
+    // }
+
     public function toDatabase(object $notifiable): array
     {
         return [
-            'ldhf' => 'asd',
-            'anyData1' => $this->anyData1,
-            'anyData2' => $this->anyData2,
-            'dslfkjf' => [
-                'df' => '44',
-                'sdfsf' => [
-                    0 => 21312,
-                    1 => true,
-                    'sdf0' => [
-                        'sdfsd' => 0001
-                    ]
-                ]
-            ]
+            'myFirstColumn' => $this->anyData1,
+            'mySecondColumn' => $this->anyData2,
+            'myThirdColumn' => 'some text...',
         ];
     }
 

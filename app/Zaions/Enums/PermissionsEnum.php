@@ -38,6 +38,16 @@ enum PermissionsEnum: string
   case restore_user = 'restore_user';
   case forceDelete_user = 'forceDelete_user';
 
+    // Workspace
+  case viewAny_notification = 'viewAny_notification';
+  case view_notification = 'view_notification';
+  case create_notification = 'create_notification';
+  case update_notification = 'update_notification';
+  case delete_notification = 'delete_notification';
+  case replicate_notification = 'replicate_notification';
+  case restore_notification = 'restore_notification';
+  case forceDelete_notification = 'forceDelete_notification';
+
     // Task
   case viewAny_task = 'viewAny_task';
   case view_task = 'view_task';
