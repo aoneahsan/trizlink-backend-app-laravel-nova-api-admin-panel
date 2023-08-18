@@ -252,4 +252,9 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::delete('/user/lib-pdd/{pddType}/{itemId}', 'destroy');
         });
     });
+
+    // API - UnAuthenticated Routes
+    Route::controller(ShortLinkController::class)->group(function () {
+        Route::post('/public/s/{urlPath}', 'getTargetUrlInfo');
+    });
 });

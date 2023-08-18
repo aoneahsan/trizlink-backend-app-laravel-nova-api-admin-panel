@@ -219,6 +219,18 @@ class ZHelpers
     ], 500);
   }
 
+  public static function sendBackNotFoundResponse($errors)
+  {
+    return response()->json([
+      'errors' => $errors,
+      'data' => [],
+      'success' => false,
+      'status' => 404,
+      'message' => 'Not found.'
+    ], 404);
+  }
+
+
   public static function sendBackRequestCompletedResponse($data)
   {
     return response()->json([
