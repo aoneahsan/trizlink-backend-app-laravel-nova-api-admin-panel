@@ -123,6 +123,15 @@ class RolePermissionsSeeder extends Seeder
         $replicateWorkspacePermission = Permission::create(['name' => PermissionsEnum::replicate_workspace->name]);
         $restoreWorkspacePermission = Permission::create(['name' => PermissionsEnum::restore_workspace->name]);
         $forceDeleteWorkspacePermission = Permission::create(['name' => PermissionsEnum::forceDelete_workspace->name]);
+        // Workspace Team Model Permissions
+        $viewAnyWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::viewAny_workspaceTeam->name]);
+        $viewWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::view_workspaceTeam->name]);
+        $addWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::create_workspaceTeam->name]);
+        $updateWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::update_workspaceTeam->name]);
+        $deleteWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::delete_workspaceTeam->name]);
+        $replicateWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::replicate_workspaceTeam->name]);
+        $restoreWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::restore_workspaceTeam->name]);
+        $forceDeleteWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::forceDelete_workspaceTeam->name]);
         // UserSetting Model Permissions
         $viewAnyUserSettingPermission = Permission::create(['name' => PermissionsEnum::viewAny_userSetting->name]);
         $viewUserSettingPermission = Permission::create(['name' => PermissionsEnum::view_userSetting->name]);
@@ -351,6 +360,15 @@ class RolePermissionsSeeder extends Seeder
             $replicateWorkspacePermission,
             $restoreWorkspacePermission,
             $forceDeleteWorkspacePermission,
+            // 
+            $viewAnyWorkspaceTeamPermission,
+            $viewWorkspaceTeamPermission,
+            $addWorkspaceTeamPermission,
+            $updateWorkspaceTeamPermission,
+            $deleteWorkspaceTeamPermission,
+            $replicateWorkspaceTeamPermission,
+            $restoreWorkspaceTeamPermission,
+            $forceDeleteWorkspaceTeamPermission,
             // UserSetting
             $viewAnyUserSettingPermission,
             $viewUserSettingPermission,

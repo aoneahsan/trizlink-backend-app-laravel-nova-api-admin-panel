@@ -5,9 +5,9 @@ namespace Database\Factories\Default;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\workspaceMembers>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Default\WorkspaceTeam>
  */
-class WorkspaceMembersFactory extends Factory
+class WorkspaceTeamFactory extends Factory
 {
     /**
      * Define the model's default state.

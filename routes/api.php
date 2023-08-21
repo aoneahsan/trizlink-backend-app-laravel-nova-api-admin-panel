@@ -10,6 +10,7 @@ use App\Http\Controllers\Zaions\User\UserSettingController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkSpaceController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceMemberController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
+use App\Http\Controllers\Zaions\Workspace\WorkspaceTeamController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\UtmTagController;
 use App\Http\Controllers\Zaions\ZLink\Common\ApiKeyController;
@@ -116,6 +117,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspaces/{itemId}', 'show');
             Route::put('/user/workspaces/{itemId}', 'update');
             Route::delete('/user/workspaces/{itemId}', 'destroy');
+        });
+
+        // Workspace Team
+        Route::controller(WorkspaceTeamController::class)->group(function () {
+            Route::get('/user/workspace/{workspaceId}/teams', 'index');
+            Route::post('/user/workspace/{workspaceId}/teams', 'store');
+            Route::get('/user/workspace/{workspaceId}/team/{itemId}', 'show');
+            Route::put('/user/workspace/{workspaceId}/team/{itemId}', 'update');
+            Route::delete('/user/workspace/{workspaceId}/team/{itemId}', 'destroy');
         });
 
         // Attach modal (pixel, UTM tag etc.) to workspace.

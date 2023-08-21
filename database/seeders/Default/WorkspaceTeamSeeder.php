@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\Seeders\Default;
+namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class WorkspaceMembersSeeder extends Seeder
+class WorkspaceTeamSeeder extends Seeder
 {
     /**
      * Run the database seeds.

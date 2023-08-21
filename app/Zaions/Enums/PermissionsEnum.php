@@ -112,6 +112,16 @@ enum PermissionsEnum: string
   case restore_workspace = 'restore_workspace';
   case forceDelete_workspace = 'forceDelete_workspace';
 
+    // Workspace team
+  case viewAny_workspaceTeam = 'viewAny_workspaceTeam';
+  case view_workspaceTeam = 'view_workspaceTeam';
+  case create_workspaceTeam = 'create_workspaceTeam';
+  case update_workspaceTeam = 'update_workspaceTeam';
+  case delete_workspaceTeam = 'delete_workspaceTeam';
+  case replicate_workspaceTeam = 'replicate_workspaceTeam';
+  case restore_workspaceTeam = 'restore_workspaceTeam';
+  case forceDelete_workspaceTeam = 'forceDelete_workspaceTeam';
+
     // Workspace Members
   case attach_workspace_members = 'attach_workspace_members';
   case detach_workspace_members = 'view_workspace_members';
