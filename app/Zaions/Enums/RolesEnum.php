@@ -10,9 +10,11 @@ enum RolesEnum: string
   case user = 'user';
 
     // Workspace roles
-  case ws_contributor = 'ws_contributor';
-  case ws_administrator = 'ws_administrator';
-  case ws_writer = 'ws_writer';
-  case ws_approver = 'ws_approver';
-  case ws_guest = 'ws_guest';
+  case ws_administrator = 'Administrator';
+  case ws_manager = 'Manager';
+  case ws_contributor = 'Contributor';
+  case ws_writer = 'Writer';
+  case ws_approver = 'Approver';
+  case ws_commenter = 'Commenter';
+  case ws_guest = 'Guest';
 }

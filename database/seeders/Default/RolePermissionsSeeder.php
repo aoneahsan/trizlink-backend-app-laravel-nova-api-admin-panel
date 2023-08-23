@@ -9,6 +9,8 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\RolesEnum;
+use App\Zaions\Enums\RoleTypesEnum;
+use App\Zaions\Enums\WSPermissionsEnum;
 
 class RolePermissionsSeeder extends Seeder
 {
@@ -18,17 +20,9 @@ class RolePermissionsSeeder extends Seeder
     public function run(): void
     {
         // Default Roles
-        $superAdminRole = Role::create(['name' => RolesEnum::superAdmin->name]);
-        $adminRole = Role::create(['name' => RolesEnum::admin->name]);
-        $userRole = Role::create(['name' => RolesEnum::user->name]);
-
-        // workspace member roles
-        $wsContributor = Role::create(['name' => RolesEnum::ws_contributor->name]);
-        $wsAdministrator = Role::create(['name' => RolesEnum::ws_administrator->name]);
-        $wsWriter = Role::create(['name' => RolesEnum::ws_writer->name]);
-        $wsApprover = Role::create(['name' => RolesEnum::ws_approver->name]);
-        $wsGuest = Role::create(['name' => RolesEnum::ws_guest->name]);
-
+        $superAdminRole = Role::create(['name' => RolesEnum::superAdmin->name, 'roleType' => RoleTypesEnum::mainAppRole->name]);
+        $adminRole = Role::create(['name' => RolesEnum::admin->name, 'roleType' => RoleTypesEnum::mainAppRole->name]);
+        $userRole = Role::create(['name' => RolesEnum::user->name, 'roleType' => RoleTypesEnum::mainAppRole->name]);
 
         // All App Permissions
         // Dashboard Permissions
@@ -521,5 +515,91 @@ class RolePermissionsSeeder extends Seeder
         $superAdminRole->syncPermissions($superAdminRolePermissions);
         $adminRole->syncPermissions($adminRolePermissions);
         $userRole->syncPermissions($userRolePermissions);
+
+
+
+        // WS members
+        // workspace member roles
+        $wsAdministrator = Role::create(['name' => RolesEnum::ws_administrator->value, 'roleType' => RoleTypesEnum::inAppWSRole->name]);
+
+        $wsManager = Role::create(['name' => RolesEnum::ws_manager->value, 'roleType' => RoleTypesEnum::inAppWSRole->name]);
+
+        $wsContributor = Role::create(['name' => RolesEnum::ws_contributor->value, 'roleType' => RoleTypesEnum::inAppWSRole->name]);
+
+        $wsWriter = Role::create(['name' => RolesEnum::ws_writer->value, 'roleType' => RoleTypesEnum::inAppWSRole->name]);
+
+        $wsApprover = Role::create(['name' => RolesEnum::ws_approver->value, 'roleType' => RoleTypesEnum::inAppWSRole->name]);
+
+        $wsCommenter = Role::create(['name' => RolesEnum::ws_commenter->value, 'roleType' => RoleTypesEnum::inAppWSRole->name]);
+
+        $wsGuest = Role::create(['name' => RolesEnum::ws_guest->value, 'roleType' => RoleTypesEnum::inAppWSRole->name]);
+
+
+        $viewAnyWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_member->name]);
+        $viewWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::view_member->name]);
+        $addWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::create_member->name]);
+        $updateWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::update_member->name]);
+        $deleteWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::delete_member->name]);
+        $replicateWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::replicate_member->name]);
+        $restoreWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::restore_member->name]);
+        $forceDeleteWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_member->name]);
+
+        $viewAnyWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_ws_comment->name]);
+        $viewWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::view_ws_comment->name]);
+        $addWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::create_ws_comment->name]);
+        $updateWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::update_ws_comment->name]);
+        $deleteWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::delete_ws_comment->name]);
+        $replicateWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::replicate_ws_comment->name]);
+        $restoreWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::restore_ws_comment->name]);
+        $forceDeleteWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_ws_comment->name]);
+
+        $wsAdminRolePermissions = [
+            // Members.
+            $viewAnyWSMemberPermission,
+            $viewWSMemberPermission,
+            $addWSMemberPermission,
+            $updateWSMemberPermission,
+            $deleteWSMemberPermission,
+            $replicateWSMemberPermission,
+            $restoreWSMemberPermission,
+            $forceDeleteWSMemberPermission,
+
+            // Comments.
+            $viewAnyWSCommentPermission,
+            $viewWSCommentPermission,
+            $addWSCommentPermission,
+            $updateWSCommentPermission,
+            $deleteWSCommentPermission,
+            $replicateWSCommentPermission,
+            $restoreWSCommentPermission,
+            $forceDeleteWSCommentPermission,
+        ];
+
+
+        /**
+         * 1) Manager: will have all permission except members_permission.
+         * 2) Contributor: can update, create, approve, and comments.
+         * 3) Writer: create, and comments.
+         * 4) Approver: view and comments.
+         * 5) Commenter: comments.
+         * 6) Guest: view.
+         */
+
+        $wsManagerRolePermissions = [$viewAnyWSMemberPermission,];
+
+        $wsContributorRolePermissions = [$addWSMemberPermission];
+        $wsWriterRolePermissions = [$addWSMemberPermission];
+        $wsApproverRolePermissions = [$addWSMemberPermission];
+        $wsCommenterRolePermissions = [$addWSMemberPermission];
+        $wsGuestRolePermissions = [$addWSMemberPermission];
+
+        // Assign permissions to roles
+        $wsAdministrator->syncPermissions($wsAdminRolePermissions);
+        $wsManager->syncPermissions($wsManagerRolePermissions);
+        $wsContributor->syncPermissions($wsContributorRolePermissions);
+        $wsWriter->syncPermissions($wsWriterRolePermissions);
+        $wsApprover->syncPermissions($wsApproverRolePermissions);
+        $wsCommenter->syncPermissions($wsCommenterRolePermissions);
+        $wsGuest->syncPermissions($wsGuestRolePermissions);
     }
 }

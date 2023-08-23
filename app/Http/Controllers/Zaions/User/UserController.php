@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Zaions\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
 use App\Models\Default\User;
+use App\Zaions\Enums\RoleTypesEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -244,6 +246,26 @@ class UserController extends Controller
                         'result' => $result
                     ]
                 ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function getWSPermissions(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if ($user) {
+                $WSRoles = Role::where('roleType', RoleTypesEnum::inAppWSRole->name)->get();
+
+                if ($WSRoles) {
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => ['WSRoles' => $WSRoles]
+                    ]);
+                }
             }
         } catch (\Throwable $th) {
             //throw $th;

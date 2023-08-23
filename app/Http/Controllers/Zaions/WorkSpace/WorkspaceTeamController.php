@@ -65,8 +65,8 @@ class WorkspaceTeamController extends Controller
 
             if ($workspace) {
                 $request->validate([
-                    'title' => 'required|string|max:200',
-                    'description' => 'nullable|string|max:200',
+                    'title' => 'required|string|max:65',
+                    'description' => 'nullable|string|max:250',
 
                     'sortOrderNo' => 'nullable|integer',
                     'isActive' => 'nullable|boolean',
@@ -161,8 +161,8 @@ class WorkspaceTeamController extends Controller
 
             if ($workspace) {
                 $request->validate([
-                    'title' => 'required|string|max:200',
-                    'description' => 'nullable|string|max:1000',
+                    'title' => 'required|string|max:65',
+                    'description' => 'nullable|string|max:250',
 
                     'sortOrderNo' => 'nullable|integer',
                     'isActive' => 'nullable|boolean',
