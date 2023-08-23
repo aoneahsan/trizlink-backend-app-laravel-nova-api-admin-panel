@@ -81,6 +81,7 @@ class User extends Authenticatable
         return $this->hasMany(workSpace::class, 'userId', 'id');
     }
 
+
     public function userSettings(): HasMany
     {
         return $this->HasMany(UserSetting::class, 'userId', 'id');

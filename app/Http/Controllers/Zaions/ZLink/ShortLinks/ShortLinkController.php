@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\ZLink\ShortLinks\ShortLinkResource;
 use App\Models\Default\WorkSpace;
 use App\Models\ZLink\ShortLinks\ShortLink;
+use App\Models\ZLink\ShortLinks\SLAnalytics;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
@@ -349,7 +350,7 @@ class ShortLinkController extends Controller
                     $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
                     if (!$workspace) {
-                        return ZHelpers::sendBackInvalidParamsResponse([
+                        return ZHelpers::sendBackNotFoundResponse([
                             "item" => ['No workspace found!']
                         ]);
                     }
@@ -375,18 +376,67 @@ class ShortLinkController extends Controller
                         ]);
                     }
                 } else {
-                    return ZHelpers::sendBackRequestFailedResponse([
+                    return ZHelpers::sendBackInvalidParamsResponse([
                         'item' => [
                             'message' => 'value must be exeat to 6'
                         ]
                     ]);
                 }
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
+                return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['User not found!']
                 ]);
             }
         } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    // Public API
+    public function getTargetUrlInfo(Request $request, $urlPath)
+    {
+        try {
+            if ($urlPath && Str::length($urlPath) === 6) {
+                $item = ShortLink::where('shortUrlPath', $urlPath)->first();
+
+                if ($item) {
+                    $request->validate([
+                        'type' => 'nullable|string|max:250',
+                        'userIP' => 'nullable|string|max:250',
+                        'userLocationCoords' => 'nullable|json',
+                        'userDeviceInfo' => 'nullable|json',
+
+                        'extraAttributes' => 'nullable|json',
+                    ]);
+                    // TODO: create separate function (may be in this same file)
+                    $result = SLAnalytics::create([
+                        'uniqueId' => uniqid(),
+                        'userId' => $item->userId,
+                        'shortLinkId' => $item->id,
+                        'type' => $request->has('type') ? $request->type : null,
+                        'userIP' => $request->has('userIP') ? $request->userIP : null,
+                        'userLocationCoords' => $request->has('userLocationCoords') ? ZHelpers::zJsonDecode($request->userLocationCoords) : null,
+                        'userDeviceInfo' => $request->has('userDeviceInfo') ? ZHelpers::zJsonDecode($request->userDeviceInfo) : null,
+                        'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : null,
+                    ]);
+
+                    if ($result) {
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => $item
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'shortLink' => 'Short link not found.'
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    'urlPath' => 'invalid url path.'
+                ]);
+            }
+        } catch (\Throwable $th) {
+
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }

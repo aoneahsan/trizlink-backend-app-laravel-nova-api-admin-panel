@@ -163,9 +163,9 @@ class WorkSpaceController extends Controller
                     'workspaceData' => $request->has('workspaceData') ? (is_string($request->workspaceData) ? json_decode($request->workspaceData) : $request->workspaceData) : $request->workspaceData,
 
 
-                    'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : $item->isActive,
+                    'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : $item->sortOrderNo,
                     'isActive' => $request->has('isActive') ? $request->isActive : $item->isActive,
-                    'extraAttributes' => $request->has('extraAttributes') ? (is_string($request->extraAttributes) ? json_decode($request->extraAttributes) : $request->extraAttributes) : $request->extraAttributes,
+                    'extraAttributes' => $request->has('extraAttributes') ? (is_string($request->extraAttributes) ? json_decode($request->extraAttributes) : $request->extraAttributes) : $item->extraAttributes,
                 ]);
 
                 $item = WorkSpace::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();

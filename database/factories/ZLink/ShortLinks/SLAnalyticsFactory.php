@@ -1,13 +1,13 @@
 <?php
 
-namespace Database\Factories\Default;
+namespace Database\Factories\ZLink\ShortLinks;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\workspaceMembers>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ZLink\ShortLinks\SLAnalytics>
  */
-class WorkspaceMembersFactory extends Factory
+class SLAnalyticsFactory extends Factory
 {
     /**
      * Define the model's default state.

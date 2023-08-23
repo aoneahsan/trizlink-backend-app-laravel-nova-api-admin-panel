@@ -39,6 +39,11 @@ class WorkSpace extends Model
         return $this->hasMany(ShortLink::class, 'workspaceId', 'id');
     }
 
+    public function teams(): HasMany
+    {
+        return $this->hasMany(WorkspaceTeam::class, 'workspaceId', 'id');
+    }
+
     public function linkInBio(): HasMany
     {
         return $this->hasMany(LinkInBio::class, 'workspaceId', 'id');
@@ -62,11 +67,5 @@ class WorkSpace extends Model
     public function UTMTag(): MorphToMany
     {
         return $this->morphedByMany(UtmTag::class, 'modal', 'workspace_modal_connections');
-    }
-
-    // Workspace can belong to many member added by the workspace owner.
-    public function members(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'workspace_members');
     }
 }
