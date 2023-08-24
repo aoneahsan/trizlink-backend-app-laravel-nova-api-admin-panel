@@ -2,25 +2,29 @@
 
 namespace App\Models\Default;
 
-use App\Nova\Default\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Nova\Actions\Actionable;
+use Spatie\Permission\Models\Role;
 
-class WorkspaceTeam extends Model
+class WSTeamMember extends Model
 {
-    use HasFactory, SoftDeletes, Actionable;
+    use SoftDeletes, Actionable;
 
     protected $guarded = [];
 
     protected $casts = [
         'extraAttributes' => 'array',
+        'invitedAt' => 'datetime',
+        'accountStatusLastUpdatedBy' => 'datetime',
+        'inviteAcceptedAt' => 'datetime',
     ];
 
     // Relationship methods
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'userId', 'id');
@@ -31,8 +35,13 @@ class WorkspaceTeam extends Model
         return $this->belongsTo(WorkSpace::class, 'workspaceId', 'id');
     }
 
-    public function members(): HasMany
+    public function workspaceTeam(): BelongsTo
     {
-        return $this->hasMany(WSTeamMember::class, 'teamId', 'id');
+        return $this->belongsTo(WorkspaceTeam::class, 'teamId', 'id');
+    }
+
+    public function memberRole(): HasOne
+    {
+        return $this->hasOne(Role::class, 'id', 'memberRoleId');
     }
 }

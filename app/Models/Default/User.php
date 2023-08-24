@@ -71,7 +71,7 @@ class User extends Authenticatable
         if ($this->timezone) {
             return $this->timezone;
         } else {
-            return "Asia/Karachi";
+            return config('app.timezone', 'Asia/Karachi');
         }
     }
 

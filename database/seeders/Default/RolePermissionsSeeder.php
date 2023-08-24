@@ -126,6 +126,17 @@ class RolePermissionsSeeder extends Seeder
         $replicateWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::replicate_workspaceTeam->name]);
         $restoreWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::restore_workspaceTeam->name]);
         $forceDeleteWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::forceDelete_workspaceTeam->name]);
+
+        // Team members
+        $viewAnyWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::viewAny_WSTeamMember->name]);
+        $viewWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::view_WSTeamMember->name]);
+        $addWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::create_WSTeamMember->name]);
+        $updateWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::update_WSTeamMember->name]);
+        $deleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::delete_WSTeamMember->name]);
+        $replicateWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::replicate_WSTeamMember->name]);
+        $restoreWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::restore_WSTeamMember->name]);
+        $forceDeleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::forceDelete_WSTeamMember->name]);
+        $inviteDeleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::invite_WSTeamMember->name]);
         // UserSetting Model Permissions
         $viewAnyUserSettingPermission = Permission::create(['name' => PermissionsEnum::viewAny_userSetting->name]);
         $viewUserSettingPermission = Permission::create(['name' => PermissionsEnum::view_userSetting->name]);
@@ -363,6 +374,17 @@ class RolePermissionsSeeder extends Seeder
             $replicateWorkspaceTeamPermission,
             $restoreWorkspaceTeamPermission,
             $forceDeleteWorkspaceTeamPermission,
+
+            // Team members
+            $viewAnyWSTeamMemberPermission,
+            $viewWSTeamMemberPermission,
+            $addWSTeamMemberPermission,
+            $updateWSTeamMemberPermission,
+            $deleteWSTeamMemberPermission,
+            $replicateWSTeamMemberPermission,
+            $restoreWSTeamMemberPermission,
+            $forceDeleteWSTeamMemberPermission,
+            $inviteDeleteWSTeamMemberPermission,
             // UserSetting
             $viewAnyUserSettingPermission,
             $viewUserSettingPermission,

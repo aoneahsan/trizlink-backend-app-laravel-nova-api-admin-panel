@@ -1,0 +1,63 @@
+WSTeamMember -mfs
+
+
+  userId (user how created this request)
+  memberId (user to whom this request is sent, so he can join this team)
+  memberEmail ()
+  teamId (team of workspace where member is invited)
+  workspaceId
+  memberRoleId
+  invitedAt
+  inviteAcceptedAt
+  isActive
+  sortOrderNumber
+  accountStatus                   'active' | 'suspended' | 'blocked' | 'pending'
+  accountStatusLastUpdatedBy
+  accountStatusUpdaterRemarks
+
+
+
+
+
+
+
+
+----------------------------------------------
+
+role   
+
+
+free
+basic
+advance
+premium      (custom roles)
+enterprize   (custom roles)
+
+
+
+
+
+Super Admin  
+
+app_user
+
+
+WS Roles
+
+  Admin   (user, all-in-manager)
+  Manager   (delete, all-in-Contributor, & all-in-approver)
+  Contributor    (update, all-in-creator)
+  Writer   (create, all-in-commenter)  // once this user creates a post/or any data a contributor or approver needs to approve the work and get it out live
+  Approver/Reviewer  (review, all-in-commenter)
+  Commenter     (comment, all-in-viewer)
+  Guest/Viewer  (view)
+
+  
+
+
+steps
+
+1) create roles with respective permissions
+2) create and test api in postman
+3) get api data in frontend RQ
+4) now create UI modal to invite user

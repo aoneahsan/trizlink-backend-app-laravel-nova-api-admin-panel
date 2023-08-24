@@ -11,6 +11,7 @@ use App\Http\Controllers\Zaions\WorkSpace\WorkSpaceController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceMemberController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceTeamController;
+use App\Http\Controllers\Zaions\Workspace\WSTeamMemberController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\UtmTagController;
 use App\Http\Controllers\Zaions\ZLink\Common\ApiKeyController;
@@ -127,6 +128,12 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspace/{workspaceId}/team/{itemId}', 'show');
             Route::put('/user/workspace/{workspaceId}/team/{itemId}', 'update');
             Route::delete('/user/workspace/{workspaceId}/team/{itemId}', 'destroy');
+        });
+
+        // Workspace Team member
+        Route::controller(WSTeamMemberController::class)->group(function () {
+            Route::get('/user/workspace/{workspaceId}/team/{teamId}/member', 'getAllInvitationData');
+            Route::post('/user/workspace/{workspaceId}/team/{teamId}/member', 'sendInvitation');
         });
 
         // Attach modal (pixel, UTM tag etc.) to workspace.
