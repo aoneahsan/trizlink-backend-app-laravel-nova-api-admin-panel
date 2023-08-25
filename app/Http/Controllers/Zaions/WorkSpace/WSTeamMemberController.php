@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Zaions\Workspace;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\Workspace\WSTeamMemberResource;
+use App\Mail\MemberInvitationMail;
 use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
 use App\Models\Default\WorkspaceTeam;
 use App\Models\Default\WSTeamMember;
+use App\Notifications\UserAccount\MemberInvitationNotification;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
@@ -18,7 +20,9 @@ use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Notification;
 
 class WSTeamMemberController extends Controller
 {
@@ -103,11 +107,19 @@ class WSTeamMemberController extends Controller
                             $user->assignRole($userRole);
                         }
 
-                        $isMemberExist = User::where('email', $request->email)->first();
+                        $memberUser = User::where('email', $request->email)->first();
+
+
+
+                        // WorkspaceInviteLinkToken
+                        [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
+
+                        // Send the invitation notification to the user, passing the user instance
+                        Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace, $team, $urlSafeEncodedId));
 
                         $result = WSTeamMember::create([
                             'uniqueId' => uniqid(),
-
+                            'wilToken' => $uniqueId,
                             'userId' => $currentUser->id,
                             'workspaceId' => $workspace->id,
                             'teamId' => $team->id,
@@ -118,9 +130,10 @@ class WSTeamMemberController extends Controller
                             'invitedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
                         ]);
 
+
                         if ($result) {
                             return ZHelpers::sendBackRequestCompletedResponse([
-                                'item' => new WSTeamMemberResource($result)
+                                'item' => new WSTeamMemberResource($result),
                             ]);
                         } else {
                             return ZHelpers::sendBackRequestFailedResponse([]);
@@ -138,6 +151,41 @@ class WSTeamMemberController extends Controller
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function validateAndUpdateInvitation(Request $request)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::invite_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $request->validate([
+                'email' => 'required|string|max:65',
+                'token' => 'required|string'
+            ]);
+
+            $token = ZHelpers::zDecryptUniqueId($request->token);
+
+            if ($token) {
+                $memberInvitation = WSTeamMember::where('wilToken', $token)->where('email', $request->email)->first();
+
+                if ($memberInvitation) {
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => $memberInvitation,
+                    ]);
+                } else {
+                    return ZHelpers::sendBackUnauthorizedResponse([]);
+                }
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([
+                    'token' => ['invalid token!']
                 ]);
             }
         } catch (\Throwable $th) {

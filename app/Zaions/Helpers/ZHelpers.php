@@ -208,6 +208,28 @@ class ZHelpers
     ], 500);
   }
 
+  public static function sendBackUnauthorizedResponse($errors)
+  {
+    return response()->json([
+      'errors' => $errors,
+      'data' => [],
+      'success' => false,
+      'status' => 401,
+      'message' => 'Unauthorized.'
+    ], 401);
+  }
+
+  public static function sendBackBadRequestResponse($errors)
+  {
+    return response()->json([
+      'errors' => $errors,
+      'data' => [],
+      'success' => false,
+      'status' => 400,
+      'message' => 'Bad request.'
+    ], 400);
+  }
+
   public static function sendBackInvalidParamsResponse($errors)
   {
     return response()->json([
@@ -379,5 +401,33 @@ class ZHelpers
     }
 
     return $randomString;
+  }
+
+
+  public static function zGenerateAndEncryptUniqueId()
+  {
+    // Generate a unique ID using Laravel's Str facade
+    $uniqueId = \Illuminate\Support\Str::uuid()->toString();
+
+    // Encrypt the unique ID using Laravel's Crypt facade
+    $encryptedUniqueId = \Illuminate\Support\Facades\Crypt::encryptString($uniqueId);
+
+    // Encode the encrypted ID using base64 to make it URL-safe
+    $encodedEncryptedId = base64_encode($encryptedUniqueId);
+    $urlSafeEncodedId = urlencode($encodedEncryptedId);
+    return [$urlSafeEncodedId, $uniqueId];
+  }
+
+  public static function zDecryptUniqueId($uniqueId)
+  {
+    $urlSafeDecodedId = urldecode($uniqueId);
+
+    // Decode the uniqueId using base64 to make it URL-safe
+    $decodedEncryptedId = base64_decode($urlSafeDecodedId);
+
+    // Decrypt the unique ID using Laravel's Crypt facade
+    $decryptedUniqueId = \Illuminate\Support\Facades\Crypt::DecryptString($decodedEncryptedId);
+
+    return $decryptedUniqueId;
   }
 }

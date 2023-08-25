@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Crypt;
 use Laravel\Nova\Actions\Actionable;
 use Spatie\Permission\Models\Role;
 
@@ -42,6 +44,15 @@ class WSTeamMember extends Model
 
     public function memberRole(): HasOne
     {
+        // Crypt::encryptString('');
+        // Crypt::decryptString('');
         return $this->hasOne(Role::class, 'id', 'memberRoleId');
     }
 }
+
+
+
+// inviteToken
+
+
+// encrypted token    secret

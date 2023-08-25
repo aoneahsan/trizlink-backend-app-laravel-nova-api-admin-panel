@@ -19,6 +19,7 @@ class WSTeamMemberResource extends JsonResource
 
             'email' => $this->email,
             'accountStatus' => $this->accountStatus,
+            // 'wilToken' => $this->wilToken,
             'invitedAt' => $this->invitedAt,
             'inviteAcceptedAt' => $this->inviteAcceptedAt,
             'accountStatusUpdaterRemarks' => $this->accountStatusUpdaterRemarks,
