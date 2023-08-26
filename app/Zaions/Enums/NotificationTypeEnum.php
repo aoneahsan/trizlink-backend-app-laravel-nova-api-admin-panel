@@ -6,4 +6,5 @@ enum NotificationTypeEnum: string
 {
   case newDeviceLogin = 'newDeviceLogin';
   case lastLogout = 'lastLogout';
+  case wsTeamMemberInvitation = 'wsTeamMemberInvitation';
 }

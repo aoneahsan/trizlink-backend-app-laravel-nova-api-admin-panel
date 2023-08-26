@@ -61,8 +61,8 @@ class NewDeviceLoginNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'notificationType' => NotificationTypeEnum::newDeviceLogin->name,
-            'notificationData' => $this->notificationData,
+            'zlNotificationType' => NotificationTypeEnum::newDeviceLogin->name,
+            'item' => $this->notificationData,
         ];
     }
 }

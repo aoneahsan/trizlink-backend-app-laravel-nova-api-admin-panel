@@ -10,6 +10,8 @@ use App\Models\Default\WorkSpace;
 use App\Models\Default\WorkspaceTeam;
 use App\Models\Default\WSTeamMember;
 use App\Notifications\UserAccount\MemberInvitationNotification;
+use App\Notifications\Workspace\Team\WSTeamMemberInvitation;
+use App\Zaions\Enums\NotificationTypeEnum;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
@@ -114,9 +116,6 @@ class WSTeamMemberController extends Controller
                         // WorkspaceInviteLinkToken
                         [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
 
-                        // Send the invitation notification to the user, passing the user instance
-                        Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace, $team, $urlSafeEncodedId));
-
                         $result = WSTeamMember::create([
                             'uniqueId' => uniqid(),
                             'wilToken' => $uniqueId,
@@ -132,6 +131,23 @@ class WSTeamMemberController extends Controller
 
 
                         if ($result) {
+                            // Send the invitation mail to the memberUser.
+                            Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace, $team, $urlSafeEncodedId));
+
+                            $message = 'You have reserved a invitation to join team "' . $team->title . '" in workspace "' . $workspace->title . '" by "' . $currentUser->name . '".';
+
+                            $data = [
+                                'userId' => $memberUser->id,
+                                'message' => $message,
+                                'inviter' => $currentUser->name,
+                                'inviterUserId' => $currentUser->id,
+                                'teamId' => $team->id, // Team details
+                                'teamName' => $team->name,
+                            ];
+
+                            $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser));
+                            // Send notification to the memberUser.
+
                             return ZHelpers::sendBackRequestCompletedResponse([
                                 'item' => new WSTeamMemberResource($result),
                             ]);

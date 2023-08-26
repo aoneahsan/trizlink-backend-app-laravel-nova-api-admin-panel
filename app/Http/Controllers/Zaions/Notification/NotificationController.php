@@ -9,6 +9,7 @@ use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Gate;
 
 class NotificationController extends Controller
@@ -24,20 +25,31 @@ class NotificationController extends Controller
             $currentUser = $request->user();
 
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_notification->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-            $NotificationType = NotificationTypeEnum::newDeviceLogin->name;
-            if ($currentUser->id) {
-                $unreadNotifications = $currentUser->unreadNotifications()->get();
 
-                return response()->json([
-                    'success' => true,
-                    'errors' => [],
-                    'message' => 'Request Completed Successfully!',
-                    'data' => [
+            if ($currentUser->id) {
+                if ($type) {
+                    if ($type === NotificationTypeEnum::wsTeamMemberInvitation->name) {
+                        $allNotification =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->get();
+                        $allNotificationCount =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->count();
+
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'items' => $allNotification,
+                            'itemsCount' => $allNotificationCount
+                        ]);
+                    }
+
+                    $unreadNotifications = $currentUser->unreadNotifications()->where('zlNotificationType', $type)->get();
+                    $itemsCount = $currentUser->unreadNotifications()->where('zlNotificationType', $type)->count();
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
                         'items' => $unreadNotifications,
-                        // 'itemsCount' => $itemsCount
-                    ],
-                    'status' => 200
-                ]);
+                        'itemsCount' => $itemsCount
+                    ]);
+                } else {
+                    ZHelpers::sendBackInvalidParamsResponse([
+                        'type' => 'param notification type is required.'
+                    ]);
+                }
             }
         } catch (\Throwable $th) {
             //throw $th;
@@ -103,6 +115,28 @@ class NotificationController extends Controller
                         'item' => ['Not found']
                     ]);
                 }
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function getAllInvitationRequestNotification(Request $request, $type)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_notification->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if ($currentUser->id) {
+                $allNotification =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->get();
+                $allNotificationCount =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->count();
+
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'items' => $allNotification,
+                    'itemsCount' => $allNotificationCount
+                ]);
             }
         } catch (\Throwable $th) {
             //throw $th;

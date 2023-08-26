@@ -61,8 +61,8 @@ class LastLogoutNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'notificationType' => NotificationTypeEnum::lastLogout->name,
-            'notificationData' => $this->notificationData,
+            'zlNotificationType' => NotificationTypeEnum::lastLogout->name,
+            'item' => $this->notificationData,
         ];
     }
 

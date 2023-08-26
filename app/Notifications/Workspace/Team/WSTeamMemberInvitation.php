@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Notifications\UserAccount;
+namespace App\Notifications\Workspace\Team;
 
+use App\Models\Default\User;
+use App\Zaions\Enums\NotificationTypeEnum;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MemberInvitationNotification extends Notification
+class WSTeamMemberInvitation extends Notification
 {
     use Queueable;
-    private $user = null;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user)
+    public function __construct(private $data, private User $user)
     {
         //
-        $this->user = $user;
     }
 
     /**
@@ -28,7 +28,7 @@ class MemberInvitationNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -37,9 +37,9 @@ class MemberInvitationNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('You are invited in workspace')
+            ->line('The introduction to the notification.')
             ->action('Notification Action', url('/'))
-            ->line('Accept notification!');
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -51,6 +51,15 @@ class MemberInvitationNotification extends Notification
     {
         return [
             //
+        ];
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'ZLInviteeId' => $this->user->id,
+            'zlNotificationType' => NotificationTypeEnum::wsTeamMemberInvitation->name,
+            'item' => $this->data,
         ];
     }
 }
