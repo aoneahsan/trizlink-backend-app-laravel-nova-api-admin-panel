@@ -22,12 +22,18 @@ use Spatie\Permission\Models\Role;
 |
 */
 
-// Route::get('/z-testing', [TestingController::class, 'zTestingRouteRes']);
-Route::get('/z-testing', function () {
 
-    // [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
+// Route::get('/z-testing', function () {
 
-    // dd($urlSafeEncodedId, $uniqueId);
+//     // [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
+
+//     // dd($urlSafeEncodedId, $uniqueId);
+// });
+
+Route::controller(TestingController::class)->group(function () {
+    Route::get('/z-testing', 'zTestingRouteRes');
+    Route::get('/zt-send-notifications', 'testingCustomColumnInLNotificationsSend');
+    Route::get('/zt-get-notifications', 'testingCustomColumnInLNotificationsGet');
 });
 
 Route::redirect('/', config('nova.path'));

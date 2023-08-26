@@ -31,7 +31,8 @@ class TestNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', \Laravel\Nova\Notifications\NovaChannel::class];
+        // return ['mail', 'database', \Laravel\Nova\Notifications\NovaChannel::class];
+        return ['database'];
     }
 
     /**
@@ -81,6 +82,9 @@ class TestNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
+            // fields which will be part of actual notification table as separate columns
+            'zlNotificationType' => 'testNotification',
+            // actual notification data
             'myFirstColumn' => $this->anyData1,
             'mySecondColumn' => $this->anyData2,
             'myThirdColumn' => 'some text...',

@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Zaions;
 
 use App\Http\Controllers\Controller;
+use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
 use App\Notifications\TestNotification;
 use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\Notification;
 
 class TestingController extends Controller
 {
@@ -81,5 +84,26 @@ class TestingController extends Controller
         }
 
         // return response()->json('working fine');
+    }
+
+    function testingCustomColumnInLNotificationsSend()
+    {
+
+        // Code to send notification
+        $result = Notification::send(User::where('email', 'ahsan@zaions.com')->first(), new TestNotification('ahsan', 'asad'));
+
+        dd($result);
+    }
+
+    function testingCustomColumnInLNotificationsGet()
+    {
+
+        // code to get notifications
+        $all = DatabaseNotification::all();
+        // $selected = DatabaseNotification::where('zlNotificationType', 'testNotification')->get();
+        // $selected = DatabaseNotification::where('notifiable_type', 'App\Models\User')->where('notifiable_id', 2)->where('zlNotificationType', 'testNotification')->where('read_at', '!=', null)->get();
+        $selected = DatabaseNotification::where('zlNotificationType', 'testNotification')->get();
+
+        dd($all, $selected);
     }
 }
