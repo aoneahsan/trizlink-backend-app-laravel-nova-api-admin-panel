@@ -65,7 +65,7 @@ class NotificationController extends Controller
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_notification->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if ($currentUser->id) {
-                $currentNotification = $currentUser->notifications()->where('id', $id)->first();
+                $currentNotification = $currentUser->notifications()->where('id', $id)->where('zlNotificationType', $type)->first();
 
                 if ($currentNotification) {
                     if ($currentNotification->read_at === null) {
@@ -80,7 +80,7 @@ class NotificationController extends Controller
                     ]);
                 } else {
                     return ZHelpers::sendBackRequestFailedResponse([
-                        'item' => ['Not found']
+                        'item' => ['Notification not found']
                     ]);
                 }
             }
@@ -115,28 +115,6 @@ class NotificationController extends Controller
                         'item' => ['Not found']
                     ]);
                 }
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
-
-    public function getAllInvitationRequestNotification(Request $request, $type)
-    {
-        try {
-            $currentUser = $request->user();
-
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_notification->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-            if ($currentUser->id) {
-                $allNotification =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->get();
-                $allNotificationCount =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->count();
-
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'items' => $allNotification,
-                    'itemsCount' => $allNotificationCount
-                ]);
             }
         } catch (\Throwable $th) {
             //throw $th;

@@ -134,7 +134,9 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         Route::controller(WSTeamMemberController::class)->group(function () {
             Route::get('/user/workspace/{workspaceId}/team/{teamId}/member', 'getAllInvitationData');
             Route::post('/user/workspace/{workspaceId}/team/{teamId}/member', 'sendInvitation');
+            Route::get('/user/workspace/member/{itemId}', 'getInvitationData');
             Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
+            Route::put('/user/update-invitation/{itemId}', 'updateInvitationStatus');
         });
 
         // Attach modal (pixel, UTM tag etc.) to workspace.

@@ -21,20 +21,18 @@ class WSTeamMemberResource extends JsonResource
             'accountStatus' => $this->accountStatus,
             // 'wilToken' => $this->wilToken,
             'invitedAt' => $this->invitedAt,
-            'inviteAcceptedAt' => $this->inviteAcceptedAt,
+            'inviteAcceptedAt' => $this->inviteAcceptedAt !== null ? $this->inviteAcceptedAt->diffForHumans() : null,
+            'inviteRejectedAt' => $this->inviteRejectedAt !== null ? $this->inviteRejectedAt->diffForHumans() : null,
             'accountStatusUpdaterRemarks' => $this->accountStatusUpdaterRemarks,
             'accountStatusLastUpdatedBy' => $this->accountStatusLastUpdatedBy,
-
             'memberRole' => $this->memberRole ? [
                 'id' => $this->memberRole->id,
                 'name' => $this->memberRole->name,
             ] : null,
-
             'team' => $this->workspaceTeam ? [
                 'id' => $this->workspaceTeam->uniqueId,
                 'title' => $this->workspaceTeam->title,
-            ] : $this->teamId,
-
+            ] : null,
             'sortOrderNo' => $this->sortOrderNo,
             'isActive' => $this->isActive,
             'extraAttributes' => $this->extraAttributes,

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->dateTime('invitedAt'); // (invitedAt timestamp)
             $table->dateTime('accountStatusLastUpdatedBy')->nullable();
             $table->dateTime('inviteAcceptedAt')->nullable(); // (request accepted time)
+            $table->dateTime('inviteRejectedAt')->nullable(); // (request rejected time)
 
 
             $table->integer('sortOrderNo')->default(0)->nullable();

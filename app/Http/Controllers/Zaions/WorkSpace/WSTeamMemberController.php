@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Zaions\Workspace;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Zaions\Workspace\WorkspaceMemberResource;
 use App\Http\Resources\Zaions\Workspace\WSTeamMemberResource;
 use App\Mail\MemberInvitationMail;
 use App\Models\Default\User;
@@ -73,34 +74,34 @@ class WSTeamMemberController extends Controller
 
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::invite_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
+            $request->validate([
+                'email' => 'required|string|max:65',
+                'role' => 'required|string|max:65',
+
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
+            $requestedRole = $request->role;
+
             $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
 
             if ($workspace) {
                 $team = WorkspaceTeam::where('userId', $currentUser->id)->where('uniqueId', $teamId)->first();
 
                 if ($team) {
-                    $request->validate([
-                        'email' => 'required|string|max:65',
-                        'role' => 'required|string|max:65',
-
-                        'sortOrderNo' => 'nullable|integer',
-                        'isActive' => 'nullable|boolean',
-                        'extraAttributes' => 'nullable|json',
-                    ]);
-
                     $role = Role::where('name', $request->role)->first();
 
                     if ($role) {
+                        $invitedUserExistsInDB = User::where('email', $request->email)->first();
 
-                        $isMemberExist = User::where('email', $request->email)->first();
-
-                        if (!$isMemberExist) {
+                        if (!$invitedUserExistsInDB) {
                             $user = User::create([
                                 'uniqueId' => uniqid(),
                                 // 'name' => $request->name,
                                 'email' => $request->email,
                                 'signUpType' => SignUpTypeEnum::invite->value,
-                                // 'password' => Hash::make($request->password),
                             ]);
 
 
@@ -116,7 +117,7 @@ class WSTeamMemberController extends Controller
                         // WorkspaceInviteLinkToken
                         [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
 
-                        $result = WSTeamMember::create([
+                        $wsTeamMemberInvite = WSTeamMember::create([
                             'uniqueId' => uniqid(),
                             'wilToken' => $uniqueId,
                             'userId' => $currentUser->id,
@@ -126,15 +127,15 @@ class WSTeamMemberController extends Controller
 
                             'email' => $request->has('email') ? $request->email : null,
                             'accountStatus' => WSMemberAccountStatusEnum::pending->value,
-                            'invitedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                            'invitedAt' => Carbon::now($currentUser->getUserTimezoneAttribute())
                         ]);
 
 
-                        if ($result) {
+                        if ($wsTeamMemberInvite) {
                             // Send the invitation mail to the memberUser.
                             Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace, $team, $urlSafeEncodedId));
 
-                            $message = 'You have reserved a invitation to join team "' . $team->title . '" in workspace "' . $workspace->title . '" by "' . $currentUser->name . '".';
+                            $message = 'You have received a invitation to join team "' . $team->title . '" in workspace "' . $workspace->title . '" by "' . $currentUser->name . '".';
 
                             $data = [
                                 'userId' => $memberUser->id,
@@ -143,13 +144,14 @@ class WSTeamMemberController extends Controller
                                 'inviterUserId' => $currentUser->id,
                                 'teamId' => $team->id, // Team details
                                 'teamName' => $team->name,
+                                'wsTeamMemberInviteId' => $wsTeamMemberInvite->uniqueId
                             ];
 
-                            $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser));
                             // Send notification to the memberUser.
+                            $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser));
 
                             return ZHelpers::sendBackRequestCompletedResponse([
-                                'item' => new WSTeamMemberResource($result),
+                                'item' => new WSTeamMemberResource($wsTeamMemberInvite),
                             ]);
                         } else {
                             return ZHelpers::sendBackRequestFailedResponse([]);
@@ -167,6 +169,31 @@ class WSTeamMemberController extends Controller
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function getInvitationData(Request $request, $itemId)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+
+            $invitation = WSTeamMember::where('uniqueId', $itemId)->first();
+
+            if ($invitation) {
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => new WSTeamMemberResource($invitation),
+                ]);
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['invitation not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -202,6 +229,71 @@ class WSTeamMemberController extends Controller
             } else {
                 return ZHelpers::sendBackBadRequestResponse([
                     'token' => ['invalid token!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function updateInvitationStatus(Request $request, $invitationId)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $request->validate([
+                'status' => 'required|string',
+            ]);
+
+            // Getting the invitation.
+            $invitation = WSTeamMember::where('uniqueId', $invitationId)->first();
+
+            // Checking in invitation is not null.
+            if ($invitation) {
+                if ($invitation->inviteAcceptedAt === null && $invitation->inviteRejectedAt === null) {
+                    $message = null;
+
+                    if ($request->status === WSMemberAccountStatusEnum::accepted->value) {
+                        $invitation->update([
+                            'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
+                            'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                        ]);
+                        $message = $currentUser->name . ' has excepted your invitation.';
+
+
+                        // Send notification to the memberUser.
+                    }
+                    if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
+                        $invitation->update([
+                            'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
+                            'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                        ]);
+                        $message =
+                            $currentUser->name . ' has rejected your invitation.';
+                    }
+
+                    $data = [
+                        'invitee' => $invitation->memberId,
+                        'message' => $message,
+                        'inviterUserId' => $invitation->userId,
+                        'teamId' => $invitation->teamId, // Team details
+                    ];
+                    $inviter = User::where('id', $invitation->userId)->first();
+
+                    $inviter->notify(new WSTeamMemberInvitation($data, $inviter));
+                }
+
+                $invitation = WSTeamMember::where('uniqueId', $invitationId)->first();
+
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => new WSTeamMemberResource($invitation),
+                ]);
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([
+                    'invite' => ['invalid invitation!']
                 ]);
             }
         } catch (\Throwable $th) {
