@@ -32,8 +32,8 @@ class FolderController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -85,8 +85,8 @@ class FolderController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -136,8 +136,8 @@ class FolderController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -149,8 +149,8 @@ class FolderController extends Controller
                     'item' => new FolderResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Folder not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -189,8 +189,8 @@ class FolderController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -217,8 +217,8 @@ class FolderController extends Controller
                     'item' => new FolderResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Folder not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -242,8 +242,8 @@ class FolderController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -273,8 +273,8 @@ class FolderController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
         try {
@@ -308,8 +308,8 @@ class FolderController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
         try {
@@ -343,8 +343,8 @@ class FolderController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 

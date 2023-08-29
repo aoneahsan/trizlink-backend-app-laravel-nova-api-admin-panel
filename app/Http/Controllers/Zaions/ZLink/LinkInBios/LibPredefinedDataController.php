@@ -40,8 +40,8 @@ class LibPredefinedDataController extends Controller
 
 
             if (!$pddType) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['No modal found!'],
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Modal not found!'],
                 ]);
             }
 
@@ -92,8 +92,8 @@ class LibPredefinedDataController extends Controller
 
 
         if (!$pddType) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No modal found!'],
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Modal not found!'],
             ]);
         }
 
@@ -166,8 +166,8 @@ class LibPredefinedDataController extends Controller
                     'item' => new LibPredefinedDataResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Link-in-bio pre defined data not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -232,8 +232,8 @@ class LibPredefinedDataController extends Controller
                     'item' => new LibPredefinedDataResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Link-in-bio pre defined data not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -272,8 +272,8 @@ class LibPredefinedDataController extends Controller
                 $item->forceDelete();
                 return ZHelpers::sendBackRequestCompletedResponse([]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Link-in-bio pre defined data not found!']
                 ]);
             }
         } catch (\Throwable $th) {

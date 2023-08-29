@@ -35,8 +35,8 @@ class ShortLinkController extends Controller
             $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
             if (!$workspace) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['No workspace found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
                 ]);
             }
 
@@ -74,8 +74,8 @@ class ShortLinkController extends Controller
             $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
             if (!$workspace) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['No workspace found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
                 ]);
             }
 
@@ -182,8 +182,8 @@ class ShortLinkController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -195,8 +195,8 @@ class ShortLinkController extends Controller
                     'item' => new ShortLinkResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Shortlink not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -220,8 +220,8 @@ class ShortLinkController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -286,8 +286,8 @@ class ShortLinkController extends Controller
                     'item' => new ShortLinkResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Shortlink not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -310,8 +310,8 @@ class ShortLinkController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
         try {
@@ -321,8 +321,8 @@ class ShortLinkController extends Controller
                 $item->forceDelete();
                 return ZHelpers::sendBackRequestCompletedResponse(['item' => ['success' => true]]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Short link not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Shortlink not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -351,7 +351,7 @@ class ShortLinkController extends Controller
 
                     if (!$workspace) {
                         return ZHelpers::sendBackNotFoundResponse([
-                            "item" => ['No workspace found!']
+                            "item" => ['Workspace not found!']
                         ]);
                     }
 

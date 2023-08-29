@@ -31,12 +31,18 @@ class LibBlockController extends Controller
             // getting workspace
             $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
             // getting link-in-bio in workspace
             $linkInBio = LinkInBio::where('uniqueId', $linkInBioId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
             if (!$linkInBio) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['No link-in-bio found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Link-in-bio not found!']
                 ]);
             }
 
@@ -73,12 +79,18 @@ class LibBlockController extends Controller
         // getting workspace
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+        if (!$workspace) {
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
+            ]);
+        }
+
         // getting link-in-bio in workspace
         $linkInBio = LinkInBio::where('uniqueId', $linkInBioId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
         if (!$linkInBio) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No link-in-bio found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Link-in-bio not found!']
             ]);
         }
 
@@ -167,12 +179,18 @@ class LibBlockController extends Controller
         // getting workspace
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+        if (!$workspace) {
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
+            ]);
+        }
+
         // getting link-in-bio in workspace
         $linkInBio = LinkInBio::where('uniqueId', $linkInBioId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
         if (!$linkInBio) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No link-in-bio found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Link-in-bio not found!']
             ]);
         }
         try {
@@ -209,12 +227,18 @@ class LibBlockController extends Controller
         // getting workspace
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+        if (!$workspace) {
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
+            ]);
+        }
+
         // getting link-in-bio in workspace
         $linkInBio = LinkInBio::where('uniqueId', $linkInBioId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
         if (!$linkInBio) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No link-in-bio found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Link-in-bio not found!']
             ]);
         }
         $request->validate([
@@ -271,12 +295,18 @@ class LibBlockController extends Controller
             // getting workspace
             $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
             // getting link-in-bio in workspace
             $linkInBio = LinkInBio::where('uniqueId', $linkInBioId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
             if (!$linkInBio) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['No link-in-bio found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Link-in-bio not found!']
                 ]);
             }
 

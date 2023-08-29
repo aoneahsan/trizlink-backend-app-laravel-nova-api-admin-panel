@@ -30,8 +30,8 @@ class LinkInBioController extends Controller
             $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
             if (!$workspace) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['No workspace found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
                 ]);
             }
 
@@ -72,8 +72,8 @@ class LinkInBioController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -157,8 +157,8 @@ class LinkInBioController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -170,8 +170,8 @@ class LinkInBioController extends Controller
                     'item' => new LinkInBioResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Link-in-bio not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -196,8 +196,8 @@ class LinkInBioController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -259,8 +259,8 @@ class LinkInBioController extends Controller
                     'item' => new LinkInBioResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Link-in-bio not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -283,8 +283,8 @@ class LinkInBioController extends Controller
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
         if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
             ]);
         }
 
@@ -295,8 +295,8 @@ class LinkInBioController extends Controller
                 $item->forceDelete();
                 return ZHelpers::sendBackRequestCompletedResponse(['item' => ['success' => true]]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Link-in-bio not found!']
                 ]);
             }
         } catch (\Throwable $th) {

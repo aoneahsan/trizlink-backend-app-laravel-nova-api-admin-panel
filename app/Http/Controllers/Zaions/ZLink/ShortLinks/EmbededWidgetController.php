@@ -30,12 +30,18 @@ class EmbededWidgetController extends Controller
         // getting workspace
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+        if (!$workspace) {
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
+            ]);
+        }
+
         // getting Short-link in workspace
         $ShortLink = ShortLink::where('uniqueId', $shortLinkId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
         if (!$ShortLink) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No Short-link found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Shortlink not found!']
             ]);
         }
 
@@ -73,12 +79,18 @@ class EmbededWidgetController extends Controller
         // getting workspace
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+        if (!$workspace) {
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
+            ]);
+        }
+
         // getting Short-link in workspace
         $ShortLink = ShortLink::where('uniqueId', $shortLinkId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
         if (!$ShortLink) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No Short-link found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Shortlink not found!']
             ]);
         }
 
@@ -147,12 +159,18 @@ class EmbededWidgetController extends Controller
         // getting workspace
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+        if (!$workspace) {
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
+            ]);
+        }
+
         // getting Short-link in workspace
         $ShortLink = ShortLink::where('uniqueId', $shortLinkId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
         if (!$ShortLink) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No Short-link found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Shortlink not found!']
             ]);
         }
 
@@ -164,8 +182,8 @@ class EmbededWidgetController extends Controller
                     'item' => new EmbededWidgetResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Embeded widget not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -190,12 +208,18 @@ class EmbededWidgetController extends Controller
         // getting workspace
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+        if (!$workspace) {
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
+            ]);
+        }
+
         // getting Short-link in workspace
         $ShortLink = ShortLink::where('uniqueId', $shortLinkId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
         if (!$ShortLink) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No Short-link found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Shortlink not found!']
             ]);
         }
 
@@ -242,8 +266,8 @@ class EmbededWidgetController extends Controller
                     'item' => new EmbededWidgetResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Embeded widget not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -267,12 +291,18 @@ class EmbededWidgetController extends Controller
         // getting workspace
         $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
+        if (!$workspace) {
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Workspace not found!']
+            ]);
+        }
+
         // getting Short-link in workspace
         $ShortLink = ShortLink::where('uniqueId', $shortLinkId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
 
         if (!$ShortLink) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No Short-link found!']
+            return ZHelpers::sendBackNotFoundResponse([
+                "item" => ['Shortlink not found!']
             ]);
         }
 
@@ -283,8 +313,8 @@ class EmbededWidgetController extends Controller
                 $item->forceDelete();
                 return ZHelpers::sendBackRequestCompletedResponse([]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Embeded widget not found!']
                 ]);
             }
         } catch (\Throwable $th) {
