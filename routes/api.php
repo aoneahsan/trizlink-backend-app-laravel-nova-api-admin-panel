@@ -277,5 +277,6 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     // API - UnAuthenticated Routes
     Route::controller(ShortLinkController::class)->group(function () {
         Route::post('/public/s/{urlPath}', 'getTargetUrlInfo');
+        Route::post('/public/s/{urlPath}/check-password', 'checkShortLinkPassword');
     });
 });

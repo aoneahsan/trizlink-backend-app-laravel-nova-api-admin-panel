@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Zaions\ZLink\ShortLinks;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\ZLink\ShortLinks\ShortLinkResource;
+use App\Http\Resources\Zaions\Zlink\ShortLinks\SLPublicPageResource;
 use App\Models\Default\WorkSpace;
 use App\Models\ZLink\ShortLinks\ShortLink;
 use App\Models\ZLink\ShortLinks\SLAnalytics;
@@ -422,7 +423,7 @@ class ShortLinkController extends Controller
 
                     if ($result) {
                         return ZHelpers::sendBackRequestCompletedResponse([
-                            'item' => $item
+                            'item' => new SLPublicPageResource($item)
                         ]);
                     }
                 } else {
@@ -437,6 +438,53 @@ class ShortLinkController extends Controller
             }
         } catch (\Throwable $th) {
 
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function checkShortLinkPassword(Request $request, $urlPath)
+    {
+        try {
+            //code...
+            if ($urlPath && Str::length($urlPath) === 6) {
+                $item = ShortLink::where('shortUrlPath', $urlPath)->first();
+
+                if ($item) {
+                    $request->validate([
+                        'password' => 'required|string|max:250',
+                    ]);
+
+                    $linkPasswordEnable =
+                        $item->password['enabled'];
+
+                    $linkPassword = $item->password['password'];
+
+                    if ($linkPasswordEnable) {
+                        if ($linkPassword === $request->password) {
+                            return
+                                ZHelpers::sendBackRequestCompletedResponse([
+                                    'item' => [
+                                        'success' => true
+                                    ]
+                                ]);
+                        } else {
+                            return ZHelpers::sendBackBadRequestResponse([
+                                'password' => ['Wrong password.']
+                            ]);
+                        }
+                    }
+                } else {
+                    return ZHelpers::sendBackInvalidParamsResponse([
+                        'urlPath' => 'invalid url path.'
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    'urlPath' => 'invalid url path.'
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }
