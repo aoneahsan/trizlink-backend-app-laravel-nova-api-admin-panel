@@ -31,7 +31,7 @@ class WorkspaceTeamController extends Controller
 
             if ($workspace) {
                 $itemsCount = WorkspaceTeam::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->count();
-                $items = WorkspaceTeam::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->get();
+                $items = WorkspaceTeam::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->with('members')->get();
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'items' => WorkspaceTeamResource::collection($items),

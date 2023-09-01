@@ -19,6 +19,8 @@ class WorkspaceTeamResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
 
+            'membersCount' => $this->members ? $this->members->count() : 0,
+
             'sortOrderNo' => $this->sortOrderNo,
             'isActive' => $this->isActive,
             'extraAttributes' => $this->extraAttributes,
