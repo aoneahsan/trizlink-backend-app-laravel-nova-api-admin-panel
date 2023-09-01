@@ -20,9 +20,9 @@
     "productivity"
   ],
   "engines": {
-    "node": "=18.17.0",
+    "node": "^18.17.0",
     "npm": "Please use yarn",
-    "yarn": "=1.22.19"
+    "yarn": "^1.22.19"
   },
   "badges": [
     {

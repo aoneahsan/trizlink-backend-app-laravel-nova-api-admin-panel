@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Providers;
+use Illuminate\Support\Facades\Schema;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // To find migration files in sub folders - Code Start
+        Schema::defaultStringLength(191);
         $mainPath = database_path('migrations');
         $zlinkPath = database_path('migrations/zlink');
         $paths = array_merge([$mainPath], glob($mainPath . '/*', GLOB_ONLYDIR), glob($zlinkPath . '/*', GLOB_ONLYDIR));
