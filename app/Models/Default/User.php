@@ -42,6 +42,7 @@ class User extends Authenticatable
     protected $casts = [
         'extraAttributes' => 'array',
         'email_verified_at' => 'datetime',
+        'OPTCodeValidTill' => 'datetime',
     ];
 
     public function wantsBreadcrumbs()

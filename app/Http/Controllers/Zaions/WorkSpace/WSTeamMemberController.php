@@ -202,40 +202,7 @@ class WSTeamMemberController extends Controller
         }
     }
 
-    public function validateAndUpdateInvitation(Request $request)
-    {
-        try {
-            $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::invite_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-            $request->validate([
-                'email' => 'required|string|max:65',
-                'token' => 'required|string'
-            ]);
-
-            $token = ZHelpers::zDecryptUniqueId($request->token);
-
-            if ($token) {
-                $memberInvitation = WSTeamMember::where('wilToken', $token)->where('email', $request->email)->first();
-
-                if ($memberInvitation) {
-                    return ZHelpers::sendBackRequestCompletedResponse([
-                        'item' => $memberInvitation,
-                    ]);
-                } else {
-                    return ZHelpers::sendBackUnauthorizedResponse([]);
-                }
-            } else {
-                return ZHelpers::sendBackBadRequestResponse([
-                    'token' => ['invalid token!']
-                ]);
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
 
     public function updateInvitationStatus(Request $request, $invitationId)
     {
@@ -294,6 +261,58 @@ class WSTeamMemberController extends Controller
             } else {
                 return ZHelpers::sendBackBadRequestResponse([
                     'invite' => ['invalid invitation!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+
+    // Public
+    public function validateAndUpdateInvitation(Request $request)
+    {
+        try {
+            // $currentUser = $request->user();
+
+            // Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::invite_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $request->validate([
+                // 'email' => 'required|string|max:65',
+                'token' => 'required|string'
+            ]);
+
+            $token = ZHelpers::zDecryptUniqueId($request->token);
+
+            if ($token) {
+                // $memberInvitation = WSTeamMember::where('wilToken', $token)->where('email', $request->email)->first();
+                $memberInvitation = WSTeamMember::where('wilToken', $token)->first();
+
+                if ($memberInvitation) {
+                    $memberEmail = $memberInvitation->email;
+
+                    if ($memberEmail) {
+                        $member = User::where('email', $memberEmail)->first();
+
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => [
+                                // 'invitation' => $memberInvitation,
+                                'user' => [
+                                    'email' => $member->email,
+                                    'signupType' => $member->signUpType,
+                                ]
+                            ],
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'token' => ['invalid invitation!']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([
+                    'token' => ['invalid token!']
                 ]);
             }
         } catch (\Throwable $th) {

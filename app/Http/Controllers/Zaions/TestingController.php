@@ -17,6 +17,9 @@ class TestingController extends Controller
 {
     public function zTestingRouteRes(Request $request)
     {
+        // $otp = ZHelpers::generateUniqueNumericOTP();
+        // $otpTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+        // dd($otpTime > Carbon::now());
         // Test check if user is super admin
         // $user = $request->user();
         // dd($user->roles()->pluck('name'), $user->hasRole(RolesEnum::superAdmin->name));
@@ -45,43 +48,43 @@ class TestingController extends Controller
 
         // dd($workspace, $workspace->pixel);
 
-        $user = \App\Models\Default\User::where('email', 'ahsan@zaions.com')->first();
+        // $user = \App\Models\Default\User::where('email', 'ahsan@zaions.com')->first();
 
-        if ($user) {
-            // will just get overwrite by the last value
-            // $user->notify(
-            //     \Laravel\Nova\Notifications\NovaNotification::make()
-            //         ->message('Visit our Zaions website, PLEASE!!!.')
-            //         ->action('Visit', \Laravel\Nova\URL::remote('https://zaions.com'))
-            //         ->action('Visit1', \Laravel\Nova\URL::remote('https://zaions.com'))
-            //         ->action('Visit2', \Laravel\Nova\URL::remote('https://zaions.com'))
-            //         ->action('Visit3', \Laravel\Nova\URL::remote('https://zaions.com'))
-            //         ->message(
-            //             'Visit our Zaions website, PLEASE11!!!.'
-            //         )
-            //         ->message('Visit our Zaions website, PLEASE22!!!.')
-            //         ->icon('eye')
-            //         ->type('error')
-            //         ->type('success')
-            //         ->type('info')
-            // );
-            // return ZHelpers::sendBackRequestCompletedResponse(['message' => 'Notified']);
+        // if ($user) {
+        // will just get overwrite by the last value
+        // $user->notify(
+        //     \Laravel\Nova\Notifications\NovaNotification::make()
+        //         ->message('Visit our Zaions website, PLEASE!!!.')
+        //         ->action('Visit', \Laravel\Nova\URL::remote('https://zaions.com'))
+        //         ->action('Visit1', \Laravel\Nova\URL::remote('https://zaions.com'))
+        //         ->action('Visit2', \Laravel\Nova\URL::remote('https://zaions.com'))
+        //         ->action('Visit3', \Laravel\Nova\URL::remote('https://zaions.com'))
+        //         ->message(
+        //             'Visit our Zaions website, PLEASE11!!!.'
+        //         )
+        //         ->message('Visit our Zaions website, PLEASE22!!!.')
+        //         ->icon('eye')
+        //         ->type('error')
+        //         ->type('success')
+        //         ->type('info')
+        // );
+        // return ZHelpers::sendBackRequestCompletedResponse(['message' => 'Notified']);
 
 
 
-            // Test 2
-            // send mail, database, and nova notification
-            // $user->notify(new TestNotification('ahsan', 'talha'));
-            // return ZHelpers::sendBackRequestCompletedResponse(['message' => 'Notified test 2']);
+        // Test 2
+        // send mail, database, and nova notification
+        // $user->notify(new TestNotification('ahsan', 'talha'));
+        // return ZHelpers::sendBackRequestCompletedResponse(['message' => 'Notified test 2']);
 
-            // get the notifications
-            $notifications = $user->notifications;
-            return ZHelpers::sendBackRequestCompletedResponse(['message' => 'getting Notifications', 'notifications' => $notifications]);
-        } else {
-            return ZHelpers::sendBackRequestFailedResponse([
-                'item' => 'Not found!'
-            ]);
-        }
+        // get the notifications
+        // $notifications = $user->notifications;
+        // return ZHelpers::sendBackRequestCompletedResponse(['message' => 'getting Notifications', 'notifications' => $notifications]);
+        // } else {
+        //     return ZHelpers::sendBackRequestFailedResponse([
+        //         'item' => 'Not found!'
+        //     ]);
+        // }
 
         // return response()->json('working fine');
     }

@@ -430,4 +430,21 @@ class ZHelpers
 
     return $decryptedUniqueId;
   }
+
+  public static function generateUniqueNumericOTP($length = 6)
+  {
+    $otp = '';
+    $characters = '0123456789'; // Only numeric characters
+
+    // Calculate the maximum index for the character set
+    $maxIndex = strlen($characters) - 1;
+
+    // Generate the OTP
+    for ($i = 0; $i < $length; $i++) {
+      // Use modulo to ensure the character is within the numeric character set
+      $otp .= $characters[mt_rand(0, $maxIndex)];
+    }
+
+    return $otp;
+  }
 }

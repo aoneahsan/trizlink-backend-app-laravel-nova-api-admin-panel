@@ -135,7 +135,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspace/{workspaceId}/team/{teamId}/member', 'getAllInvitationData');
             Route::post('/user/workspace/{workspaceId}/team/{teamId}/member', 'sendInvitation');
             Route::get('/user/workspace/member/{itemId}', 'getInvitationData');
-            Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
+            // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
             Route::put('/user/update-invitation/{itemId}', 'updateInvitationStatus');
         });
 
@@ -278,5 +278,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     Route::controller(ShortLinkController::class)->group(function () {
         Route::post('/public/s/{urlPath}', 'getTargetUrlInfo');
         Route::post('/public/s/{urlPath}/check-password', 'checkShortLinkPassword');
+    });
+
+    Route::controller(UserController::class)->group(function () {
+        Route::put('/user/send-otp', 'generateOtp');
+        Route::put('/user/confirm-otp', 'confirmOtp');
+    });
+
+    // Workspace Team member
+    Route::controller(WSTeamMemberController::class)->group(function () {
+        Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
     });
 });

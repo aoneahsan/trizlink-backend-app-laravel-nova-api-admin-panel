@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Zaions\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
+use App\Mail\OTPMail;
 use App\Models\Default\User;
 use App\Zaions\Enums\RoleTypesEnum;
 use App\Zaions\Helpers\ZHelpers;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -266,6 +269,85 @@ class UserController extends Controller
                         'item' => ['WSRoles' => $WSRoles]
                     ]);
                 }
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function generateOtp(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|string',
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                $otp = ZHelpers::generateUniqueNumericOTP();
+                $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+                $user->update([
+                    'OTPCode' => $otp,
+                    'OPTCodeValidTill' => $otpValidTime
+                ]);
+
+                $user = User::where('email', $request->email)->first();
+
+                if ($user->OTPCode) {
+                    // Send the invitation mail to the memberUser.
+                    Mail::send(new OTPMail($user));
+
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => [
+                            'success' => true
+                        ],
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User with this email not found.']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    function confirmOtp(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|string',
+                'otp' => 'required|string|max:6'
+            ]);
+            $user = User::where('email', $request->email)->first();
+
+            if ($user) {
+                $currentTime = Carbon::now();
+                if ($user->OPTCodeValidTill >= $currentTime) {
+                    if ($user->OTPCode === $request->otp) {
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => [
+                                'success' => true
+                            ],
+                        ]);
+                    } else {
+                        return ZHelpers::sendBackBadRequestResponse([
+                            'item' => ['Incorrect OTP.']
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'item' => ['Invalid OTP.']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User with this email not found.']
+                ]);
             }
         } catch (\Throwable $th) {
             //throw $th;
