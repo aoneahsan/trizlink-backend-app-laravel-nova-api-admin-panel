@@ -148,7 +148,7 @@ class WSTeamMemberController extends Controller
                             ];
 
                             // Send notification to the memberUser.
-                            $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser));
+                            $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::wsTeamMemberInvitation));
 
                             return ZHelpers::sendBackRequestCompletedResponse([
                                 'item' => new WSTeamMemberResource($wsTeamMemberInvite),
@@ -250,7 +250,7 @@ class WSTeamMemberController extends Controller
                     ];
                     $inviter = User::where('id', $invitation->userId)->first();
 
-                    $inviter->notify(new WSTeamMemberInvitation($data, $inviter));
+                    $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
                 }
 
                 $invitation = WSTeamMember::where('uniqueId', $invitationId)->first();

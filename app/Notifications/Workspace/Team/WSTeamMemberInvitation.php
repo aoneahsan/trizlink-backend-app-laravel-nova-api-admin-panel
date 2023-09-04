@@ -16,7 +16,7 @@ class WSTeamMemberInvitation extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(private $data, private User $user)
+    public function __construct(private $data, private User $user, private NotificationTypeEnum $type)
     {
         //
     }
@@ -58,7 +58,7 @@ class WSTeamMemberInvitation extends Notification
     {
         return [
             'ZLInviteeId' => $this->user->id,
-            'zlNotificationType' => NotificationTypeEnum::wsTeamMemberInvitation->name,
+            'zlNotificationType' => $this->type,
             'item' => $this->data,
         ];
     }

@@ -283,6 +283,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     Route::controller(UserController::class)->group(function () {
         Route::put('/user/send-otp', 'generateOtp');
         Route::put('/user/confirm-otp', 'confirmOtp');
+        Route::put('/user/set-password', 'setPassword');
     });
 
     // Workspace Team member

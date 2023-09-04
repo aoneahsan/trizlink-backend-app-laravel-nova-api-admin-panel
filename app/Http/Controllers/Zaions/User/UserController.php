@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
 use App\Mail\OTPMail;
 use App\Models\Default\User;
+use App\Models\Default\WSTeamMember;
 use App\Zaions\Enums\RoleTypesEnum;
+use App\Zaions\Enums\SignUpTypeEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
+use Laravel\Fortify\Rules\Password;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -281,33 +285,61 @@ class UserController extends Controller
         try {
             $request->validate([
                 'email' => 'required|string',
+                'inviteToken'
+                => 'required|string',
             ]);
 
-            $user = User::where('email', $request->email)->first();
-            if ($user) {
-                $otp = ZHelpers::generateUniqueNumericOTP();
-                $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
-                $user->update([
-                    'OTPCode' => $otp,
-                    'OPTCodeValidTill' => $otpValidTime
-                ]);
+            $token = ZHelpers::zDecryptUniqueId($request->inviteToken);
 
-                $user = User::where('email', $request->email)->first();
+            if ($token) {
 
-                if ($user->OTPCode) {
-                    // Send the invitation mail to the memberUser.
-                    Mail::send(new OTPMail($user));
+                $memberInvitation = WSTeamMember::where('wilToken', $token)->first();
+
+                if ($memberInvitation) {
+
+                    $memberEmail = $memberInvitation->email;
+
+                    if ($memberEmail === $request->email) {
+                        $user = User::where('email', $request->email)->first();
+                        if ($user) {
+                            $otp = ZHelpers::generateUniqueNumericOTP();
+                            $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+                            $user->update([
+                                'OTPCode' => $otp,
+                                'OPTCodeValidTill' => $otpValidTime
+                            ]);
+
+                            $user = User::where('email', $request->email)->first();
+
+                            if ($user->OTPCode) {
+                                // Send the invitation mail to the memberUser.
+                                Mail::send(new OTPMail($user));
 
 
-                    return ZHelpers::sendBackRequestCompletedResponse([
-                        'item' => [
-                            'success' => true
-                        ],
+                                return ZHelpers::sendBackRequestCompletedResponse([
+                                    'item' => [
+                                        'success' => true
+                                    ],
+                                ]);
+                            }
+                        } else {
+                            return ZHelpers::sendBackNotFoundResponse([
+                                'item' => ['User with this email not found.']
+                            ]);
+                        }
+                    } else {
+                        return ZHelpers::sendBackBadRequestResponse([
+                            'item' => ['email does not match.']
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'item' => ['invalid invitation!']
                     ]);
                 }
             } else {
-                return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['User with this email not found.']
+                return ZHelpers::sendBackBadRequestResponse([
+                    'token' => ['invalid token!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -321,32 +353,124 @@ class UserController extends Controller
         try {
             $request->validate([
                 'email' => 'required|string',
-                'otp' => 'required|string|max:6'
+                'otp' => 'required|string|max:6',
+                'inviteToken' => 'required|string',
             ]);
-            $user = User::where('email', $request->email)->first();
 
-            if ($user) {
-                $currentTime = Carbon::now();
-                if ($user->OPTCodeValidTill >= $currentTime) {
-                    if ($user->OTPCode === $request->otp) {
-                        return ZHelpers::sendBackRequestCompletedResponse([
-                            'item' => [
-                                'success' => true
-                            ],
-                        ]);
+
+            $token = ZHelpers::zDecryptUniqueId($request->inviteToken);
+
+            if ($token) {
+
+                $memberInvitation = WSTeamMember::where('wilToken', $token)->first();
+
+                if ($memberInvitation) {
+
+                    $memberEmail = $memberInvitation->email;
+
+                    if ($memberEmail === $request->email) {
+                        $user = User::where('email', $request->email)->first();
+
+                        if ($user) {
+                            $currentTime = Carbon::now();
+                            if ($user->OPTCodeValidTill >= $currentTime) {
+                                if ($user->OTPCode === $request->otp) {
+                                    return ZHelpers::sendBackRequestCompletedResponse([
+                                        'item' => [
+                                            'success' => true
+                                        ],
+                                    ]);
+                                } else {
+                                    return ZHelpers::sendBackBadRequestResponse([
+                                        'item' => ['Incorrect OTP.']
+                                    ]);
+                                }
+                            } else {
+                                return ZHelpers::sendBackBadRequestResponse([
+                                    'item' => ['Invalid OTP, please resend otp.']
+                                ]);
+                            }
+                        } else {
+                            return ZHelpers::sendBackNotFoundResponse([
+                                'item' => ['User with this email not found.']
+                            ]);
+                        }
                     } else {
                         return ZHelpers::sendBackBadRequestResponse([
-                            'item' => ['Incorrect OTP.']
+                            'item' => ['email does not match.']
                         ]);
                     }
                 } else {
                     return ZHelpers::sendBackBadRequestResponse([
-                        'item' => ['Invalid OTP.']
+                        'item' => ['invalid invitation!']
                     ]);
                 }
             } else {
-                return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['User with this email not found.']
+                return ZHelpers::sendBackBadRequestResponse([
+                    'token' => ['invalid token!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    function setPassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|string',
+                'password' => ['required', 'string', new Password, 'confirmed'],
+                'inviteToken' => 'required|string',
+            ]);
+            $token = ZHelpers::zDecryptUniqueId($request->inviteToken);
+
+            if ($token) {
+
+                $memberInvitation = WSTeamMember::where('wilToken', $token)->first();
+
+                if ($memberInvitation) {
+
+                    $memberEmail = $memberInvitation->email;
+
+                    if ($memberEmail === $request->email) {
+                        $user = User::where('email', $request->email)->first();
+
+                        if ($user) {
+                            $user->update([
+                                'password' => Hash::make($request->password),
+                                'signUpType' => SignUpTypeEnum::normal->value,
+                            ]);
+
+                            $user = User::where('email', $request->email)->first();
+
+                            $token = $user->createToken('auth');
+
+                            return ZHelpers::sendBackRequestCompletedResponse([
+                                'item' => [
+                                    'user' => new UserDataResource($user),
+                                    'token' => $token
+                                ]
+                            ]);
+                        } else {
+                            return ZHelpers::sendBackNotFoundResponse([
+                                'item' => ['User with this email not found.']
+                            ]);
+                        }
+                    } else {
+                        return ZHelpers::sendBackBadRequestResponse([
+                            'item' => ['email does not match.']
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'item' => ['invalid invitation!']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([
+                    'token' => ['invalid token!']
                 ]);
             }
         } catch (\Throwable $th) {
