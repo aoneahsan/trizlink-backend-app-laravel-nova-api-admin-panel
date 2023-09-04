@@ -83,7 +83,7 @@ class WSTeamMemberController extends Controller
                 'extraAttributes' => 'nullable|json',
             ]);
 
-            $requestedRole = $request->role;
+            // $requestedRole = $request->role;
 
             $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
 
@@ -101,7 +101,7 @@ class WSTeamMemberController extends Controller
                                 'uniqueId' => uniqid(),
                                 // 'name' => $request->name,
                                 'email' => $request->email,
-                                'signUpType' => SignUpTypeEnum::invite->value,
+                                'signUpType' => SignUpTypeEnum::invite->value
                             ]);
 
 
@@ -124,6 +124,7 @@ class WSTeamMemberController extends Controller
                             'workspaceId' => $workspace->id,
                             'teamId' => $team->id,
                             'memberRoleId' => $role->id,
+                            'memberId' => $memberUser->id,
 
                             'email' => $request->has('email') ? $request->email : null,
                             'accountStatus' => WSMemberAccountStatusEnum::pending->value,

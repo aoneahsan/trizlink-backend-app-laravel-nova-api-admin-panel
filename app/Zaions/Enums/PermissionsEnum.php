@@ -122,7 +122,7 @@ enum PermissionsEnum: string
   case restore_workspaceTeam = 'restore_workspaceTeam';
   case forceDelete_workspaceTeam = 'forceDelete_workspaceTeam';
 
-    // Workspace team
+    // Workspace member
   case viewAny_WSTeamMember = 'viewAny_WSTeamMember';
   case view_WSTeamMember = 'view_WSTeamMember';
   case create_WSTeamMember = 'create_WSTeamMember';

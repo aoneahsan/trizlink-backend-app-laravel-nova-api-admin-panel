@@ -7,6 +7,7 @@ use App\Http\Controllers\Zaions\StaticPageController;
 use App\Http\Controllers\Zaions\Testing\TestController;
 use App\Http\Controllers\Zaions\User\UserController;
 use App\Http\Controllers\Zaions\User\UserSettingController;
+use App\Http\Controllers\Zaions\WorkSpace\SharedWSController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkSpaceController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceMemberController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
@@ -271,6 +272,11 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/lib-pdd/{pddType}/{itemId}', 'show');
             Route::put('/user/lib-pdd/{pddType}/{itemId}', 'update');
             Route::delete('/user/lib-pdd/{pddType}/{itemId}', 'destroy');
+        });
+
+        // Get Shared Workspaces
+        Route::controller(SharedWSController::class)->group(function () {
+            Route::get('/user/shared-ws', 'index');
         });
     });
 
