@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Zaions\Notification;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Zaions\Notification\NotificationResource;
 use App\Zaions\Enums\NotificationTypeEnum;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
@@ -33,7 +34,9 @@ class NotificationController extends Controller
                         $allNotificationCount =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->count();
 
                         return ZHelpers::sendBackRequestCompletedResponse([
-                            'items' => $allNotification,
+                            'items' => NotificationResource::collection(
+                                $allNotification
+                            ),
                             'itemsCount' => $allNotificationCount
                         ]);
                     }
@@ -42,7 +45,7 @@ class NotificationController extends Controller
                     $itemsCount = $currentUser->unreadNotifications()->where('zlNotificationType', $type)->count();
 
                     return ZHelpers::sendBackRequestCompletedResponse([
-                        'items' => $unreadNotifications,
+                        'items' => NotificationResource::collection($unreadNotifications),
                         'itemsCount' => $itemsCount
                     ]);
                 } else {
@@ -71,12 +74,12 @@ class NotificationController extends Controller
                     if ($currentNotification->read_at === null) {
                         $currentNotification->update(['read_at' => now()]);
                     }
-                    // $updatedNotification = $currentUser->readNotifications()->where('id', $id)->first();
+                    $updatedNotification = $currentUser->readNotifications()->where('id', $id)->first();
 
                     return ZHelpers::sendBackRequestCompletedResponse([
-                        'item' => [
-                            'success' => true
-                        ]
+                        'item' => new NotificationResource(
+                            $updatedNotification
+                        )
                     ]);
                 } else {
                     return ZHelpers::sendBackRequestFailedResponse([
