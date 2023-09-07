@@ -292,11 +292,9 @@ class UserController extends Controller
             $token = ZHelpers::zDecryptUniqueId($request->inviteToken);
 
             if ($token) {
-
                 $memberInvitation = WSTeamMember::where('wilToken', $token)->first();
 
                 if ($memberInvitation) {
-
                     $memberEmail = $memberInvitation->email;
 
                     if ($memberEmail === $request->email) {
@@ -421,6 +419,7 @@ class UserController extends Controller
         try {
             $request->validate([
                 'email' => 'required|string',
+                'username' => 'required|string',
                 'password' => ['required', 'string', new Password, 'confirmed'],
                 'inviteToken' => 'required|string',
             ]);
@@ -441,6 +440,7 @@ class UserController extends Controller
                             $user->update([
                                 'password' => Hash::make($request->password),
                                 'signUpType' => SignUpTypeEnum::normal->value,
+                                'username' => $request->username,
                             ]);
 
                             $user = User::where('email', $request->email)->first();

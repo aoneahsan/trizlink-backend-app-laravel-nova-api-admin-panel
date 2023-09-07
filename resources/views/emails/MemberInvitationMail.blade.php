@@ -1,6 +1,6 @@
 <x-mail::message>
+# Welcome to ZLink.
 @if ($invitedUser->signUpType === \App\Zaions\Enums\SignUpTypeEnum::invite->value)
-    # Welcome to ZLink.
 
     ## You have been invited by "{{$user->name}}" to join "{{$team->title}}" in "{{$workspace->title}}" worksapce.
 
@@ -10,9 +10,9 @@
 @endif
 
 @if ($invitedUser->signUpType === \App\Zaions\Enums\SignUpTypeEnum::normal->value)
-# You are invited in "{{$team->title}}" team.
+    ## You are invited in "{{$team->title}}" team.
 
-{{$user->name}} send you invitation to join "{{$team->title}}" team of "{{$workspace->title}}" worksapce.
+    {{$user->name}} send you invitation to join "{{$team->title}}" team of "{{$workspace->title}}" worksapce.
 @endif
 
 

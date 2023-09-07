@@ -24,6 +24,7 @@ class WSTeamMember extends Model
         'accountStatusLastUpdatedBy' => 'datetime',
         'inviteAcceptedAt' => 'datetime',
         'inviteRejectedAt' => 'datetime',
+        'resendAllowedAfter' => 'datetime'
     ];
 
     // Relationship methods

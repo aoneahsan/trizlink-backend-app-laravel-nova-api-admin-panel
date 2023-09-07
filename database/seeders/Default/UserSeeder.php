@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         // create superAdmin user
         $ahsanUser = User::create([
             'uniqueId' => uniqid(),
-            'name' => 'ahsan',
+            'username' => 'ahsan',
             'slug' => 'ahsan',
             'email' => 'ahsan@zaions.com',
             'password' => Hash::make("asd123!@#"),
@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
         ]);
         $superAdminUser = User::create([
             'uniqueId' => uniqid(),
-            'name' => 'superAdmin',
+            'username' => 'superAdmin',
             'slug' => 'superAdmin',
             'email' => 'superAdmin@zaions.com',
             'password' => Hash::make("asd123!@#"),
@@ -53,7 +53,7 @@ class UserSeeder extends Seeder
         // create admin user
         $adminUser = User::create([
             'uniqueId' => uniqid(),
-            'name' => 'admin',
+            'username' => 'admin',
             'slug' => 'admin',
             'email' => 'admin@zaions.com',
             'password' => Hash::make("asd123!@#"),
@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
         // create user user
         $simpleUser = User::create([
             'uniqueId' => uniqid(),
-            'name' => 'user',
+            'username' => 'user',
             'slug' => 'user',
             'email' => 'user@zaions.com',
             'password' => Hash::make("asd123!@#"),

@@ -24,7 +24,7 @@ class WorkSpaceResource extends JsonResource
             'internalPost' =>  $this->internalPost,
             'user' => $this->user ? [
                 'id' => $this->user->uniqueId,
-                'username' => $this->user->name,
+                'username' => $this->user->username,
                 'email' => $this->user->email,
                 'profilePitcher' => $this->user->profilePitcher,
             ] : null,

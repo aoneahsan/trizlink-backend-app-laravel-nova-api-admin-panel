@@ -116,10 +116,11 @@ class WSTeamMemberController extends Controller
 
                         // WorkspaceInviteLinkToken
                         [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
-
+                        $resendAllowedAfter = Carbon::now()->addMinutes(5)->toDateTimeString();
                         $wsTeamMemberInvite = WSTeamMember::create([
                             'uniqueId' => uniqid(),
                             'wilToken' => $uniqueId,
+                            'resendAllowedAfter' => $resendAllowedAfter,
                             'userId' => $currentUser->id,
                             'workspaceId' => $workspace->id,
                             'teamId' => $team->id,
@@ -178,7 +179,84 @@ class WSTeamMemberController extends Controller
         }
     }
 
-    public function getInvitationData(Request $request, $itemId)
+    // 
+    public function resendInvitation(Request $request, $workspaceId, $teamId, $itemId)
+    {
+        try {
+            //code...
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::invite_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+
+            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+
+            if ($workspace) {
+                $team = WorkspaceTeam::where('userId', $currentUser->id)->where('uniqueId', $teamId)->first();
+
+                if ($team) {
+                    $invitation = WSTeamMember::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('teamId', $team->id)->first();
+
+                    if ($invitation) {
+
+                        // WorkspaceInviteLinkToken
+                        [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
+
+                        $resendAllowedAfter = Carbon::now()->addMinutes(5)->toDateTimeString();
+
+                        $invitation->update([
+                            'wilToken' => $uniqueId,
+                            'resendAllowedAfter' => $resendAllowedAfter,
+                            'invitedAt' => Carbon::now($currentUser->getUserTimezoneAttribute())
+                        ]);
+
+                        $invitation = WSTeamMember::where('uniqueId', $itemId)->first();
+
+                        $memberUser = User::where('email', $invitation->email)->first();
+
+                        // Send the invitation mail to the memberUser.
+                        Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace, $team, $urlSafeEncodedId));
+
+                        $message = 'You have received a invitation to join team "' . $team->title . '" in workspace "' . $workspace->title . '" by "' . $currentUser->name . '".';
+
+                        $data = [
+                            'userId' => $memberUser->id,
+                            'message' => $message,
+                            'inviter' => $currentUser->name,
+                            'inviterUserId' => $currentUser->id,
+                            'teamId' => $team->id, // Team details
+                            'teamName' => $team->name,
+                            'wsTeamMemberInviteId' => $invitation->uniqueId
+                        ];
+
+                        // Send notification to the memberUser.
+                        $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::wsTeamMemberInvitation));
+
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => new WSTeamMemberResource($invitation),
+                        ]);
+                    } else {
+                        ZHelpers::sendBackNotFoundResponse([
+                            'item' => ['Invitation not found.']
+                        ]);
+                    }
+                } else {
+                    ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Team not found.']
+                    ]);
+                }
+            } else {
+                ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Workspace not found.']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function getInvitationData(Request $request, $workspaceId, $teamId,  $itemId)
     {
         try {
             $currentUser = $request->user();
@@ -186,15 +264,32 @@ class WSTeamMemberController extends Controller
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
 
-            $invitation = WSTeamMember::where('uniqueId', $itemId)->first();
+            $workspace =
+                WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
 
-            if ($invitation) {
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new WSTeamMemberResource($invitation),
-                ]);
+            if ($workspace) {
+                $team = WorkspaceTeam::where('userId', $currentUser->id)->where('uniqueId', $teamId)->first();
+
+                if ($team) {
+                    $invitation = WSTeamMember::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('teamId', $team->id)->first();
+
+                    if ($invitation) {
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => new WSTeamMemberResource($invitation),
+                        ]);
+                    } else {
+                        return ZHelpers::sendBackNotFoundResponse([
+                            'item' => ['invitation not found!']
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['team not found!']
+                    ]);
+                }
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['invitation not found!']
+                    'item' => ['workspace not found!']
                 ]);
             }
         } catch (\Throwable $th) {
