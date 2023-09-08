@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Zaions\Workspace;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\Workspace\WorkspaceMemberResource;
 use App\Http\Resources\Zaions\Workspace\WSTeamMemberResource;
+use App\Jobs\Zaions\Mail\SendMailJob;
 use App\Mail\MemberInvitationMail;
 use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
@@ -135,7 +136,20 @@ class WSTeamMemberController extends Controller
 
                         if ($wsTeamMemberInvite) {
                             // Send the invitation mail to the memberUser.
-                            Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace, $team, $urlSafeEncodedId));
+                            Mail::send(new MemberInvitationMail(
+                                $currentUser,
+                                $memberUser,
+                                $workspace,
+                                $team,
+                                $urlSafeEncodedId
+                            ));
+                            // SendMailJob::dispatch(
+                            //     $currentUser,
+                            //     $memberUser,
+                            //     $workspace,
+                            //     $team,
+                            //     $urlSafeEncodedId
+                            // );
 
                             $message = 'You have received a invitation to join team "' . $team->title . '" in workspace "' . $workspace->title . '" by "' . $currentUser->name . '".';
 

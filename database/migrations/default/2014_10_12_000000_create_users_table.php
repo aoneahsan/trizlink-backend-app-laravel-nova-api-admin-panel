@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string('signUpType')->default(SignUpTypeEnum::normal->value)->nullable();
 
             $table->string('OTPCode')->nullable()->max(6);
-            $table->dateTime('OPTCodeValidTill')->nullable();
+            $table->dateTime('OTPCodeValidTill')->nullable();
 
             $table->boolean('isActive')->default(true);
             $table->integer('sortOrderNo')->default(0)->nullable();

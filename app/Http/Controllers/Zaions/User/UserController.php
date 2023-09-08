@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Zaions\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
+use App\Jobs\Zaions\Mail\SendMailJob;
 use App\Mail\OTPMail;
 use App\Models\Default\User;
 use App\Models\Default\WSTeamMember;
+use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Enums\RoleTypesEnum;
 use App\Zaions\Enums\SignUpTypeEnum;
 use App\Zaions\Helpers\ZHelpers;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 use Laravel\Fortify\Rules\Password;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -304,7 +307,7 @@ class UserController extends Controller
                             $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
                             $user->update([
                                 'OTPCode' => $otp,
-                                'OPTCodeValidTill' => $otpValidTime
+                                'OTPCodeValidTill' => $otpValidTime
                             ]);
 
                             $user = User::where('email', $request->email)->first();
@@ -371,7 +374,7 @@ class UserController extends Controller
 
                         if ($user) {
                             $currentTime = Carbon::now();
-                            if ($user->OPTCodeValidTill >= $currentTime) {
+                            if ($user->OTPCodeValidTill >= $currentTime) {
                                 if ($user->OTPCode === $request->otp) {
                                     return ZHelpers::sendBackRequestCompletedResponse([
                                         'item' => [
@@ -471,6 +474,140 @@ class UserController extends Controller
             } else {
                 return ZHelpers::sendBackBadRequestResponse([
                     'token' => ['invalid token!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    function sendSignUpOTP(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => [
+                    'required',
+                    'string',
+                    'email',
+                    'max:255',
+                    Rule::unique(User::class),
+                ],
+            ]);
+            //code...
+
+            $otp = ZHelpers::generateUniqueNumericOTP();
+            $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+
+            $user = User::create([
+                'uniqueId' => uniqid(),
+                'email' => $request->email,
+                'OTPCode' => $otp,
+                'signUpType' => SignUpTypeEnum::normal->value,
+                'OTPCodeValidTill' => $otpValidTime
+            ]);
+
+            $userRole = Role::where('name', RolesEnum::user->name)->get();
+
+            $user->assignRole($userRole);
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user->OTPCode) {
+                // Send the invitation mail to the memberUser.
+                // SendMailJob::dispatch($user);
+                Mail::send(new OTPMail($user));
+
+
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => [
+                        'success' => true
+                    ],
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    function confirmSignUpOtp(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|string',
+                'otp' => 'required|string|max:6',
+            ]);
+
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user) {
+                $currentTime = Carbon::now();
+                if ($user->OTPCodeValidTill >= $currentTime) {
+                    if ($user->OTPCode && $user->OTPCode === $request->otp) {
+
+                        $user->update([
+                            'OTPCode' => null,
+                            'OTPCodeValidTill' => null
+                        ]);
+
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => [
+                                'success' => true
+                            ],
+                        ]);
+                    } else {
+                        return ZHelpers::sendBackBadRequestResponse([
+                            'item' => ['Incorrect OTP.']
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'item' => ['Invalid OTP, please resend otp.']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User with this email not found.']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    function setUsernamePassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|string',
+                'username' => 'required|string',
+                'password' => ['required', 'string', new Password, 'confirmed'],
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user) {
+                $user->update([
+                    'password' => Hash::make($request->password),
+                    'username' => $request->username,
+                ]);
+
+                $user = User::where('email', $request->email)->first();
+
+                $token = $user->createToken('auth');
+
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => [
+                        'user' => new UserDataResource($user),
+                        'token' => $token
+                    ]
+                ]);
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User with this email not found.']
                 ]);
             }
         } catch (\Throwable $th) {

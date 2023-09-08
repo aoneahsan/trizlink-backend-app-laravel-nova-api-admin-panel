@@ -58,6 +58,7 @@ class WorkSpaceController extends Controller
             'workspaceImage' => 'nullable|string',
             'internalPost' => 'nullable|boolean',
             'workspaceData' => 'nullable|json',
+            'isFavorite' => 'nullable|boolean',
 
             'sortOrderNo' => 'nullable|integer',
             'isActive' => 'nullable|boolean',
@@ -78,6 +79,7 @@ class WorkSpaceController extends Controller
                 'workspaceImage' => $request->has('workspaceImage') ? $request->workspaceImage : null,
                 'internalPost' => $request->has('internalPost') ? $request->internalPost : false,
                 'workspaceData' => $request->has('workspaceData') ? (is_string($request->workspaceData) ? json_decode($request->workspaceData) : $request->workspaceData) : null,
+                'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
 
                 'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
                 'isActive' => $request->has('isActive') ? $request->isActive : true,
@@ -141,6 +143,7 @@ class WorkSpaceController extends Controller
             'workspaceImage' => 'nullable|string',
             'internalPost' => 'nullable|boolean',
             'workspaceData' => 'nullable|json',
+            'isFavorite' => 'nullable|boolean',
 
             'sortOrderNo' => 'nullable|integer',
             'isActive' => 'nullable|boolean',
@@ -158,6 +161,7 @@ class WorkSpaceController extends Controller
                 $item->update([
                     'title' => $request->has('title') ? $request->title : $item->workspaceName,
                     'timezone' => $request->has('timezone') ? $request->timezone : $item->timezone,
+                    'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
                     'workspaceImage' => $request->has('workspaceImage') ? $request->workspaceImage : $item->workspaceImage,
                     'internalPost' => $request->has('internalPost') ? $request->internalPost : $item->internalPost,
                     'workspaceData' => $request->has('workspaceData') ? (is_string($request->workspaceData) ? json_decode($request->workspaceData) : $request->workspaceData) : $request->workspaceData,
