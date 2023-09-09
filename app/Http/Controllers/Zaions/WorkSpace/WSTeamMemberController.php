@@ -363,7 +363,7 @@ class WSTeamMemberController extends Controller
                     $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
                 }
 
-                $invitation = WSTeamMember::where('uniqueId', $invitationId)->first();
+                $invitation = WSTeamMember::where('uniqueId', $invitationId)->with('workspace')->first();
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new WSTeamMemberResource($invitation),

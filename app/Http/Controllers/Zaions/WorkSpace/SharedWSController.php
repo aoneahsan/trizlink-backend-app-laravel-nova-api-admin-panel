@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Zaions\WorkSpace;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\WorkSpace\SharedWSResource;
+use App\Models\Default\WorkSpace;
 use App\Models\Default\WSTeamMember;
+use App\Zaions\Enums\WSMemberAccountStatusEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 
@@ -17,8 +19,7 @@ class SharedWSController extends Controller
             $user = $request->user();
             // check user
             $userId = $user->id;
-
-            $sharedWSs = WSTeamMember::where('memberId', $userId)->with('workspace')->get();
+            $sharedWSs = WSTeamMember::where('memberId', $userId)->where('accountStatus',  '!=', WSMemberAccountStatusEnum::rejected->value)->with('workspace')->get();
             $sharedWSsCount = WSTeamMember::where('memberId', $userId)->with('workspace')->count();
 
 

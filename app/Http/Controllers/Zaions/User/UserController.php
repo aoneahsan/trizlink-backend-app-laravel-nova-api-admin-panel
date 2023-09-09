@@ -518,7 +518,6 @@ class UserController extends Controller
                 // SendMailJob::dispatch($user);
                 Mail::send(new OTPMail($user));
 
-
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => [
                         'success' => true

@@ -15,8 +15,9 @@ class SharedWSResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->workspace ? $this->workspace['uniqueId'] : null,
-
+            'id' => $this->uniqueId ? $this->uniqueId : null,
+            'accountStatus' => $this->accountStatus,
+            'workspaceId' => $this->workspace ? $this->workspace['uniqueId'] : null,
             'workspaceName' => $this->workspace ? $this->workspace['title'] : null,
             'workspaceTimezone' => $this->workspace ? $this->workspace['timezone'] : null,
             'workspaceData' => $this->workspace ? $this->workspace['workspaceData'] : null,

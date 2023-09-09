@@ -16,7 +16,14 @@ class WSTeamMemberResource extends JsonResource
     {
         return [
             'id' => $this->uniqueId,
-
+            'workspace' => $this->workspace ? [
+                'workspaceId' => $this->workspace ? $this->workspace['uniqueId'] : null,
+                'workspaceName' => $this->workspace ? $this->workspace['title'] : null,
+                'workspaceTimezone' => $this->workspace ? $this->workspace['timezone'] : null,
+                'workspaceData' => $this->workspace ? $this->workspace['workspaceData'] : null,
+                'workspaceImage' => $this->workspace ? $this->workspace['workspaceImage'] : null, 'createdAt' => $this->created_at->diffForHumans(),
+                'updatedAt' => $this->updated_at->diffForHumans(),
+            ] : null,
             'email' => $this->email,
             'accountStatus' => $this->accountStatus,
             // 'wilToken' => $this->wilToken,

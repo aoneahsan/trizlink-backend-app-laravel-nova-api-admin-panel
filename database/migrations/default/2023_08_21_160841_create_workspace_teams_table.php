@@ -22,7 +22,6 @@ return new class extends Migration
 
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(true)->nullable();
-            $table->boolean('isFavorite')->default(false)->nullable();
             $table->json('extraAttributes')->nullable();
             $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
