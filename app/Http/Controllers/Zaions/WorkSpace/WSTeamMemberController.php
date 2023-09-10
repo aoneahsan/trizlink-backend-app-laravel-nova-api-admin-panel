@@ -389,8 +389,8 @@ class WSTeamMemberController extends Controller
             // Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::invite_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $request->validate([
-                // 'email' => 'required|string|max:65',
-                'token' => 'required|string'
+                'token' => 'required|string',
+                'email' => 'nullable|string|max:65'
             ]);
 
             $token = ZHelpers::zDecryptUniqueId($request->token);
@@ -401,6 +401,15 @@ class WSTeamMemberController extends Controller
 
                 if ($memberInvitation) {
                     $memberEmail = $memberInvitation->email;
+
+
+                    if ($request->has('email') && $request->email === $memberEmail) {
+                    } else if ($request->has('email') && $request->email !== $memberEmail) {
+                        return ZHelpers::sendBackForbiddenResponse([
+                            'item' => [''],
+                        ]);
+                    }
+
 
                     if ($memberEmail) {
                         $member = User::where('email', $memberEmail)->first();
@@ -426,6 +435,11 @@ class WSTeamMemberController extends Controller
                 ]);
             }
         } catch (\Throwable $th) {
+            if ($th instanceof \Illuminate\Contracts\Encryption\DecryptException) {
+                return ZHelpers::sendBackBadRequestResponse([
+                    'token' => ['invalid token!']
+                ]);
+            }
             //throw $th;
             return ZHelpers::sendBackServerErrorResponse($th);
         }

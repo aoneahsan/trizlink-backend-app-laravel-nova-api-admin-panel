@@ -219,6 +219,17 @@ class ZHelpers
     ], 401);
   }
 
+  public static function sendBackForbiddenResponse($errors)
+  {
+    return response()->json([
+      'errors' => $errors,
+      'data' => [],
+      'success' => false,
+      'status' => 403,
+      'message' => 'Bad request.'
+    ], 403);
+  }
+
   public static function sendBackBadRequestResponse($errors)
   {
     return response()->json([
