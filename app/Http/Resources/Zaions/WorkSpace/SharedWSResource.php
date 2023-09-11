@@ -21,7 +21,9 @@ class SharedWSResource extends JsonResource
             'workspaceName' => $this->workspace ? $this->workspace['title'] : null,
             'workspaceTimezone' => $this->workspace ? $this->workspace['timezone'] : null,
             'workspaceData' => $this->workspace ? $this->workspace['workspaceData'] : null,
-            'workspaceImage' => $this->workspace ? $this->workspace['workspaceImage'] : null, 'createdAt' => $this->created_at->diffForHumans(),
+            'workspaceImage' => $this->workspace ? $this->workspace['workspaceImage'] : null,
+            'isFavorite' => $this->isFavorite,
+            'createdAt' => $this->created_at->diffForHumans(),
             'updatedAt' => $this->updated_at->diffForHumans(),
         ];
     }

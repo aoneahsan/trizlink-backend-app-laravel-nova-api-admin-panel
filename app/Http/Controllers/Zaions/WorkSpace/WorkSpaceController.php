@@ -216,4 +216,39 @@ class WorkSpaceController extends Controller
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }
+
+    public function updateIsFavorite(Request $request, $itemId)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $request->validate([
+                'isFavorite' => 'required|boolean',
+            ]);
+
+            $item = WorkSpace::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+
+            if ($item) {
+
+                $item->update([
+                    'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : $item->isFavorite,
+                ]);
+
+                $item = WorkSpace::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => new WorkSpaceResource($item)
+                ]);
+            } else {
+                return ZHelpers::sendBackRequestFailedResponse([
+                    'item' => ['Workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
 }

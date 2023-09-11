@@ -120,6 +120,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspaces/{itemId}', 'show');
             Route::put('/user/workspaces/{itemId}', 'update');
             Route::delete('/user/workspaces/{itemId}', 'destroy');
+            Route::put('/user/workspaces/update-is-favorite/{itemId}', 'updateIsFavorite');
         });
 
         // Workspace Team
@@ -278,6 +279,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // Get Shared Workspaces
         Route::controller(SharedWSController::class)->group(function () {
             Route::get('/user/shared-ws', 'index');
+            Route::put('/user/shared-ws/update-is-favorite/{itemId}', 'updateIsFavorite');
         });
     });
 

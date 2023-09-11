@@ -31,6 +31,7 @@ class WorkSpaceResource extends JsonResource
 
             'sortOrderNo' => $this->sortOrderNo,
             'isActive' => $this->isActive,
+            'isFavorite' => $this->isFavorite,
             'extraAttributes' => $this->extraAttributes,
             'createdAt' => $this->created_at->diffForHumans(),
             'updatedAt' => $this->updated_at->diffForHumans(),

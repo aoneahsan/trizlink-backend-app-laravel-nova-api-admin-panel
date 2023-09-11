@@ -33,6 +33,7 @@ return new class extends Migration
 
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(false)->nullable();
+            $table->boolean('isFavorite')->default(false)->nullable();
             $table->json('extraAttributes')->nullable();
             $table->softDeletes();
             $table->timestamps();
