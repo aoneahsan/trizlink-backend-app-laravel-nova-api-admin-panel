@@ -149,14 +149,14 @@ enum PermissionsEnum: string
   case update_workspace_utm_tag = 'update_workspace_utm_tag';
 
     // Workspace
-  case viewAny_userSetting = 'viewAny_userSetting';
-  case view_userSetting = 'view_userSetting';
-  case create_userSetting = 'create_userSetting';
-  case update_userSetting = 'update_userSetting';
-  case delete_userSetting = 'delete_userSetting';
-  case replicate_userSetting = 'replicate_userSetting';
-  case restore_userSetting = 'restore_userSetting';
-  case forceDelete_userSetting = 'forceDelete_userSetting';
+  case viewAny_USSettings = 'viewAny_USSettings';
+  case view_USSettings = 'view_USSettings';
+  case create_USSettings = 'create_USSettings';
+  case update_USSettings = 'update_USSettings';
+  case delete_USSettings = 'delete_USSettings';
+  case replicate_USSettings = 'replicate_USSettings';
+  case restore_USSettings = 'restore_USSettings';
+  case forceDelete_USSettings = 'forceDelete_USSettings';
 
     // Pixel
   case viewAny_pixel = 'viewAny_pixel';

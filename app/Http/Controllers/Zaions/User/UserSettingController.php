@@ -25,7 +25,7 @@ class UserSettingController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_userSetting->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $itemsCount = UserSetting::where('userId', $currentUser->id)->count();
             $items = UserSetting::where('userId', $currentUser->id)->with('user')->get();
@@ -56,7 +56,7 @@ class UserSettingController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_userSetting->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $request->validate([
                 'type' => 'required|string|max:200',
@@ -119,7 +119,7 @@ class UserSettingController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_userSetting->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $item = null;
 
@@ -159,7 +159,7 @@ class UserSettingController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_userSetting->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $request->validate([
                 'type' => 'required|string|max:200',
@@ -225,7 +225,7 @@ class UserSettingController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_userSetting->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
 
             $item = UserSetting::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();

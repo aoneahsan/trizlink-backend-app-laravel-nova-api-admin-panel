@@ -530,6 +530,54 @@ class UserController extends Controller
         }
     }
 
+    function sendForgetPasswordOTP(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => [
+                    'required',
+                    'string',
+                    'email',
+                    'max:255',
+                ],
+            ]);
+            //code...
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user) {
+                $otp = ZHelpers::generateUniqueNumericOTP();
+                $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+
+                $user = $user->update([
+                    'OTPCode' => $otp,
+                    'OTPCodeValidTill' => $otpValidTime
+                ]);
+
+                $user = User::where('email', $request->email)->first();
+
+                if ($user->OTPCode) {
+                    // Send the invitation mail to the memberUser.
+                    // SendMailJob::dispatch($user);
+                    Mail::send(new OTPMail($user));
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => [
+                            'success' => true
+                        ],
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User with this email not found.']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
     function confirmSignUpOtp(Request $request)
     {
         try {
@@ -582,7 +630,7 @@ class UserController extends Controller
         try {
             $request->validate([
                 'email' => 'required|string',
-                'username' => 'required|string',
+                'username' => 'nullable|string',
                 'password' => ['required', 'string', new Password, 'confirmed'],
             ]);
 
