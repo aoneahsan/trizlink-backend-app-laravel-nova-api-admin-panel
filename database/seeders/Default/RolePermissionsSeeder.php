@@ -145,7 +145,7 @@ class RolePermissionsSeeder extends Seeder
         $deleteUSSettingsPermission = Permission::create(['name' => PermissionsEnum::delete_USSettings->name]);
         $replicateUSSettingsPermission = Permission::create(['name' => PermissionsEnum::replicate_USSettings->name]);
         $restoreUSSettingsPermission = Permission::create(['name' => PermissionsEnum::restore_USSettings->name]);
-        $forceDeleteUSSettingsPermission = Permission::create(['n   ame' => PermissionsEnum::forceDelete_USSettings->name]);
+        $forceDeleteUSSettingsPermission = Permission::create(['name' => PermissionsEnum::forceDelete_USSettings->name]);
         // Pixel Model Permissions
         $viewAnyPixelPermission = Permission::create(['name' => PermissionsEnum::viewAny_pixel->name]);
         $viewPixelPermission = Permission::create(['name' => PermissionsEnum::view_pixel->name]);
