@@ -221,7 +221,8 @@ class WSTeamMemberController extends Controller
                         $invitation->update([
                             'wilToken' => $uniqueId,
                             'resendAllowedAfter' => $resendAllowedAfter,
-                            'invitedAt' => Carbon::now($currentUser->getUserTimezoneAttribute())
+                            'invitedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                            'accountStatus' =>  WSMemberAccountStatusEnum::resend->value,
                         ]);
 
                         $invitation = WSTeamMember::where('uniqueId', $itemId)->first();
