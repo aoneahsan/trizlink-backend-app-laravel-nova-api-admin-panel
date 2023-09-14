@@ -114,23 +114,14 @@ class UserSettingController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $type, $workspaceUniqueId)
+    public function show(Request $request, $type,)
     {
         try {
             $currentUser = $request->user();
 
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $item = null;
-
-            if ($workspaceUniqueId) {
-
-                $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $request->workspaceUniqueId)->first();
-
-                $item = UserSetting::where('type', $type)->where('userId', $currentUser->id)->where('workspaceUniqueId', $workspace->id)->first();
-            } else {
-                $item = UserSetting::where('type', $type)->where('userId', $currentUser->id)->first();
-            }
+            $item = UserSetting::where('type', $type)->where('userId', $currentUser->id)->first();
 
 
             if ($item) {
