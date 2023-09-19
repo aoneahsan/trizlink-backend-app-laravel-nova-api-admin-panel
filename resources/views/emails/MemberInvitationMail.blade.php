@@ -2,17 +2,17 @@
 # Welcome to ZLink.
 @if ($invitedUser->signUpType === \App\Zaions\Enums\SignUpTypeEnum::invite->value)
 
-    ## You have been invited by "{{$user->name}}" to join "{{$team->title}}" in "{{$workspace->title}}" worksapce.
+    ## You have been invited by "{{$user->name}}" to join "{{$workspace->title}}" worksapce.
 
     Please follow the link below to access your account.
 
-    You will need to setup a password to complete the account on-boarding process and accept the invitation to "{{$team->title}}".
+    You will need to setup a password to complete the account on-boarding process and accept the invitation to join "{{$workspace->title}}" worksapce.
 @endif
 
 @if ($invitedUser->signUpType === \App\Zaions\Enums\SignUpTypeEnum::normal->value)
-    ## You are invited in "{{$team->title}}" team.
+    ## You are invited in "{{$workspace->title}}" worksapce.
 
-    {{$user->name}} send you invitation to join "{{$team->title}}" team of "{{$workspace->title}}" worksapce.
+    {{$user->name}} send you invitation to join "{{$workspace->title}}" worksapce.
 @endif
 
 

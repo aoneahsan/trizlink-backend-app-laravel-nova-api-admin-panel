@@ -43,8 +43,8 @@ class WSTeamMemberResource extends JsonResource
             ] : null,
             'sortOrderNo' => $this->sortOrderNo,
             'isActive' => $this->isActive,
-            'extraAttributes' => $this->extraAttributes,
-            'createdAt' => $this->created_at->diffForHumans(),
+            'extraAttributes' => $this->extraAttributes, 'formattedCreatedAt' => $this->created_at->diffForHumans(),
+            'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at->diffForHumans(),
         ];
     }

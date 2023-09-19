@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('uniqueId')->nullable();
             $table->unsignedBigInteger('userId');
-            $table->unsignedBigInteger('workspaceId')->nullable();
+            $table->unsignedBigInteger('workspaceUniqueId')->nullable();
 
             $table->json('settings')->nullable();
             $table->string('type')->nullable();

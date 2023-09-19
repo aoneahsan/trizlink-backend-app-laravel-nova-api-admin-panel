@@ -24,7 +24,6 @@ class MemberInvitationMail extends Mailable implements ShouldQueue
         private User $user,
         private User $invitedUser,
         private WorkSpace $workspace,
-        private WorkspaceTeam $team,
         private $wilToken
     ) {
         //
@@ -58,7 +57,6 @@ class MemberInvitationMail extends Mailable implements ShouldQueue
                 'user' => $this->user,
                 'invitedUser' => $this->invitedUser,
                 'workspace' => $this->workspace,
-                'team' => $this->team,
                 'redirectUrl' => $this->redirectUrl(),
             ],
         );

@@ -39,10 +39,10 @@ class WSTeamMember extends Model
         return $this->belongsTo(WorkSpace::class, 'workspaceId', 'id');
     }
 
-    public function workspaceTeam(): BelongsTo
-    {
-        return $this->belongsTo(WorkspaceTeam::class, 'teamId', 'id');
-    }
+    // public function workspaceTeam(): BelongsTo
+    // {
+    //     return $this->belongsTo(WorkspaceTeam::class, 'teamId', 'id');
+    // }
 
     public function memberRole(): HasOne
     {

@@ -21,7 +21,8 @@ class PixelResource extends JsonResource
             'pixelId' => $this->pixelId,
             'isActive' => $this->isActive,
             'extraAttributes' => $this->extraAttributes,
-            'createAt' => $this->created_at->diffForHumans(),
+            'formattedCreateAt' => $this->created_at->diffForHumans(),
+            'createAt' => $this->created_at,
             'updatedAt' => $this->updated_at->diffForHumans()
         ];
     }

@@ -134,10 +134,10 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // Workspace Team member
         Route::controller(WSTeamMemberController::class)->group(function () {
-            Route::get('/user/workspace/{workspaceId}/team/{teamId}/member', 'getAllInvitationData');
-            Route::post('/user/workspace/{workspaceId}/team/{teamId}/member/send-invitation', 'sendInvitation');
-            Route::put('/user/workspace/{workspaceId}/team/{teamId}/member/resend-invitation/{itemId}', 'resendInvitation');
-            Route::get('/user/workspace/{workspaceId}/team/{teamId}/member/{itemId}', 'getInvitationData');
+            Route::get('/user/workspace/{workspaceId}/member', 'getAllInvitationData');
+            Route::post('/user/workspace/{workspaceId}/member/send-invitation', 'sendInvitation');
+            Route::put('/user/workspace/{workspaceId}/member/resend-invitation/{itemId}', 'resendInvitation');
+            Route::get('/user/workspace/{workspaceId}/member/{itemId}', 'getInvitationData');
             // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
             Route::put('/user/update-invitation/{itemId}', 'updateInvitationStatus');
         });

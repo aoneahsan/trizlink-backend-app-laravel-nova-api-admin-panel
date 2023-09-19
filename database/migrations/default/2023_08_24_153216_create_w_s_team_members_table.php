@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('uniqueId');
             $table->unsignedBigInteger('userId'); // (user how created this request)
             $table->unsignedBigInteger('workspaceId'); // (workspace whom the team belongs)
-            $table->unsignedBigInteger('teamId'); // (team of workspace where member is invited)
+            // $table->unsignedBigInteger('teamId'); // (team of workspace where member is invited)
             $table->unsignedBigInteger('memberRoleId'); // (role id to assign member)
             $table->unsignedBigInteger('memberId')->nullable(); // (user to whom this request is sent, so he can join this team)
             $table->dateTime('resendAllowedAfter')->nullable(); // will shore time. after this time pass user can resend the invitation

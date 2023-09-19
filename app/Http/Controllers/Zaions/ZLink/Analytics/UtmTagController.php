@@ -21,10 +21,10 @@ class UtmTagController extends Controller
      */
     public function index(Request $request)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
         try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
             $itemsCount = UtmTag::where('userId', $currentUser->id)->count();
             $items = UtmTag::where('userId', $currentUser->id)->get();
 
@@ -51,23 +51,23 @@ class UtmTagController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'templateName' => 'required|string|max:250',
-            'utmCampaign' => 'required|string|max:250',
-            'utmMedium' => 'required|string|max:250',
-            'utmSource' => 'required|string|max:250',
-            'utmTerm' => 'nullable|string|max:250',
-            'utmContent' => 'nullable|string|max:250',
-
-            'sortOrderNo' => 'nullable|integer',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
         try {
+            $request->validate([
+                'templateName' => 'required|string|max:250',
+                'utmCampaign' => 'required|string|max:250',
+                'utmMedium' => 'required|string|max:250',
+                'utmSource' => 'required|string|max:250',
+                'utmTerm' => 'nullable|string|max:250',
+                'utmContent' => 'nullable|string|max:250',
+
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
             $result = UtmTag::create([
                 'uniqueId' => uniqid(),
                 'userId' => $currentUser->id,
@@ -106,10 +106,10 @@ class UtmTagController extends Controller
      */
     public function show(Request $request, $itemId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
         try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
             $item = UtmTag::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
 
             if ($item) {
@@ -118,7 +118,7 @@ class UtmTagController extends Controller
                 ]);
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                    'item' => ['UTM tag not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -135,23 +135,23 @@ class UtmTagController extends Controller
      */
     public function update(Request $request, $itemId)
     {
-        $request->validate([
-            'templateName' => 'required|string|max:250',
-            'utmCampaign' => 'required|string|max:250',
-            'utmMedium' => 'required|string|max:250',
-            'utmSource' => 'required|string|max:250',
-            'utmTerm' => 'nullable|string|max:250',
-            'utmContent' => 'nullable|string|max:250',
-
-            'sortOrderNo' => 'nullable|integer',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
         try {
+            $request->validate([
+                'templateName' => 'required|string|max:250',
+                'utmCampaign' => 'required|string|max:250',
+                'utmMedium' => 'required|string|max:250',
+                'utmSource' => 'required|string|max:250',
+                'utmTerm' => 'nullable|string|max:250',
+                'utmContent' => 'nullable|string|max:250',
+
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
             $item = UtmTag::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
 
             if ($item) {
@@ -174,7 +174,7 @@ class UtmTagController extends Controller
                 ]);
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                    'item' => ['UTM tag not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -190,18 +190,20 @@ class UtmTagController extends Controller
      */
     public function destroy(Request $request, $itemId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
         try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_utmTag->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
             $item = UtmTag::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
 
             if ($item) {
                 $item->forceDelete();
-                return ZHelpers::sendBackRequestCompletedResponse([]);
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => ['success' => true]
+                ]);
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                    'item' => ['UTM tag not found!']
                 ]);
             }
         } catch (\Throwable $th) {
