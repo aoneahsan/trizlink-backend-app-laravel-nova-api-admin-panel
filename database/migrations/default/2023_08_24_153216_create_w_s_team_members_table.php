@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('w_s_team_members', function (Blueprint $table) {
             $table->id();
-            $table->string('wilToken', 1000); // wilToken -> workspaceInviteLinkToken.
+            $table->string('wilToken', 1000)->nullable(); // wilToken -> workspaceInviteLinkToken.
             $table->string('uniqueId');
             $table->unsignedBigInteger('userId'); // (user how created this request)
             $table->unsignedBigInteger('workspaceId'); // (workspace whom the team belongs)

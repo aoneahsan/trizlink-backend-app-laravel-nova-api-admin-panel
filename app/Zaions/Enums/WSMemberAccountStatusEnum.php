@@ -10,6 +10,7 @@ enum WSMemberAccountStatusEnum: string
   case resend = 'resend';
   case suspended = 'suspended';
   case blocked = 'blocked';
+  case cancel = 'cancel';
   case accepted = 'accepted';
   case rejected = 'rejected';
 }

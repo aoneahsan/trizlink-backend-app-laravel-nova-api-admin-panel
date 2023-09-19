@@ -2,7 +2,7 @@
 # Welcome to ZLink.
 @if ($invitedUser->signUpType === \App\Zaions\Enums\SignUpTypeEnum::invite->value)
 
-    ## You have been invited by "{{$user->name}}" to join "{{$workspace->title}}" worksapce.
+    ## You have been invited by "{{$user->username}}" to join "{{$workspace->title}}" worksapce.
 
     Please follow the link below to access your account.
 

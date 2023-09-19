@@ -138,12 +138,12 @@ class WSTeamMemberController extends Controller
                         //     $urlSafeEncodedId
                         // );
 
-                        $message = 'You have received a invitation to join workspace "' . $workspace->title . '" by "' . $currentUser->name . '".';
+                        $message = 'You have received a invitation to join workspace "' . $workspace->title . '" by "' . $currentUser->username . '".';
 
                         $data = [
                             'userId' => $memberUser->id,
                             'message' => $message,
-                            'inviter' => $currentUser->name,
+                            'inviter' => $currentUser->username,
                             'inviterUserId' => $currentUser->id,
                             'wsTeamMemberInviteId' => $wsTeamMemberInvite->uniqueId
                         ];
@@ -210,12 +210,12 @@ class WSTeamMemberController extends Controller
                     // Send the invitation mail to the memberUser.
                     Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace,  $urlSafeEncodedId));
 
-                    $message = 'You have received a invitation to join workspace "' . $workspace->title . '" by "' . $currentUser->name . '".';
+                    $message = 'You have received a invitation to join workspace "' . $workspace->title . '" by "' . $currentUser->username . '".';
 
                     $data = [
                         'userId' => $memberUser->id,
                         'message' => $message,
-                        'inviter' => $currentUser->name,
+                        'inviter' => $currentUser->username,
                         'inviterUserId' => $currentUser->id,
                         'wsTeamMemberInviteId' => $invitation->uniqueId
                     ];
@@ -277,8 +277,6 @@ class WSTeamMemberController extends Controller
         }
     }
 
-
-
     public function updateInvitationStatus(Request $request, $invitationId)
     {
         try {
@@ -303,18 +301,20 @@ class WSTeamMemberController extends Controller
                             'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
                             'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
                         ]);
-                        $message = $currentUser->name . ' has excepted your invitation.';
+                        $message = $currentUser->username . ' has excepted your invitation.';
 
 
                         // Send notification to the memberUser.
                     }
+
+
                     if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
                         $invitation->update([
                             'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
                             'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
                         ]);
                         $message =
-                            $currentUser->name . ' has rejected your invitation.';
+                            $currentUser->username . ' has rejected your invitation.';
                     }
 
                     $data = [
@@ -322,10 +322,22 @@ class WSTeamMemberController extends Controller
                         'message' => $message,
                         'inviterUserId' => $invitation->userId,
                     ];
+
+
+
                     $inviter = User::where('id', $invitation->userId)->first();
 
                     $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
                 }
+
+
+                if ($request->status === WSMemberAccountStatusEnum::cancel->value) {
+                    $invitation->update([
+                        'accountStatus' => WSMemberAccountStatusEnum::cancel->value,
+                        'wilToken' => null,
+                    ]);
+                }
+
 
                 $invitation = WSTeamMember::where('uniqueId', $invitationId)->with('workspace')->first();
 
@@ -343,6 +355,43 @@ class WSTeamMemberController extends Controller
         }
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $itemId
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request, $workspaceId, $itemId)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+
+            if ($workspace) {
+                $item = WSTeamMember::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
+
+                if ($item) {
+                    $item->forceDelete();
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => ['success' => true]
+                    ]);
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Member not found!']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
 
     // Public
     public function validateAndUpdateInvitation(Request $request)

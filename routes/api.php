@@ -140,6 +140,8 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspace/{workspaceId}/member/{itemId}', 'getInvitationData');
             // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
             Route::put('/user/update-invitation/{itemId}', 'updateInvitationStatus');
+
+            Route::delete('/user/workspace/{workspaceId}/member/{itemId}', 'destroy');
         });
 
         // Attach modal (pixel, UTM tag etc.) to workspace.
