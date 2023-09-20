@@ -17,6 +17,7 @@ class NotificationResource extends JsonResource
         return [
             'id' => $this->id,
             'ZLInviteeId' => $this->ZLInviteeId,
+            'zlNotificationType' => $this->zlNotificationType,
             'data' => $this->data,
             'notifiable_id' => $this->notifiable_id,
             'read_at' => $this->read_at,

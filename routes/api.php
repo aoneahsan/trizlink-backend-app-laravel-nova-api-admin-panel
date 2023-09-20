@@ -104,9 +104,9 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // notification
         Route::controller(NotificationController::class)->group(function () {
-            Route::get('/user/notification/type/{type}', 'unReadNotification');
-            Route::put('/user/notification/type/{type}/markAsRead/{id}', 'markAsRead');
-            Route::put('/user/notification/type/{type}/markAllAsRead', 'markAllAsRead');
+            Route::get('/user/notification', 'allNotification');
+            Route::put('/user/notification/markAsRead/{id}', 'markAsRead');
+            Route::put('/user/notification/markAllAsRead', 'markAllAsRead');
             // Route::post('/user/settings', 'store');
             // Route::get('/user/settings/{type}/{workspaceUniqueId}', 'show');
             // Route::put('/user/settings/{itemId}', 'update');
@@ -137,9 +137,10 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspace/{workspaceId}/member', 'getAllInvitationData');
             Route::post('/user/workspace/{workspaceId}/member/send-invitation', 'sendInvitation');
             Route::put('/user/workspace/{workspaceId}/member/resend-invitation/{itemId}', 'resendInvitation');
-            Route::get('/user/workspace/{workspaceId}/member/{itemId}', 'getInvitationData');
+            Route::get('/user/member/{itemId}', 'getInvitationData');
             // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
             Route::put('/user/update-invitation/{itemId}', 'updateInvitationStatus');
+            Route::put('/user/workspace/{workspaceId}/update-role/{itemId}', 'updateRole');
 
             Route::delete('/user/workspace/{workspaceId}/member/{itemId}', 'destroy');
         });

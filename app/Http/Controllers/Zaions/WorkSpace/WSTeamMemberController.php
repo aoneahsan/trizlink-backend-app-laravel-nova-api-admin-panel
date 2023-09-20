@@ -80,7 +80,16 @@ class WSTeamMemberController extends Controller
 
             $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
 
+
             if ($workspace) {
+                $item = WSTeamMember::where('userId', $currentUser->id)->where('email', $request->email)->where('workspaceId', $workspace->id)->first();
+
+                if ($item) {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'email' => ['invitation with this email already exist.']
+                    ]);
+                }
+
                 $role = Role::where('name', $request->role)->first();
 
                 if ($role) {
@@ -242,7 +251,7 @@ class WSTeamMemberController extends Controller
         }
     }
 
-    public function getInvitationData(Request $request, $workspaceId,   $itemId)
+    public function getInvitationData(Request $request, $itemId)
     {
         try {
             $currentUser = $request->user();
@@ -250,25 +259,15 @@ class WSTeamMemberController extends Controller
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
 
-            $workspace =
-                WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+            $invitation = WSTeamMember::where('uniqueId', $itemId)->first();
 
-            if ($workspace) {
-
-                $invitation = WSTeamMember::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
-
-                if ($invitation) {
-                    return ZHelpers::sendBackRequestCompletedResponse([
-                        'item' => new WSTeamMemberResource($invitation),
-                    ]);
-                } else {
-                    return ZHelpers::sendBackNotFoundResponse([
-                        'item' => ['invitation not found!']
-                    ]);
-                }
+            if ($invitation) {
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => new WSTeamMemberResource($invitation),
+                ]);
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['workspace not found!']
+                    'item' => ['invitation not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -301,20 +300,16 @@ class WSTeamMemberController extends Controller
                             'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
                             'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
                         ]);
-                        $message = $currentUser->username . ' has excepted your invitation.';
-
-
-                        // Send notification to the memberUser.
+                        $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
                     }
-
 
                     if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
                         $invitation->update([
                             'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
                             'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
                         ]);
-                        $message =
-                            $currentUser->username . ' has rejected your invitation.';
+                        $message = '"' .
+                            $currentUser->username . '"' . ' has rejected your invitation.';
                     }
 
                     $data = [
@@ -323,13 +318,10 @@ class WSTeamMemberController extends Controller
                         'inviterUserId' => $invitation->userId,
                     ];
 
-
-
                     $inviter = User::where('id', $invitation->userId)->first();
 
                     $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
                 }
-
 
                 if ($request->status === WSMemberAccountStatusEnum::cancel->value) {
                     $invitation->update([
@@ -337,7 +329,6 @@ class WSTeamMemberController extends Controller
                         'wilToken' => null,
                     ]);
                 }
-
 
                 $invitation = WSTeamMember::where('uniqueId', $invitationId)->with('workspace')->first();
 
@@ -374,6 +365,12 @@ class WSTeamMemberController extends Controller
                 $item = WSTeamMember::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
 
                 if ($item) {
+                    $invitee = User::where('email', $item->email)->first();
+
+                    if ($invitee->signUpType === SignUpTypeEnum::invite->value) {
+                        $invitee->forceDelete();
+                    }
+
                     $item->forceDelete();
                     return ZHelpers::sendBackRequestCompletedResponse([
                         'item' => ['success' => true]
@@ -381,6 +378,56 @@ class WSTeamMemberController extends Controller
                 } else {
                     return ZHelpers::sendBackNotFoundResponse([
                         'item' => ['Member not found!']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function updateRole(Request $request, $workspaceId, $itemId)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $request->validate([
+                'role' => 'required|string',
+            ]);
+
+            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+
+            if ($workspace) {
+
+                $role = Role::where('name', $request->role)->first();
+
+                if ($role) {
+                    $item = WSTeamMember::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
+
+                    if ($item) {
+                        $item->update([
+                            'memberRoleId' => $role->id,
+                        ]);
+
+                        $item = WSTeamMember::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
+
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => new WSTeamMemberResource($item),
+                        ]);
+                    } else {
+                        return ZHelpers::sendBackNotFoundResponse([
+                            'item' => ['Member not found!']
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['invalid role!']
                     ]);
                 }
             } else {

@@ -20,7 +20,7 @@ class NotificationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function unReadNotification(Request $request, $type)
+    public function allNotification(Request $request)
     {
         try {
             $currentUser = $request->user();
@@ -28,31 +28,23 @@ class NotificationController extends Controller
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_notification->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if ($currentUser->id) {
-                if ($type) {
-                    if ($type === NotificationTypeEnum::wsTeamMemberInvitation->name) {
-                        $allNotification =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->get();
-                        $allNotificationCount =  DatabaseNotification::where('zlNotificationType', $type)->where('ZLInviteeId', $currentUser->id)->count();
+                $allNotification =  $currentUser->notifications()->get();
+                $allNotificationCount =  $currentUser->notifications()->count();
 
-                        return ZHelpers::sendBackRequestCompletedResponse([
-                            'items' => NotificationResource::collection(
-                                $allNotification
-                            ),
-                            'itemsCount' => $allNotificationCount
-                        ]);
-                    }
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'items' => NotificationResource::collection(
+                        $allNotification
+                    ),
+                    'itemsCount' => $allNotificationCount
+                ]);
 
-                    $unreadNotifications = $currentUser->unreadNotifications()->where('zlNotificationType', $type)->get();
-                    $itemsCount = $currentUser->unreadNotifications()->where('zlNotificationType', $type)->count();
+                // $unreadNotifications = $currentUser->unreadNotifications()->get();
+                // $itemsCount = $currentUser->unreadNotifications()->count();
 
-                    return ZHelpers::sendBackRequestCompletedResponse([
-                        'items' => NotificationResource::collection($unreadNotifications),
-                        'itemsCount' => $itemsCount
-                    ]);
-                } else {
-                    ZHelpers::sendBackInvalidParamsResponse([
-                        'type' => 'param notification type is required.'
-                    ]);
-                }
+                // return ZHelpers::sendBackRequestCompletedResponse([
+                //     'items' => NotificationResource::collection($unreadNotifications),
+                //     'itemsCount' => $itemsCount
+                // ]);
             }
         } catch (\Throwable $th) {
             //throw $th;
@@ -60,7 +52,7 @@ class NotificationController extends Controller
         }
     }
 
-    public function markAsRead(Request $request, $type, $id)
+    public function markAsRead(Request $request,  $id)
     {
         try {
             $currentUser = $request->user();
@@ -68,7 +60,7 @@ class NotificationController extends Controller
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_notification->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if ($currentUser->id) {
-                $currentNotification = $currentUser->notifications()->where('id', $id)->where('zlNotificationType', $type)->first();
+                $currentNotification = $currentUser->notifications()->where('id', $id)->first();
 
                 if ($currentNotification) {
                     if ($currentNotification->read_at === null) {
@@ -93,7 +85,7 @@ class NotificationController extends Controller
         }
     }
 
-    public function markAllAsRead(Request $request, $type)
+    public function markAllAsRead(Request $request)
     {
         try {
             $currentUser = $request->user();

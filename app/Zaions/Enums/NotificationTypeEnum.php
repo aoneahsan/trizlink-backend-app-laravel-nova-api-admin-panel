@@ -7,5 +7,5 @@ enum NotificationTypeEnum: string
   case newDeviceLogin = 'newDeviceLogin';
   case lastLogout = 'lastLogout';
   case wsTeamMemberInvitation = 'wsTeamMemberInvitation';
-  case wsMemberInviteAction = 'wsMemberInviteAction';
+  case wsMemberInviteAction = 'wsMemberInviteAction'; // action by invitee in invitee accept or reject
 }
