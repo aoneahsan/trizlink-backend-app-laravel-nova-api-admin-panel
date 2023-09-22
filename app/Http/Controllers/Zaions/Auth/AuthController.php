@@ -72,12 +72,12 @@ class AuthController extends Controller
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('auth');
 
-                $notificationData = [
-                    'userId' => $user->id,
-                    'message' => 'login ' . $token->accessToken->created_at->diffForHumans(),
-                ];
+                // $notificationData = [
+                //     'userId' => $user->id,
+                //     'message' => 'login ' . $token->accessToken->created_at->diffForHumans(),
+                // ];
 
-                $user->notify(new NewDeviceLoginNotification($notificationData));
+                // $user->notify(new NewDeviceLoginNotification($notificationData));
 
                 return response()->json([
                     'success' => true,
