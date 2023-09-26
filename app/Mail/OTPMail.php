@@ -17,7 +17,9 @@ class OTPMail extends Mailable implements ShouldQueue
      * Create a new message instance.
      */
     public function __construct(
-        private $user
+        private $user,
+        private $OTP,
+        public $subject
     ) {
         //
     }
@@ -30,8 +32,7 @@ class OTPMail extends Mailable implements ShouldQueue
         return new Envelope(
             from: new \Illuminate\Mail\Mailables\Address('developer@zaions.com', 'MTI'),
             to: $this->user->email,
-            subject: 'Member Invitation Mail',
-
+            subject: $this->subject,
         );
     }
 
@@ -43,7 +44,7 @@ class OTPMail extends Mailable implements ShouldQueue
         return new Content(
             markdown: 'emails.OTPMail',
             with: [
-                'otp' => $this->user->OTPCode,
+                'otp' => $this->OTP,
             ],
         );
     }

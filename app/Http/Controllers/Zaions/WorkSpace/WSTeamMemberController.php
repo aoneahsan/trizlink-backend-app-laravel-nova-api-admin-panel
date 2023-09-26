@@ -115,7 +115,7 @@ class WSTeamMemberController extends Controller
 
                     // WorkspaceInviteLinkToken
                     [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
-                    $resendAllowedAfter = Carbon::now()->addMinutes(5)->toDateTimeString();
+                    $resendAllowedAfter = Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
                     $wsTeamMemberInvite = WSTeamMember::create([
                         'uniqueId' => uniqid(),
                         'wilToken' => $uniqueId,
@@ -203,7 +203,7 @@ class WSTeamMemberController extends Controller
                     // WorkspaceInviteLinkToken
                     [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
 
-                    $resendAllowedAfter = Carbon::now()->addMinutes(5)->toDateTimeString();
+                    $resendAllowedAfter = Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
 
                     $invitation->update([
                         'wilToken' => $uniqueId,

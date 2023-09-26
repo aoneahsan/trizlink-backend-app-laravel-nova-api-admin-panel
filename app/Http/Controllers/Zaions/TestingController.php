@@ -18,11 +18,11 @@ class TestingController extends Controller
     public function zTestingRouteRes(Request $request)
     {
         // $otp = ZHelpers::generateUniqueNumericOTP();
-        // $otpTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+        // $otpTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
         // dd($otpTime > Carbon::now());
         // Test check if user is super admin
         // $user = $request->user();
-        // dd($user->roles()->pluck('name'), $user->hasRole(RolesEnum::superAdmin->name));
+        dd(Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString());
 
         // Test - working with Carbon date and time
         // $carbonNow = Carbon::now($request->user()?->userTimezone);

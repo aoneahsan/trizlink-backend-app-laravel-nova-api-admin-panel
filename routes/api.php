@@ -6,6 +6,7 @@ use App\Http\Controllers\Zaions\Notification\NotificationController;
 use App\Http\Controllers\Zaions\StaticPageController;
 use App\Http\Controllers\Zaions\Testing\TestController;
 use App\Http\Controllers\Zaions\User\UserController;
+use App\Http\Controllers\Zaions\User\UserEmailController;
 use App\Http\Controllers\Zaions\User\UserSettingController;
 use App\Http\Controllers\Zaions\WorkSpace\SharedWSController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkSpaceController;
@@ -85,12 +86,21 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/list-users', 'listUsers');
             Route::get('/user', 'index');
             Route::get('/user/role/permissions', 'getUserPermissions');
-            Route::post('/user', 'updateAccountInfo');
+            Route::put('/user/update-account-info', 'updateAccountInfo');
             Route::post('/user/username/check', 'checkIfUsernameIsAvailable');
             Route::post('/user/username/update', 'updateUsername');
             // Route::get('/user/{token}', '')->name('password.reset');
             Route::post('/user/delete', 'destroy');
             Route::get('/user/ws-roles', 'getWSPermissions');
+        });
+
+        // user emails routes
+        Route::controller(UserEmailController::class)->group(function () {
+            Route::get('/user/list-emails', 'index');
+            Route::post('/user/add-email', 'addEmail');
+            Route::put('/user/confirm-email-otp/{itemId}', 'confirmOtp');
+            Route::put('/user/resend-email-otp/{itemId}', 'resendOtp');
+            Route::delete('/user/delete-email/{itemId}', 'deleteEmail');
         });
 
         // user

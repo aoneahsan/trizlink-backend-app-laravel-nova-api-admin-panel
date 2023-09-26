@@ -16,6 +16,13 @@ return new class extends Migration
             $table->id();
             $table->string('uniqueId')->nullable();
             $table->string('name')->nullable();
+            $table->string('firstname')->nullable();
+            $table->string('lastname')->nullable();
+            $table->string('description')->nullable();
+            $table->string('website')->nullable();
+            $table->string('country')->nullable();
+            $table->string('language')->nullable();
+            $table->string('city')->nullable();
             $table->string('username')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -23,7 +30,8 @@ return new class extends Migration
 
             // new fields
             $table->string('slug')->nullable();
-            $table->string('profilePitcher')->nullable();
+            $table->json('profileImage')->nullable(); // use to store user profile detail json, for example json containing filePath, fileUrl, etc.
+            $table->string('avatar')->nullable(); // use to store one fileUrl so where we need just url we will get from here.
             $table->string('phoneNumber')->nullable();
             $table->integer('dailyMinOfficeTime')->default(8)->min(3)->max(12)->nullable();
             $table->integer('dailyMinOfficeTimeActivity')->default(85)->min(75)->max(100)->nullable();

@@ -3,6 +3,8 @@
 namespace Database\Seeders\Default;
 
 use App\Models\Default\User;
+use App\Models\Default\UserEmail;
+use App\Zaions\Enums\EmailStatusEnum;
 use App\Zaions\Enums\RolesEnum;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -39,6 +41,17 @@ class UserSeeder extends Seeder
             'dailyMinOfficeTime' => 8,
             'dailyMinOfficeTimeActivity' => 85
         ]);
+        // adding a default email entry from ahsanUser in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $ahsanUser->id,
+            'email' => $ahsanUser->email,
+            'status' => EmailStatusEnum::Verified->value,
+            'isDefault' => true,
+            'isPrimary' => true,
+        ]);
+
+
         $superAdminUser = User::create([
             'uniqueId' => uniqid(),
             'username' => 'superAdmin',
@@ -48,6 +61,15 @@ class UserSeeder extends Seeder
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
             'dailyMinOfficeTimeActivity' => 85
+        ]);
+        // adding a default email entry from superAdminUser in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $superAdminUser->id,
+            'email' => $superAdminUser->email,
+            'status' => EmailStatusEnum::Verified->value,
+            'isDefault' => true,
+            'isPrimary' => true,
         ]);
 
         // create admin user
@@ -61,6 +83,15 @@ class UserSeeder extends Seeder
             'dailyMinOfficeTime' => 8,
             'dailyMinOfficeTimeActivity' => 85
         ]);
+        // adding a default email entry from adminUser in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $adminUser->id,
+            'email' => $adminUser->email,
+            'status' => EmailStatusEnum::Verified->value,
+            'isDefault' => true,
+            'isPrimary' => true,
+        ]);
 
         // create user user
         $simpleUser = User::create([
@@ -72,6 +103,15 @@ class UserSeeder extends Seeder
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
             'dailyMinOfficeTimeActivity' => 85
+        ]);
+        // adding a default email entry from simpleUser in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $simpleUser->id,
+            'status' => EmailStatusEnum::Verified->value,
+            'email' => $simpleUser->email,
+            'isDefault' => true,
+            'isPrimary' => true,
         ]);
 
         // Assign Roles

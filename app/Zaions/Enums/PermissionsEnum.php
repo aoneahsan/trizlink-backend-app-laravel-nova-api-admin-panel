@@ -38,6 +38,21 @@ enum PermissionsEnum: string
   case restore_user = 'restore_user';
   case forceDelete_user = 'forceDelete_user';
 
+    // User profile
+  case view_profile = 'view_profile';
+  case update_profile = 'update_profile';
+
+    // emails
+  case viewAny_emails = 'viewAny_emails';
+  case view_email = 'view_email';
+  case add_email = 'add_email';
+  case email_opt_check = 'email_opt_check';
+  case update_email = 'update_email';
+  case delete_email = 'delete_email';
+  case restore_email = 'restore_email';
+  case forceDelete_email = 'forceDelete_email';
+
+
     // Workspace
   case viewAny_notification = 'viewAny_notification';
   case view_notification = 'view_notification';

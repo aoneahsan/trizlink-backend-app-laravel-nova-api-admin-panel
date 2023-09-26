@@ -36,6 +36,15 @@ class RolePermissionsSeeder extends Seeder
         $replicateUserPermission = Permission::create(['name' => PermissionsEnum::replicate_user->name]);
         $restoreUserPermission = Permission::create(['name' => PermissionsEnum::restore_user->name]);
         $forceDeleteUserPermission = Permission::create(['name' => PermissionsEnum::forceDelete_user->name]);
+        // Emails Model Permissions
+        $viewAnyEmailsPermission = Permission::create(['name' => PermissionsEnum::viewAny_emails->name]);
+        $viewEmailsPermission = Permission::create(['name' => PermissionsEnum::view_email->name]);
+        $addEmailsPermission = Permission::create(['name' => PermissionsEnum::add_email->name]);
+        $emailOptCheckPermission = Permission::create(['name' => PermissionsEnum::email_opt_check->name]);
+        $updateEmailsPermission = Permission::create(['name' => PermissionsEnum::update_email->name]);
+        $deleteEmailsPermission = Permission::create(['name' => PermissionsEnum::delete_email->name]);
+        $restoreEmailsPermission = Permission::create(['name' => PermissionsEnum::restore_email->name]);
+        $forceDeleteEmailsPermission = Permission::create(['name' => PermissionsEnum::forceDelete_email->name]);
         // Notification Model Permissions
         $viewAnyNotificationPermission = Permission::create(['name' => PermissionsEnum::viewAny_notification->name]);
         $viewNotificationPermission = Permission::create(['name' => PermissionsEnum::view_notification->name]);
@@ -284,6 +293,15 @@ class RolePermissionsSeeder extends Seeder
             $replicateUserPermission,
             $restoreUserPermission,
             $forceDeleteUserPermission,
+            // Emails
+            $viewAnyEmailsPermission,
+            $viewEmailsPermission,
+            $addEmailsPermission,
+            $emailOptCheckPermission,
+            $updateEmailsPermission,
+            $deleteEmailsPermission,
+            $restoreEmailsPermission,
+            $forceDeleteEmailsPermission,
             // Notification
             $viewAnyNotificationPermission,
             $viewNotificationPermission,

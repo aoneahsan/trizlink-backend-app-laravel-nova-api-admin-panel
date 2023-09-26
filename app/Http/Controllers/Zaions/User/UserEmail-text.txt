@@ -1,0 +1,17 @@
+UserEmail
+
+  userId
+  email
+  verifiedAt
+  optCode
+  expireTime
+  isDefault   (true)
+  isPrimary   (true)
+    (5)
+
+
+
+
+user create
+
+  

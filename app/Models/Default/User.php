@@ -28,6 +28,7 @@ class User extends Authenticatable
 
     protected $guarded = [];
 
+
     // https://novapackages.com/packages/outl1ne/nova-sortable
     public $sortable = [
         'order_column_name' => 'sortOrderNo',
@@ -41,6 +42,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'extraAttributes' => 'array',
+        'profileImage' => 'array',
         'email_verified_at' => 'datetime',
         'OPTCodeValidTill' => 'datetime',
     ];

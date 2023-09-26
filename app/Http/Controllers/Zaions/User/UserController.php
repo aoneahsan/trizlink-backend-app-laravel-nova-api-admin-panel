@@ -55,45 +55,39 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'nullable|string|max:250',
                 'firstname' => 'nullable|string|max:250',
+                'username' => 'nullable|string|max:250',
                 'lastname' => 'nullable|string|max:250',
-                'phonenumber' => 'nullable|string|max:250',
+                'phoneNumber' => 'nullable|string|max:250',
                 'description' => 'nullable|string|max:1000',
                 'website' => 'nullable|string|max:250',
                 'language' => 'nullable|string|max:250',
-                'countrycode' => 'nullable|string|max:250',
                 'country' => 'nullable|string|max:250',
                 'address' => 'nullable|string|max:250',
                 'city' => 'nullable|string|max:250',
-                'profileimage' => 'nullable|string|max:250',
-                'avatar' => 'nullable|string|max:250'
+                'profileImage' => 'nullable|json', // use to store user profile detail json, for example json containing filePath, fileUrl, etc.
+                'avatar' => 'nullable|string|max:250' // use to store one fileUrl so where we need just url we will get from here.
             ]);
             $user = User::where('id', $request->user()->id)->first();
             if ($user) {
                 $user->forceFill([
                     'name' => $request->has('name') ? $request->name : $user->name,
                     'firstname' => $request->has('firstname') ? $request->firstname : $user->firstname,
+                    'username' => $request->has('username') ? $request->username : $user->username,
                     'lastname' => $request->has('lastname') ? $request->lastname : $user->lastname,
-                    'phonenumber' => $request->has('phonenumber') ? $request->phonenumber : $user->phonenumber,
+                    'phoneNumber' => $request->has('phoneNumber') ? $request->phoneNumber : $user->phoneNumber,
                     'description' => $request->has('description') ? $request->description : $user->description,
                     'website' => $request->has('website') ? $request->website : $user->website,
                     'language' => $request->has('language') ? $request->language : $user->language,
-                    'countrycode' => $request->has('countrycode') ? $request->countrycode : $user->countrycode,
                     'country' => $request->has('country') ? $request->country : $user->country,
                     'address' => $request->has('address') ? $request->address : $user->address,
                     'city' => $request->has('city') ? $request->city : $user->city,
-                    'profileimage' => $request->has('profileimage') ? $request->profileimage : $user->profileimage,
+                    'profileImage' => $request->has('profileImage') ? (is_string($request->profileImage) ? json_decode($request->profileImage) : $request->profileImage) : $user->profileImage,
                     'avatar' => $request->has('avatar') ? $request->avatar : $user->avatar
                 ])->save();
                 $updatedUserInfo = User::where('id', $request->user()->id)->first();
 
-                return response()->json([
-                    'success' => true,
-                    'status' => 200,
-                    'data' => [
-                        'updatedUserData' => new UserDataResource($updatedUserInfo)
-                    ],
-                    'errors' => [],
-                    'message' => 'Request Completed.'
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => new UserDataResource($updatedUserInfo)
                 ]);
             } else {
                 return response()->json([
@@ -304,7 +298,7 @@ class UserController extends Controller
                         $user = User::where('email', $request->email)->first();
                         if ($user) {
                             $otp = ZHelpers::generateUniqueNumericOTP();
-                            $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+                            $otpValidTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
                             $user->update([
                                 'OTPCode' => $otp,
                                 'OTPCodeValidTill' => $otpValidTime
@@ -314,7 +308,7 @@ class UserController extends Controller
 
                             if ($user->OTPCode) {
                                 // Send the invitation mail to the memberUser.
-                                Mail::send(new OTPMail($user));
+                                Mail::send(new OTPMail($user, $user->OTPCode, 'Member Invitation Mail'));
 
 
                                 return ZHelpers::sendBackRequestCompletedResponse([
@@ -497,7 +491,7 @@ class UserController extends Controller
             //code...
 
             $otp = ZHelpers::generateUniqueNumericOTP();
-            $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+            $otpValidTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
 
             $user = User::create([
                 'uniqueId' => uniqid(),
@@ -516,7 +510,7 @@ class UserController extends Controller
             if ($user->OTPCode) {
                 // Send the invitation mail to the memberUser.
                 // SendMailJob::dispatch($user);
-                Mail::send(new OTPMail($user));
+                Mail::send(new OTPMail($user, $user->OTPCode, 'Member Invitation Mail'));
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => [
@@ -547,7 +541,7 @@ class UserController extends Controller
 
             if ($user) {
                 $otp = ZHelpers::generateUniqueNumericOTP();
-                $otpValidTime =  Carbon::now()->addMinutes(5)->toDateTimeString();
+                $otpValidTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
 
                 $user = $user->update([
                     'OTPCode' => $otp,
@@ -559,7 +553,7 @@ class UserController extends Controller
                 if ($user->OTPCode) {
                     // Send the invitation mail to the memberUser.
                     // SendMailJob::dispatch($user);
-                    Mail::send(new OTPMail($user));
+                    Mail::send(new OTPMail($user, $user->OTPCode, 'Member Invitation Mail'));
 
                     return ZHelpers::sendBackRequestCompletedResponse([
                         'item' => [
