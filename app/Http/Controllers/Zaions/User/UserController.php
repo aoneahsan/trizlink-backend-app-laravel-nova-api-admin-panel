@@ -657,6 +657,52 @@ class UserController extends Controller
         }
     }
 
+    // If password change request come first validate the current password and send an OTP(one-time-password) to the user primary email from verification.
+    function validateCurrentPassword(Request $request)
+    {
+        try {
+            $currentUser = $request->user();
+
+            $request->validate([
+                'password' => 'required|string',
+            ]);
+
+            if ($currentUser) {
+                if (Hash::check($request->password, $currentUser->password)) {
+                    // If password validated the send opt in user primary email.
+                    $otp = ZHelpers::generateUniqueNumericOTP();
+                    $otpValidTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
+
+                    $currentUser->update([
+                        'OTPCode' => $otp,
+                        'OTPCodeValidTill' => $otpValidTime
+                    ]);
+
+                    $mailSubject = 'Password change verification OTP';
+                    Mail::send(new OTPMail($currentUser, $otp, $mailSubject));
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => [
+                            'success' => true,
+                            'OTPCodeValidTill' => $otpValidTime
+                        ]
+                    ]);
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'password' => ['Incorrect password.']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User not found.']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
     function updatePassword(Request $request)
     {
         $currentUser = $request->user();
@@ -667,24 +713,23 @@ class UserController extends Controller
             ]);
 
             if ($currentUser) {
-                if ($request->password === $currentUser->password) {
+                if (Hash::check($request->password, $currentUser->password)) {
                     $updatedUser = $currentUser->update([
-                        'password' => Hash::make($request->password),
-                        'username' => $request->username ? $request->username : $currentUser->username,
+                        'password' => Hash::make($request->newPassword),
                     ]);
 
-                    $user = User::where('email', $updatedUser->email)->first();
+                    if ($updatedUser) {
+                        $user = User::where('email', $currentUser->email)->first();
 
-                    return ZHelpers::sendBackRequestCompletedResponse([
-                        'item' => [
-                            'user' => new UserDataResource($user),
-                        ]
-                    ]);
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => [
+                                'user' => new UserDataResource($user),
+                            ]
+                        ]);
+                    }
                 } else {
                     return ZHelpers::sendBackBadRequestResponse([
-                        'item' => [
-                            'password' => 'Incorrect password.'
-                        ]
+                        'password' => ['Incorrect password.']
                     ]);
                 }
             } else {

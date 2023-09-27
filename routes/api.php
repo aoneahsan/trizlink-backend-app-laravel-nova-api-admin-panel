@@ -88,6 +88,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/role/permissions', 'getUserPermissions');
             Route::put('/user/update-account-info', 'updateAccountInfo');
             Route::put('/user/update-password', 'updatePassword');
+            Route::put('/user/validate-password', 'validateCurrentPassword');
             Route::post('/user/username/check', 'checkIfUsernameIsAvailable');
             Route::post('/user/username/update', 'updateUsername');
             // Route::get('/user/{token}', '')->name('password.reset');
