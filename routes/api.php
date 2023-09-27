@@ -87,6 +87,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user', 'index');
             Route::get('/user/role/permissions', 'getUserPermissions');
             Route::put('/user/update-account-info', 'updateAccountInfo');
+            Route::put('/user/update-password', 'updatePassword');
             Route::post('/user/username/check', 'checkIfUsernameIsAvailable');
             Route::post('/user/username/update', 'updateUsername');
             // Route::get('/user/{token}', '')->name('password.reset');
@@ -100,6 +101,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::post('/user/add-email', 'addEmail');
             Route::put('/user/confirm-email-otp/{itemId}', 'confirmOtp');
             Route::put('/user/resend-email-otp/{itemId}', 'resendOtp');
+            Route::put('/user/make-email-primary/{itemId}', 'makeEmailPrimary');
             Route::delete('/user/delete-email/{itemId}', 'deleteEmail');
         });
 

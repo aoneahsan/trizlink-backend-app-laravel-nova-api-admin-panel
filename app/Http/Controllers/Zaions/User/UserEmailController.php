@@ -191,6 +191,7 @@ class UserEmailController extends Controller
 
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_email->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
+
             $item = UserEmail::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
 
             if ($item) {
@@ -211,6 +212,63 @@ class UserEmailController extends Controller
             }
         } catch (\Throwable $th) {
             //throw $th;
+            ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function makeEmailPrimary(Request $request, $itemId)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_email->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $request->validate([
+                'email' => 'required|string'
+            ]);
+
+            $item = UserEmail::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+
+            if ($item) {
+                if (!$item->isPrimary) {
+
+                    $currentPrimaryEmail = UserEmail::where('isPrimary', true)->where('userId', $currentUser->id)->first();
+
+                    $currentPrimaryEmail->update([
+                        'isPrimary' => false
+                    ]);
+
+                    $item->update([
+                        'isPrimary' => true
+                    ]);
+
+
+
+                    $item = UserEmail::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+
+                    $oldPrimaryEmail = UserEmail::where('uniqueId', $currentPrimaryEmail->uniqueId)->where('userId', $currentUser->id)->first();
+
+                    $currentUser->update([
+                        'email' => $item->email,
+                    ]);
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => [
+                            'primaryEmail' => new UserEmailResource($item),
+                            'oldPrimaryEmail' => new UserEmailResource($oldPrimaryEmail)
+                        ],
+                    ]);
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'item' => ["This email is already primary email!"]
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackRequestFailedResponse([
+                    'item' => ['Email not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
             ZHelpers::sendBackServerErrorResponse($th);
         }
     }

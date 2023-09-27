@@ -633,7 +633,7 @@ class UserController extends Controller
             if ($user) {
                 $user->update([
                     'password' => Hash::make($request->password),
-                    'username' => $request->username,
+                    'username' => $request->username ? $request->username : $user->username,
                 ]);
 
                 $user = User::where('email', $request->email)->first();
@@ -646,6 +646,47 @@ class UserController extends Controller
                         'token' => $token
                     ]
                 ]);
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User with this email not found.']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    function updatePassword(Request $request)
+    {
+        $currentUser = $request->user();
+        try {
+            $request->validate([
+                'password' => 'required|string',
+                'newPassword' => ['required', 'string', new Password, 'confirmed'],
+            ]);
+
+            if ($currentUser) {
+                if ($request->password === $currentUser->password) {
+                    $updatedUser = $currentUser->update([
+                        'password' => Hash::make($request->password),
+                        'username' => $request->username ? $request->username : $currentUser->username,
+                    ]);
+
+                    $user = User::where('email', $updatedUser->email)->first();
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => [
+                            'user' => new UserDataResource($user),
+                        ]
+                    ]);
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'item' => [
+                            'password' => 'Incorrect password.'
+                        ]
+                    ]);
+                }
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['User with this email not found.']
