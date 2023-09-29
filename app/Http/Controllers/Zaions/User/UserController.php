@@ -343,73 +343,73 @@ class UserController extends Controller
         }
     }
 
-    function confirmOtp(Request $request)
-    {
-        try {
-            $request->validate([
-                'email' => 'required|string',
-                'otp' => 'required|string|max:6',
-                'inviteToken' => 'required|string',
-            ]);
+    // function confirmOtp(Request $request)
+    // {
+    //     try {
+    //         $request->validate([
+    //             'email' => 'required|string',
+    //             'otp' => 'required|string|max:6',
+    //             'inviteToken' => 'required|string',
+    //         ]);
 
 
-            $token = ZHelpers::zDecryptUniqueId($request->inviteToken);
+    //         $token = ZHelpers::zDecryptUniqueId($request->inviteToken);
 
-            if ($token) {
+    //         if ($token) {
 
-                $memberInvitation = WSTeamMember::where('wilToken', $token)->first();
+    //             $memberInvitation = WSTeamMember::where('wilToken', $token)->first();
 
-                if ($memberInvitation) {
+    //             if ($memberInvitation) {
 
-                    $memberEmail = $memberInvitation->email;
+    //                 $memberEmail = $memberInvitation->email;
 
-                    if ($memberEmail === $request->email) {
-                        $user = User::where('email', $request->email)->first();
+    //                 if ($memberEmail === $request->email) {
+    //                     $user = User::where('email', $request->email)->first();
 
-                        if ($user) {
-                            $currentTime = Carbon::now();
-                            if ($user->OTPCodeValidTill >= $currentTime) {
-                                if ($user->OTPCode === $request->otp) {
-                                    return ZHelpers::sendBackRequestCompletedResponse([
-                                        'item' => [
-                                            'success' => true
-                                        ],
-                                    ]);
-                                } else {
-                                    return ZHelpers::sendBackBadRequestResponse([
-                                        'item' => ['Incorrect OTP.']
-                                    ]);
-                                }
-                            } else {
-                                return ZHelpers::sendBackBadRequestResponse([
-                                    'item' => ['Invalid OTP, please resend otp.']
-                                ]);
-                            }
-                        } else {
-                            return ZHelpers::sendBackNotFoundResponse([
-                                'item' => ['User with this email not found.']
-                            ]);
-                        }
-                    } else {
-                        return ZHelpers::sendBackBadRequestResponse([
-                            'item' => ['email does not match.']
-                        ]);
-                    }
-                } else {
-                    return ZHelpers::sendBackBadRequestResponse([
-                        'item' => ['invalid invitation!']
-                    ]);
-                }
-            } else {
-                return ZHelpers::sendBackBadRequestResponse([
-                    'token' => ['invalid token!']
-                ]);
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
+    //                     if ($user) {
+    //                         $currentTime = Carbon::now();
+    //                         if ($user->OTPCodeValidTill >= $currentTime) {
+    //                             if ($user->OTPCode === $request->otp) {
+    //                                 return ZHelpers::sendBackRequestCompletedResponse([
+    //                                     'item' => [
+    //                                         'success' => true
+    //                                     ],
+    //                                 ]);
+    //                             } else {
+    //                                 return ZHelpers::sendBackBadRequestResponse([
+    //                                     'item' => ['Incorrect OTP.']
+    //                                 ]);
+    //                             }
+    //                         } else {
+    //                             return ZHelpers::sendBackBadRequestResponse([
+    //                                 'item' => ['Invalid OTP, please resend otp.']
+    //                             ]);
+    //                         }
+    //                     } else {
+    //                         return ZHelpers::sendBackNotFoundResponse([
+    //                             'item' => ['User with this email not found.']
+    //                         ]);
+    //                     }
+    //                 } else {
+    //                     return ZHelpers::sendBackBadRequestResponse([
+    //                         'item' => ['email does not match.']
+    //                     ]);
+    //                 }
+    //             } else {
+    //                 return ZHelpers::sendBackBadRequestResponse([
+    //                     'item' => ['invalid invitation!']
+    //                 ]);
+    //             }
+    //         } else {
+    //             return ZHelpers::sendBackBadRequestResponse([
+    //                 'token' => ['invalid token!']
+    //             ]);
+    //         }
+    //     } catch (\Throwable $th) {
+    //         //throw $th;
+    //         return ZHelpers::sendBackServerErrorResponse($th);
+    //     }
+    // }
 
     function setPassword(Request $request)
     {
@@ -514,7 +514,8 @@ class UserController extends Controller
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => [
-                        'success' => true
+                        'success' => true,
+                        'OTPCodeValidTill' => $otpValidTime
                     ],
                 ]);
             }
@@ -703,33 +704,106 @@ class UserController extends Controller
         }
     }
 
+    function confirmValidateCurrentPasswordOtp(Request $request)
+    {
+        try {
+            $currentUser = $request->user();
+
+            $request->validate([
+                'otp' => 'required|string'
+            ]);
+            if ($currentUser) {
+                $currentTime = Carbon::now();
+                if ($currentUser->OTPCodeValidTill >= $currentTime) {
+                    if ($currentUser->OTPCode && $currentUser->OTPCode === $request->otp) {
+
+                        $currentUser->update([
+                            'OTPCode' => null,
+                            'OTPCodeValidTill' => null
+                        ]);
+
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => [
+                                'success' => true
+                            ],
+                        ]);
+                    } else {
+                        return ZHelpers::sendBackBadRequestResponse([
+                            'otp' => ['Incorrect OTP.']
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackBadRequestResponse([
+                        'otp' => ['Invalid OTP, please resend otp.']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User with this email not found.']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
     function updatePassword(Request $request)
     {
         $currentUser = $request->user();
         try {
             $request->validate([
-                'password' => 'required|string',
                 'newPassword' => ['required', 'string', new Password, 'confirmed'],
             ]);
 
             if ($currentUser) {
-                if (Hash::check($request->password, $currentUser->password)) {
-                    $updatedUser = $currentUser->update([
-                        'password' => Hash::make($request->newPassword),
+                $updatedUser = $currentUser->update([
+                    'password' => Hash::make($request->newPassword),
+                ]);
+
+                if ($updatedUser) {
+                    $user = User::where('email', $currentUser->email)->first();
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => [
+                            'user' => new UserDataResource($user),
+                        ]
                     ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['User with this email not found.']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
 
-                    if ($updatedUser) {
-                        $user = User::where('email', $currentUser->email)->first();
+    function resendPassword(Request $request)
+    {
+        $currentUser = $request->user();
+        try {
+            if ($currentUser) {
+                $otp = ZHelpers::generateUniqueNumericOTP();
+                $otpValidTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
 
-                        return ZHelpers::sendBackRequestCompletedResponse([
-                            'item' => [
-                                'user' => new UserDataResource($user),
-                            ]
-                        ]);
-                    }
-                } else {
-                    return ZHelpers::sendBackBadRequestResponse([
-                        'password' => ['Incorrect password.']
+                $updatedUser = $currentUser->update([
+                    'OTPCode' => $otp,
+                    'OTPCodeValidTill' => $otpValidTime
+                ]);
+
+                if ($updatedUser) {
+
+                    $mailSubject = 'Password change verification OTP';
+                    Mail::send(new OTPMail($currentUser, $otp, $mailSubject));
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => [
+                            'success' => true,
+                            'OTPCodeValidTill' => $otpValidTime
+                        ]
                     ]);
                 }
             } else {
