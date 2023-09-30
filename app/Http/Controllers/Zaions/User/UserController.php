@@ -7,7 +7,9 @@ use App\Http\Resources\Zaions\User\UserDataResource;
 use App\Jobs\Zaions\Mail\SendMailJob;
 use App\Mail\OTPMail;
 use App\Models\Default\User;
+use App\Models\Default\UserEmail;
 use App\Models\Default\WSTeamMember;
+use App\Zaions\Enums\EmailStatusEnum;
 use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Enums\RoleTypesEnum;
 use App\Zaions\Enums\SignUpTypeEnum;
@@ -508,15 +510,71 @@ class UserController extends Controller
             $user = User::where('email', $request->email)->first();
 
             if ($user->OTPCode) {
+                // adding a default email entry from user in userEmail.
+                UserEmail::create([
+                    'uniqueId' => uniqid(),
+                    'userId' => $user->id,
+                    'email' => $user->email,
+                    'status' => EmailStatusEnum::Verified->value,
+                    'isDefault' => true,
+                    'isPrimary' => true,
+                ]);
                 // Send the invitation mail to the memberUser.
                 // SendMailJob::dispatch($user);
-                Mail::send(new OTPMail($user, $user->OTPCode, 'Member Invitation Mail'));
+                Mail::send(new OTPMail($user, $user->OTPCode, 'Sign up confirm OTP'));
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => [
                         'success' => true,
                         'OTPCodeValidTill' => $otpValidTime
                     ],
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    function resendOTP(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => [
+                    'required',
+                    'string',
+                ],
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user) {
+                $otp = ZHelpers::generateUniqueNumericOTP();
+                $otpValidTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
+
+                $user->update([
+                    'OTPCode' => $otp,
+                    'OTPCodeValidTill' => $otpValidTime
+                ]);
+
+                $user = User::where('email', $request->email)->first();
+
+                if ($user->OTPCode) {
+                    // Send the invitation mail to the memberUser.
+                    // SendMailJob::dispatch($user);
+                    // Sign up confirm OTP => Confirm OTP
+                    Mail::send(new OTPMail($user, $user->OTPCode, 'Confirm OTP'));
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => [
+                            'success' => true,
+                            'OTPCodeValidTill' => $otpValidTime
+                        ],
+                    ]);
+                }
+            } else {
+                ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['No user fount which this email.']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -554,11 +612,12 @@ class UserController extends Controller
                 if ($user->OTPCode) {
                     // Send the invitation mail to the memberUser.
                     // SendMailJob::dispatch($user);
-                    Mail::send(new OTPMail($user, $user->OTPCode, 'Member Invitation Mail'));
+                    Mail::send(new OTPMail($user, $user->OTPCode, 'Confirm OTP'));
 
                     return ZHelpers::sendBackRequestCompletedResponse([
                         'item' => [
-                            'success' => true
+                            'success' => true,
+                            'OTPCodeValidTill' =>  $otpValidTime
                         ],
                     ]);
                 }
@@ -592,6 +651,12 @@ class UserController extends Controller
                         $user->update([
                             'OTPCode' => null,
                             'OTPCodeValidTill' => null
+                        ]);
+
+                        $userEmail = UserEmail::where('email', $user->email)->first();
+
+                        $userEmail->update([
+                            'verifiedAt' => $currentTime
                         ]);
 
                         return ZHelpers::sendBackRequestCompletedResponse([

@@ -312,6 +312,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // Route::put('/user/confirm-otp', 'confirmOtp');
         Route::put('/user/set-password', 'setPassword');
         Route::post('/user/send-signup-otp', 'sendSignUpOTP');
+        Route::put('/user/resend-user-otp', 'resendOTP');
         Route::put('/user/send-forget-password-otp', 'sendForgetPasswordOTP');
         Route::put('/user/set-username-password', 'setUsernamePassword');
         Route::put('/user/confirm-otp', 'confirmSignUpOtp');
