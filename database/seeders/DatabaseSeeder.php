@@ -8,6 +8,7 @@ use Database\Seeders\Default\AttachmentSeeder;
 use Database\Seeders\Default\CommentSeeder;
 use Database\Seeders\Default\HistorySeeder;
 use Database\Seeders\Default\RolePermissionsSeeder;
+use Database\Seeders\Default\SWSRoleAndPermissionsSeeder;
 use Database\Seeders\Default\TaskSeeder;
 use Database\Seeders\Default\UserSeeder;
 use Database\Seeders\ZLink\Analytics\PixelSeeder;
@@ -29,6 +30,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             // Default DB Seeders
             RolePermissionsSeeder::class,
+            SWSRoleAndPermissionsSeeder::class,
             UserSeeder::class,
             TaskSeeder::class,
             HistorySeeder::class,

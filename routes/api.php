@@ -25,6 +25,7 @@ use App\Http\Controllers\Zaions\ZLink\LinkInBios\LinkInBioController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\ShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\CustomDomainController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\EmbededWidgetController;
+use App\Http\Controllers\Zaions\ZLink\TimeSlot\SWSTimeSlotController;
 use App\Http\Controllers\Zaions\ZLink\TimeSlot\TimeSlotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -240,6 +241,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::delete('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'destroy');
         });
 
+        // Share workspace time slot
+        Route::controller(SWSTimeSlotController::class)->group(function () {
+            Route::get('/user/sws/member/{itemId}/time-slot', 'index');
+            Route::post('/user/workspaces/{workspaceId}/time-slot', 'store');
+            Route::get('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'show');
+            Route::put('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'update');
+            Route::delete('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'destroy');
+        });
+
         // Label
         Route::controller(LabelController::class)->group(function () {
             Route::get('/user/workspaces/{workspaceId}/label', 'index');
@@ -297,6 +307,16 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // Get Shared Workspaces
         Route::controller(SharedWSController::class)->group(function () {
             Route::get('/user/shared-ws', 'index');
+            Route::get('/user/shared-ws/get-member-role-permissions/{itemId}', 'getUserRoleAndPermissions');
+            Route::get('/user/shared-ws/get-share-ws-info-data/{itemId}', 'getShareWSInfoData');
+            Route::put('/user/shared-ws/update-is-favorite/{itemId}', 'updateIsFavorite');
+        });
+
+        // Get Shared Workspaces time slots
+        Route::controller(SharedWSController::class)->group(function () {
+            Route::get('/user/shared-ws', 'index');
+            Route::get('/user/shared-ws/get-member-role-permissions/{itemId}', 'getUserRoleAndPermissions');
+            Route::get('/user/shared-ws/get-share-ws-info-data/{itemId}', 'getShareWSInfoData');
             Route::put('/user/shared-ws/update-is-favorite/{itemId}', 'updateIsFavorite');
         });
     });
