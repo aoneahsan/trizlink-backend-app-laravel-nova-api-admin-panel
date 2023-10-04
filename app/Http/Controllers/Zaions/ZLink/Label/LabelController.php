@@ -35,9 +35,9 @@ class LabelController extends Controller
                 ]);
             }
 
-            $itemsCount = Label::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->count();
+            $itemsCount = Label::where('workspaceId', $workspace->id)->count();
 
-            $items = Label::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->get();
+            $items = Label::where('workspaceId', $workspace->id)->get();
 
             return response()->json([
                 'success' => true,
@@ -62,27 +62,27 @@ class LabelController extends Controller
      */
     public function store(Request $request, $workspaceId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
-            ]);
-        }
-
-        $request->validate([
-            'title' => 'required|string|max:250',
-            'color' => 'nullable|string|max:250',
-            'sortOrderNo' => 'nullable|integer',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-
         try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $request->validate([
+                'title' => 'required|string|max:250',
+                'color' => 'nullable|string|max:250',
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
             $result = Label::create([
                 'uniqueId' => uniqid(),
                 'userId' => $currentUser->id,
@@ -117,20 +117,20 @@ class LabelController extends Controller
      */
     public function show(Request $request, $workspaceId, $itemId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
-            ]);
-        }
-
         try {
-            $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 return ZHelpers::sendBackRequestCompletedResponse([
@@ -155,28 +155,28 @@ class LabelController extends Controller
      */
     public function update(Request $request, $workspaceId, $itemId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_timeSlot->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
-            ]);
-        }
-
-        $request->validate([
-            'title' => 'required|string|max:250',
-            'color' => 'nullable|string|max:250',
-            'sortOrderNo' => 'nullable|integer',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-
         try {
-            $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_timeSlot->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $request->validate([
+                'title' => 'required|string|max:250',
+                'color' => 'nullable|string|max:250',
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
+            $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->update([
@@ -189,7 +189,7 @@ class LabelController extends Controller
                     'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
                 ]);
 
-                $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+                $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new LabelResource($item)
@@ -212,20 +212,20 @@ class LabelController extends Controller
      */
     public function destroy(Request $request, $workspaceId, $itemId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackInvalidParamsResponse([
-                "item" => ['No workspace found!']
-            ]);
-        }
-
         try {
-            $item = Label::where('uniqueId', $itemId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $item = Label::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->forceDelete();

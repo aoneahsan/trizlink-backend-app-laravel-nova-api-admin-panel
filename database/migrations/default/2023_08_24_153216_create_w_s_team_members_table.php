@@ -35,6 +35,10 @@ return new class extends Migration
             $table->boolean('isActive')->default(false)->nullable();
             $table->boolean('isFavorite')->default(false)->nullable();
             $table->json('extraAttributes')->nullable();
+
+            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
+
             $table->softDeletes();
             $table->timestamps();
         });

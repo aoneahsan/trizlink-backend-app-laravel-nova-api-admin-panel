@@ -19,6 +19,7 @@ use App\Http\Controllers\Zaions\ZLink\Analytics\UtmTagController;
 use App\Http\Controllers\Zaions\ZLink\Common\ApiKeyController;
 use App\Http\Controllers\Zaions\ZLink\Common\FolderController;
 use App\Http\Controllers\Zaions\ZLink\Label\LabelController;
+use App\Http\Controllers\Zaions\ZLink\Label\SWSLabelController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LibBlockController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LibPredefinedDataController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LinkInBioController;
@@ -243,11 +244,12 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // Share workspace time slot
         Route::controller(SWSTimeSlotController::class)->group(function () {
+            // sws => share-workspace
             Route::get('/user/sws/member/{itemId}/time-slot', 'index');
-            Route::post('/user/workspaces/{workspaceId}/time-slot', 'store');
-            Route::get('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'show');
-            Route::put('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'update');
-            Route::delete('/user/workspaces/{workspaceId}/time-slot/{itemId}', 'destroy');
+            Route::post('/user/sws/member/{itemId}/time-slot', 'store');
+            Route::get('/user/sws/{memberId}/time-slot/{itemId}', 'show');
+            Route::put('/user/sws/{memberId}/time-slot/{itemId}', 'update');
+            Route::delete('/user/sws/{memberId}/time-slot/{itemId}', 'destroy');
         });
 
         // Label
@@ -257,6 +259,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/workspaces/{workspaceId}/label/{itemId}', 'show');
             Route::put('/user/workspaces/{workspaceId}/label/{itemId}', 'update');
             Route::delete('/user/workspaces/{workspaceId}/label/{itemId}', 'destroy');
+        });
+
+        // Share ws Label
+        Route::controller(SWSLabelController::class)->group(function () {
+            Route::get('/user/sws/member/{itemId}/label', 'index');
+            Route::post('/user/sws/member/{itemId}/label', 'store');
+            Route::get('/user/sws/{memberId}/label/{itemId}', 'show');
+            Route::put('/user/sws/{memberId}/label/{itemId}', 'update');
+            Route::delete('/user/sws/{memberId}/label/{itemId}', 'destroy');
         });
 
         // ShortLink Custom domain

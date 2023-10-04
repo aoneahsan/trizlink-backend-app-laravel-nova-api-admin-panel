@@ -315,7 +315,8 @@ class UserController extends Controller
 
                                 return ZHelpers::sendBackRequestCompletedResponse([
                                     'item' => [
-                                        'success' => true
+                                        'success' => true,
+                                        'OTPCodeValidTill' => $otpValidTime
                                     ],
                                 ]);
                             }
@@ -655,13 +656,15 @@ class UserController extends Controller
 
                         $userEmail = UserEmail::where('email', $user->email)->first();
 
-                        $userEmail->update([
-                            'verifiedAt' => $currentTime
-                        ]);
+                        if ($userEmail) {
+                            $userEmail->update([
+                                'verifiedAt' => $currentTime
+                            ]);
+                        }
 
                         return ZHelpers::sendBackRequestCompletedResponse([
                             'item' => [
-                                'success' => true
+                                'success' => true,
                             ],
                         ]);
                     } else {
