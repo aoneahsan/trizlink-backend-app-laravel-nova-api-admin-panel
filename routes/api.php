@@ -189,7 +189,6 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::put('/user/workspaces/{workspaceId}/short-links/{itemId}', 'update');
             Route::delete('/user/workspaces/{workspaceId}/short-links/{itemId}', 'destroy');
 
-
             Route::get('/user/workspaces/{workspaceId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
         });
 
@@ -320,14 +319,8 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/shared-ws', 'index');
             Route::get('/user/shared-ws/get-member-role-permissions/{itemId}', 'getUserRoleAndPermissions');
             Route::get('/user/shared-ws/get-share-ws-info-data/{itemId}', 'getShareWSInfoData');
-            Route::put('/user/shared-ws/update-is-favorite/{itemId}', 'updateIsFavorite');
-        });
-
-        // Get Shared Workspaces time slots
-        Route::controller(SharedWSController::class)->group(function () {
-            Route::get('/user/shared-ws', 'index');
-            Route::get('/user/shared-ws/get-member-role-permissions/{itemId}', 'getUserRoleAndPermissions');
-            Route::get('/user/shared-ws/get-share-ws-info-data/{itemId}', 'getShareWSInfoData');
+            Route::put('/user/shared-ws/{itemId}/member-id/{memberId}', 'updateShareWSInfoData');
+            Route::put('/user/shared-ws/{itemId}/leave-ws/member-id/{memberId}', 'leaveShareWS');
             Route::put('/user/shared-ws/update-is-favorite/{itemId}', 'updateIsFavorite');
         });
     });

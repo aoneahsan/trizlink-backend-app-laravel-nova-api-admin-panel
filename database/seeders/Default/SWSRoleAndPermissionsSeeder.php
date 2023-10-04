@@ -40,6 +40,7 @@ class SWSRoleAndPermissionsSeeder extends Seeder
     $viewAnySWSWorkspacePermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_workspace->name]);
     $viewSWSWorkspacePermission = Permission::create(['name' => WSPermissionsEnum::view_sws_workspace->name]);
     $addSWSWorkspacePermission = Permission::create(['name' => WSPermissionsEnum::create_sws_workspace->name]);
+    $leaveSWSWorkspacePermission = Permission::create(['name' => WSPermissionsEnum::leave_sws_workspace->name]);
     $updateSWSWorkspacePermission = Permission::create(['name' => WSPermissionsEnum::update_sws_workspace->name]);
     $deleteSWSWorkspacePermission = Permission::create(['name' => WSPermissionsEnum::delete_sws_workspace->name]);
     $replicateSWSWorkspacePermission = Permission::create(['name' => WSPermissionsEnum::replicate_sws_workspace->name]);
@@ -137,6 +138,7 @@ class SWSRoleAndPermissionsSeeder extends Seeder
       $replicateSWSWorkspacePermission,
       $restoreSWSWorkspacePermission,
       $forceDeleteSWSWorkspacePermission,
+      $leaveSWSWorkspacePermission,
 
       // Pixel
       $viewAnySWSPixelPermission,

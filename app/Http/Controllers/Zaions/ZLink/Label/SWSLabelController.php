@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\WSMemberAccountStatusEnum;
 use App\Zaions\Enums\WSPermissionsEnum;
 
 class SWSLabelController extends Controller
@@ -27,13 +28,13 @@ class SWSLabelController extends Controller
         try {
             $currentUser = $request->user();
             // first getting the member from member we will get share workspace
-            $member = WSTeamMember::where('uniqueId', $itemId)->where('memberId', $currentUser->id)->with('workspace')->with('memberRole')->first();
+            $member = WSTeamMember::where('uniqueId', $itemId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
             Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['Something went wrong here']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
                 ]);
             }
 
@@ -76,13 +77,13 @@ class SWSLabelController extends Controller
         try {
             $currentUser = $request->user();
             // first getting the member from member we will get share workspace
-            $member = WSTeamMember::where('uniqueId', $itemId)->where('memberId', $currentUser->id)->with('workspace')->with('memberRole')->first();
+            $member = WSTeamMember::where('uniqueId', $itemId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
             Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['Something went wrong here']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
                 ]);
             }
 
@@ -141,13 +142,13 @@ class SWSLabelController extends Controller
         try {
             $currentUser = $request->user();
             // first getting the member from member we will get share workspace
-            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->with('workspace')->with('memberRole')->first();
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
             Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['Something went wrong here']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
                 ]);
             }
 
@@ -189,13 +190,13 @@ class SWSLabelController extends Controller
         try {
             $currentUser = $request->user();
             // first getting the member from member we will get share workspace
-            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->with('workspace')->with('memberRole')->first();
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
             Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['Something went wrong here']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
                 ]);
             }
 
@@ -256,13 +257,13 @@ class SWSLabelController extends Controller
         try {
             $currentUser = $request->user();
             // first getting the member from member we will get share workspace
-            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->with('workspace')->with('memberRole')->first();
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
             Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_label->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    "item" => ['Something went wrong here']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
                 ]);
             }
 

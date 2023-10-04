@@ -22,6 +22,7 @@ enum WSPermissionsEnum: string
   case viewAny_sws_workspace = 'viewAny_sws_workspace';
   case view_sws_workspace = 'view_sws_workspace';
   case create_sws_workspace = 'create_sws_workspace';
+  case leave_sws_workspace = 'leave_sws_workspace';
   case update_sws_workspace = 'update_sws_workspace';
   case delete_sws_workspace = 'delete_sws_workspace';
   case replicate_sws_workspace = 'replicate_sws_workspace';

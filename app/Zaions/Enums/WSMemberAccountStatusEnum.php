@@ -13,4 +13,5 @@ enum WSMemberAccountStatusEnum: string
   case cancel = 'cancel';
   case accepted = 'accepted';
   case rejected = 'rejected';
+  case leaved = 'leaved';
 }

@@ -11,6 +11,7 @@ use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
 use App\Zaions\Enums\WSMemberAccountStatusEnum;
+use App\Zaions\Enums\WSPermissionsEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -33,7 +34,7 @@ class SharedWSController extends Controller
 
             // check user
             $userId = $currentUser->id;
-            $sharedWSs = WSTeamMember::where('memberId', $userId)->where('accountStatus',  '!=', WSMemberAccountStatusEnum::rejected->value)->with('workspace')->get();
+            $sharedWSs = WSTeamMember::where('memberId', $userId)->where('accountStatus',  '!=', WSMemberAccountStatusEnum::rejected->value)->where('accountStatus',  '!=', WSMemberAccountStatusEnum::leaved->value)->with('workspace')->get();
             $sharedWSsCount = WSTeamMember::where('memberId', $userId)->with('workspace')->count();
 
 
@@ -136,14 +137,113 @@ class SharedWSController extends Controller
 
             $item = WSTeamMember::where('uniqueId', $itemId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->first();
 
-            return ZHelpers::sendBackRequestCompletedResponse([
-                'item' => $item->workspace ? new WorkSpaceResource($item->workspace) : null
-            ]);
 
             if ($item) {
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => $item->workspace ? new WorkSpaceResource($item->workspace) : null
+                ]);
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['Share workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    /**
+     * Update share workspace info.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateShareWSInfoData(Request $request, $itemId, $memberId)
+    {
+        try {
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $item = WorkSpace::where('uniqueId', $itemId)->where('userId', $member->userId)->first();
+
+            if (!$item) {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $request->validate([
+                'title' => 'required|string|max:200',
+                'timezone' => 'nullable|string|max:200',
+                'workspaceImage' => 'nullable|string',
+            ]);
+
+            $item->update([
+                'title' => $request->has('title') ? $request->title : $item->title,
+                'timezone' => $request->has('timezone') ? $request->timezone : $item->timezone,
+                'workspaceImage' => $request->has('workspaceImage') ? $request->workspaceImage : $item->workspaceImage,
+            ]);
+
+            $item = WorkSpace::where('uniqueId', $itemId)->where('userId', $member->userId)->first();
+
+            if ($item) {
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => new WorkSpaceResource($item)
+                ]);
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    /**
+     * Leave share workspace info.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function leaveShareWS(Request $request, $itemId, $memberId)
+    {
+        try {
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            $result = $member->update([
+                'accountStatus' => WSMemberAccountStatusEnum::leaved->value,
+            ]);
+
+            if ($result) {
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => [
+                        'success' => true
+                    ]
+                ]);
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([
+                    'item' => ['Something went wrong here!']
                 ]);
             }
         } catch (\Throwable $th) {
