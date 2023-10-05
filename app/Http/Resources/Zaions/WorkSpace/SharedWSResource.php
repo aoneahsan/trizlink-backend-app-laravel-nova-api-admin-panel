@@ -17,6 +17,7 @@ class SharedWSResource extends JsonResource
         return [
             'id' => $this->uniqueId ? $this->uniqueId : null,
             'accountStatus' => $this->accountStatus,
+            'user' => $this->user,
             'workspaceId' => $this->workspace ? $this->workspace['uniqueId'] : null,
             'workspaceName' => $this->workspace ? $this->workspace['title'] : null,
             'workspaceTimezone' => $this->workspace ? $this->workspace['timezone'] : null,

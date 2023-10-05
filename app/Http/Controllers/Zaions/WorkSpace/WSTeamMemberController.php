@@ -292,36 +292,34 @@ class WSTeamMemberController extends Controller
 
             // Checking in invitation is not null.
             if ($invitation) {
-                if ($invitation->inviteAcceptedAt === null && $invitation->inviteRejectedAt === null) {
-                    $message = null;
+                $message = null;
 
-                    if ($request->status === WSMemberAccountStatusEnum::accepted->value) {
-                        $invitation->update([
-                            'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
-                            'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
-                        ]);
-                        $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
-                    }
-
-                    if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
-                        $invitation->update([
-                            'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
-                            'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
-                        ]);
-                        $message = '"' .
-                            $currentUser->username . '"' . ' has rejected your invitation.';
-                    }
-
-                    $data = [
-                        'invitee' => $invitation->memberId,
-                        'message' => $message,
-                        'inviterUserId' => $invitation->userId,
-                    ];
-
-                    $inviter = User::where('id', $invitation->userId)->first();
-
-                    $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
+                if ($request->status === WSMemberAccountStatusEnum::accepted->value) {
+                    $invitation->update([
+                        'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
+                        'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                    ]);
+                    $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
                 }
+
+                if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
+                    $invitation->update([
+                        'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
+                        'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                    ]);
+                    $message = '"' .
+                        $currentUser->username . '"' . ' has rejected your invitation.';
+                }
+
+                $data = [
+                    'invitee' => $invitation->memberId,
+                    'message' => $message,
+                    'inviterUserId' => $invitation->userId,
+                ];
+
+                $inviter = User::where('id', $invitation->userId)->first();
+
+                $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
 
                 if ($request->status === WSMemberAccountStatusEnum::cancel->value) {
                     $invitation->update([
@@ -463,8 +461,7 @@ class WSTeamMemberController extends Controller
                     $memberEmail = $memberInvitation->email;
 
 
-                    if ($request->has('email') && $request->email === $memberEmail) {
-                    } else if ($request->has('email') && $request->email !== $memberEmail) {
+                    if ($request->has('email') && $request->email !== $memberEmail) {
                         return ZHelpers::sendBackForbiddenResponse([
                             'item' => [''],
                         ]);

@@ -9,6 +9,7 @@ use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Facades\Socialite;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -42,3 +43,14 @@ Route::redirect('/', config('nova.path'));
 //     Mail::to('invalid@invalid.com')->send(new sendmail());
 //     dd('okay');
 // });
+
+
+Route::get('/auth/google/redirect', function () {
+    return Socialite::driver('google')->redirect();
+});
+
+Route::get('/auth/google/callback', function () {
+    $user = Socialite::driver('google')->user();
+
+    dd($user);
+});

@@ -8,8 +8,11 @@ use Database\Seeders\Default\AttachmentSeeder;
 use Database\Seeders\Default\CommentSeeder;
 use Database\Seeders\Default\HistorySeeder;
 use Database\Seeders\Default\RolePermissionsSeeder;
+use Database\Seeders\Default\SWSRoleAndPermissionsSeeder;
 use Database\Seeders\Default\TaskSeeder;
 use Database\Seeders\Default\UserSeeder;
+use Database\Seeders\Default\WorkSpaceSeeder;
+use Database\Seeders\Default\WSTeamMemberSeeder;
 use Database\Seeders\ZLink\Analytics\PixelSeeder;
 use Database\Seeders\ZLink\Analytics\UtmTagSeeder;
 use Database\Seeders\ZLink\LinkInBios\LibBlockSeeder;
@@ -29,7 +32,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             // Default DB Seeders
             RolePermissionsSeeder::class,
+            SWSRoleAndPermissionsSeeder::class,
             UserSeeder::class,
+            WorkSpaceSeeder::class,
+            WSTeamMemberSeeder::class,
             TaskSeeder::class,
             HistorySeeder::class,
             CommentSeeder::class,

@@ -35,9 +35,9 @@ class TimeSlotController extends Controller
                 ]);
             }
 
-            $itemsCount = TimeSlot::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->count();
+            $itemsCount = TimeSlot::where('workspaceId', $workspace->id)->count();
 
-            $items = TimeSlot::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->get();
+            $items = TimeSlot::where('workspaceId', $workspace->id)->get();
 
             return response()->json([
                 'success' => true,
@@ -86,7 +86,7 @@ class TimeSlotController extends Controller
         try {
             $result = TimeSlot::create([
                 'uniqueId' => uniqid(),
-                'userId' => $currentUser->id,
+                'createdBy' => $currentUser->id,
                 'workspaceId' => $workspace->id,
 
                 'time' => $request->has('time') ? $request->time : null,
@@ -132,7 +132,7 @@ class TimeSlotController extends Controller
         }
 
         try {
-            $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+            $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 return ZHelpers::sendBackRequestCompletedResponse([
@@ -180,7 +180,7 @@ class TimeSlotController extends Controller
         ]);
 
         try {
-            $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+            $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->update([
@@ -194,7 +194,7 @@ class TimeSlotController extends Controller
                     'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
                 ]);
 
-                $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->where('userId', $currentUser->id)->first();
+                $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new TimeSlotResource($item)
@@ -230,7 +230,7 @@ class TimeSlotController extends Controller
         }
 
         try {
-            $item = TimeSlot::where('uniqueId', $itemId)->where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->first();
+            $item = TimeSlot::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->forceDelete();

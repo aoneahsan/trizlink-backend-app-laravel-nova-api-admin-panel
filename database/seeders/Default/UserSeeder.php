@@ -119,5 +119,116 @@ class UserSeeder extends Seeder
         $superAdminUser->assignRole($superAdminRole);
         $adminUser->assignRole($adminRole);
         $simpleUser->assignRole($userRole);
+
+        // users account to test workspace member flow
+        // create sws test 1 user
+        $wsUser1 = User::create([
+            'uniqueId' => uniqid(),
+            'username' => 'test-user-1',
+            'slug' => 'sws-user-1',
+            'email' => 'test1@zaions.com',
+            'password' => Hash::make("asd123!@#"),
+            'email_verified_at' => Carbon::now(),
+            'dailyMinOfficeTime' => 8,
+            'dailyMinOfficeTimeActivity' => 85
+        ]);
+        // adding a default email entry from wsUser1 in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser1->id,
+            'status' => EmailStatusEnum::Verified->value,
+            'email' => $wsUser1->email,
+            'isDefault' => true,
+            'isPrimary' => true,
+        ]);
+        $wsUser1->assignRole($userRole);
+
+        // create sws test 2 user
+        $wsUser2 = User::create([
+            'uniqueId' => uniqid(),
+            'username' => 'test-user-2',
+            'slug' => 'sws-user-2',
+            'email' => 'test2@zaions.com',
+            'password' => Hash::make("asd123!@#"),
+            'email_verified_at' => Carbon::now(),
+            'dailyMinOfficeTime' => 8,
+            'dailyMinOfficeTimeActivity' => 85
+        ]);
+        // adding a default email entry from wsUser1 in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser2->id,
+            'status' => EmailStatusEnum::Verified->value,
+            'email' => $wsUser2->email,
+            'isDefault' => true,
+            'isPrimary' => true,
+        ]);
+        $wsUser2->assignRole($userRole);
+
+        // create sws test 3 user
+        $wsUser3 = User::create([
+            'uniqueId' => uniqid(),
+            'username' => 'test-user-3',
+            'slug' => 'sws-user-3',
+            'email' => 'test3@zaions.com',
+            'password' => Hash::make("asd123!@#"),
+            'email_verified_at' => Carbon::now(),
+            'dailyMinOfficeTime' => 8,
+            'dailyMinOfficeTimeActivity' => 85
+        ]);
+        // adding a default email entry from wsUser1 in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser3->id,
+            'status' => EmailStatusEnum::Verified->value,
+            'email' => $wsUser3->email,
+            'isDefault' => true,
+            'isPrimary' => true,
+        ]);
+        $wsUser3->assignRole($userRole);
+
+        // create sws test 4 user
+        $wsUser4 = User::create([
+            'uniqueId' => uniqid(),
+            'username' => 'test-user-4',
+            'slug' => 'sws-user-4',
+            'email' => 'test4@zaions.com',
+            'password' => Hash::make("asd123!@#"),
+            'email_verified_at' => Carbon::now(),
+            'dailyMinOfficeTime' => 8,
+            'dailyMinOfficeTimeActivity' => 85
+        ]);
+        // adding a default email entry from wsUser1 in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser4->id,
+            'status' => EmailStatusEnum::Verified->value,
+            'email' => $wsUser4->email,
+            'isDefault' => true,
+            'isPrimary' => true,
+        ]);
+        $wsUser4->assignRole($userRole);
+
+        // create sws test 5 user
+        $wsUser5 = User::create([
+            'uniqueId' => uniqid(),
+            'username' => 'test-user-5',
+            'slug' => 'sws-user-5',
+            'email' => 'test5@zaions.com',
+            'password' => Hash::make("asd123!@#"),
+            'email_verified_at' => Carbon::now(),
+            'dailyMinOfficeTime' => 8,
+            'dailyMinOfficeTimeActivity' => 85
+        ]);
+        // adding a default email entry from wsUser1 in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser5->id,
+            'status' => EmailStatusEnum::Verified->value,
+            'email' => $wsUser5->email,
+            'isDefault' => true,
+            'isPrimary' => true,
+        ]);
+        $wsUser5->assignRole($userRole);
     }
 }

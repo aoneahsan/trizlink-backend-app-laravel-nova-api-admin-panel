@@ -118,8 +118,8 @@ class WorkSpaceController extends Controller
                     'item' => new WorkSpaceResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Workspace not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -177,8 +177,8 @@ class WorkSpaceController extends Controller
                     'item' => new WorkSpaceResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Workspace not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -208,8 +208,8 @@ class WorkSpaceController extends Controller
                     'item' => ['success' => true]
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['workspace not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Workspace not found!']
                 ]);
             }
         } catch (\Throwable $th) {

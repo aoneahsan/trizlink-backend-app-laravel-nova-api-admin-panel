@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Zaions\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
 use App\Models\Default\User;
+use App\Models\Default\UserEmail;
 use App\Notifications\TestNotification;
 use App\Notifications\UserAccount\LastLogoutNotification;
 use App\Notifications\UserAccount\NewDeviceLoginNotification;
+use App\Zaions\Enums\EmailStatusEnum;
 use App\Zaions\Enums\NotificationTypeEnum;
 use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Helpers\ZHelpers;
@@ -51,6 +53,16 @@ class AuthController extends Controller
         $user->assignRole($userRole);
 
         $token = $user->createToken('auth');
+
+        // adding a default email entry from user in userEmail.
+        UserEmail::create([
+            'uniqueId' => uniqid(),
+            'userId' => $user->id,
+            'email' => $user->email,
+            'status' => EmailStatusEnum::Verified->value,
+            'isDefault' => true,
+            'isPrimary' => true,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -119,12 +131,12 @@ class AuthController extends Controller
         if ($user) {
             $user->tokens()->delete();
 
-            $notificationData = [
-                'userId' => $user->id,
-                'message' => 'logout',
-            ];
+            // $notificationData = [
+            //     'userId' => $user->id,
+            //     'message' => 'logout',
+            // ];
 
-            $user->notify(new LastLogoutNotification($notificationData));
+            // $user->notify(new LastLogoutNotification($notificationData));
 
             return response()->json([
                 'success' => true,

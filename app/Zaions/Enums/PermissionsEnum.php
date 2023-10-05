@@ -127,6 +127,16 @@ enum PermissionsEnum: string
   case restore_workspace = 'restore_workspace';
   case forceDelete_workspace = 'forceDelete_workspace';
 
+    // Share Workspace
+  case viewAny_shareWS = 'viewAny_shareWS';
+  case view_shareWS = 'view_shareWS';
+  case create_shareWS = 'create_shareWS';
+  case update_shareWS = 'update_shareWS';
+  case delete_shareWS = 'delete_shareWS';
+  case replicate_shareWS = 'replicate_shareWS';
+  case restore_shareWS = 'restore_shareWS';
+  case forceDelete_shareWS = 'forceDelete_shareWS';
+
     // Workspace team
   case viewAny_workspaceTeam = 'viewAny_workspaceTeam';
   case view_workspaceTeam = 'view_workspaceTeam';
