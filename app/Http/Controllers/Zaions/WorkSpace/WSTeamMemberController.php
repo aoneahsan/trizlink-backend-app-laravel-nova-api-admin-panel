@@ -461,8 +461,7 @@ class WSTeamMemberController extends Controller
                     $memberEmail = $memberInvitation->email;
 
 
-                    if ($request->has('email') && $request->email === $memberEmail) {
-                    } else if ($request->has('email') && $request->email !== $memberEmail) {
+                    if ($request->has('email') && $request->email !== $memberEmail) {
                         return ZHelpers::sendBackForbiddenResponse([
                             'item' => [''],
                         ]);
