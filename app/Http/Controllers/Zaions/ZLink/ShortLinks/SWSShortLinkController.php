@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\ZLink\ShortLinks\ShortLinkResource;
 use App\Http\Resources\Zaions\Zlink\ShortLinks\SLPublicPageResource;
 use App\Models\Default\WorkSpace;
+use App\Models\Default\WSTeamMember;
 use App\Models\ZLink\ShortLinks\ShortLink;
 use App\Models\ZLink\ShortLinks\SLAnalytics;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\WSMemberAccountStatusEnum;
+use App\Zaions\Enums\WSPermissionsEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -18,26 +21,34 @@ use Illuminate\Support\Str;
 
 use function Spatie\SslCertificate\length;
 
-class ShortLinkController extends Controller
+class SWSShortLinkController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $workspaceId)
+    public function index(Request $request, $memberId)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
-                    "item" => ['Workspace not found!']
+                    "item" => ['Share workspace not found!']
                 ]);
             }
 
@@ -65,14 +76,23 @@ class ShortLinkController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $workspaceId)
+    public function store(Request $request, $memberId)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -104,7 +124,6 @@ class ShortLinkController extends Controller
                 'isActive' => 'nullable|boolean',
                 'extraAttributes' => 'nullable|json',
             ]);
-
 
             $shortLinkUrlPath = $request->shortUrlPath;
 
@@ -174,14 +193,23 @@ class ShortLinkController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $workspaceId, $itemId)
+    public function show(Request $request, $memberId, $itemId)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::view_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -212,14 +240,23 @@ class ShortLinkController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $workspaceId, $itemId)
+    public function update(Request $request, $memberId, $itemId)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -283,6 +320,7 @@ class ShortLinkController extends Controller
                 ]);
 
                 $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new ShortLinkResource($item)
                 ]);
@@ -302,21 +340,29 @@ class ShortLinkController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $workspaceId, $itemId)
+    public function destroy(Request $request, $memberId, $itemId)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
                     "item" => ['Workspace not found!']
                 ]);
             }
-
             $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
@@ -344,8 +390,10 @@ class ShortLinkController extends Controller
             $currentUser = $request->user();
 
             if ($currentUser) {
+
                 // we are defining short url path length exeat 6 digit.
                 if ($value && Str::length($value) === 6) {
+
 
                     $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
@@ -388,102 +436,6 @@ class ShortLinkController extends Controller
                 ]);
             }
         } catch (\Throwable $th) {
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
-
-    // Public API
-    public function getTargetUrlInfo(Request $request, $urlPath)
-    {
-        try {
-            if ($urlPath && Str::length($urlPath) === 6) {
-                $item = ShortLink::where('shortUrlPath', $urlPath)->first();
-
-                if ($item) {
-                    $request->validate([
-                        'type' => 'nullable|string|max:250',
-                        'userIP' => 'nullable|string|max:250',
-                        'userLocationCoords' => 'nullable|json',
-                        'userDeviceInfo' => 'nullable|json',
-
-                        'extraAttributes' => 'nullable|json',
-                    ]);
-                    // TODO: create separate function (may be in this same file)
-                    $result = SLAnalytics::create([
-                        'uniqueId' => uniqid(),
-                        'userId' => $item->userId,
-                        'shortLinkId' => $item->id,
-                        'type' => $request->has('type') ? $request->type : null,
-                        'userIP' => $request->has('userIP') ? $request->userIP : null,
-                        'userLocationCoords' => $request->has('userLocationCoords') ? ZHelpers::zJsonDecode($request->userLocationCoords) : null,
-                        'userDeviceInfo' => $request->has('userDeviceInfo') ? ZHelpers::zJsonDecode($request->userDeviceInfo) : null,
-                        'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : null,
-                    ]);
-
-                    if ($result) {
-                        return ZHelpers::sendBackRequestCompletedResponse([
-                            'item' => new SLPublicPageResource($item)
-                        ]);
-                    }
-                } else {
-                    return ZHelpers::sendBackNotFoundResponse([
-                        'shortLink' => 'Short link not found.'
-                    ]);
-                }
-            } else {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    'urlPath' => 'invalid url path.'
-                ]);
-            }
-        } catch (\Throwable $th) {
-
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
-
-    public function checkShortLinkPassword(Request $request, $urlPath)
-    {
-        try {
-            //code...
-            if ($urlPath && Str::length($urlPath) === 6) {
-                $item = ShortLink::where('shortUrlPath', $urlPath)->first();
-
-                if ($item) {
-                    $request->validate([
-                        'password' => 'required|string|max:250',
-                    ]);
-
-                    $linkPasswordEnable =
-                        $item->password['enabled'];
-
-                    $linkPassword = $item->password['password'];
-
-                    if ($linkPasswordEnable) {
-                        if ($linkPassword === $request->password) {
-                            return
-                                ZHelpers::sendBackRequestCompletedResponse([
-                                    'item' => [
-                                        'success' => true
-                                    ]
-                                ]);
-                        } else {
-                            return ZHelpers::sendBackBadRequestResponse([
-                                'password' => ['Wrong password.']
-                            ]);
-                        }
-                    }
-                } else {
-                    return ZHelpers::sendBackInvalidParamsResponse([
-                        'urlPath' => 'invalid url path.'
-                    ]);
-                }
-            } else {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    'urlPath' => 'invalid url path.'
-                ]);
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }

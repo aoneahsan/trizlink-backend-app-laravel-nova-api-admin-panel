@@ -26,6 +26,7 @@ use App\Http\Controllers\Zaions\ZLink\LinkInBios\LinkInBioController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\ShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\CustomDomainController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\EmbededWidgetController;
+use App\Http\Controllers\Zaions\ZLink\ShortLinks\SWSShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\TimeSlot\SWSTimeSlotController;
 use App\Http\Controllers\Zaions\ZLink\TimeSlot\TimeSlotController;
 use Illuminate\Http\Request;
@@ -190,6 +191,17 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::delete('/user/workspaces/{workspaceId}/short-links/{itemId}', 'destroy');
 
             Route::get('/user/workspaces/{workspaceId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
+        });
+
+        // Share workspace short links
+        Route::controller(SWSShortLinkController::class)->group(function () {
+            Route::get('/user/sws/member/{memberId}/short-links', 'index');
+            Route::post('/user/sws/member/{memberId}/short-links', 'store');
+            Route::get('/user/sws/member/{memberId}/short-links/{itemId}', 'show');
+            Route::put('/user/sws/member/{memberId}/short-links/{itemId}', 'update');
+            Route::delete('/user/sws/member/{memberId}/short-links/{itemId}', 'destroy');
+
+            Route::get('/user/sws/member/{memberId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
         });
 
         // Pixel

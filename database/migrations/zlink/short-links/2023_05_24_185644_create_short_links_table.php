@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('short_links', function (Blueprint $table) {
             $table->id();
             $table->string('uniqueId')->nullable();
-            $table->unsignedBigInteger('userId');
+            $table->unsignedBigInteger('createdBy');
             $table->unsignedBigInteger('workspaceId');
 
             $table->string('type')->nullable();
