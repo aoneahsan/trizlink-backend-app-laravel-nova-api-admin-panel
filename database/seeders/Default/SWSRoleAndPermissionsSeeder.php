@@ -87,6 +87,16 @@ class SWSRoleAndPermissionsSeeder extends Seeder
     $restoreSWSUtmTagPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_utmTag->name]);
     $forceDeleteSWSUtmTagPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_utmTag->name]);
 
+    // Share embed widget model permissions
+    $viewAnySWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_embededWidget->name]);
+    $viewSWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_embededWidget->name]);
+    $addSWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::create_sws_embededWidget->name]);
+    $updateSWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::update_sws_embededWidget->name]);
+    $deleteSWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::delete_sws_embededWidget->name]);
+    $replicateSWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::replicate_sws_embededWidget->name]);
+    $restoreSWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_embededWidget->name]);
+    $forceDeleteSWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_embededWidget->name]);
+
     // Share short link model permissions
     $viewAnySWSShortLinkPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_shortLink->name]);
     $viewSWSShortLinkPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_shortLink->name]);
@@ -121,11 +131,44 @@ class SWSRoleAndPermissionsSeeder extends Seeder
     $viewAnySWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_linkInBio->name]);
     $viewSWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_linkInBio->name]);
     $addSWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::create_sws_linkInBio->name]);
-    $updateSWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::update_sws_linkInBio->name]);
     $deleteSWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::delete_sws_linkInBio->name]);
     $replicateSWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::replicate_sws_linkInBio->name]);
     $restoreSWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_linkInBio->name]);
     $forceDeleteSWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_linkInBio->name]);
+    $updateSWSLinkInBioPermission = Permission::create(['name' => WSPermissionsEnum::update_sws_linkInBio->name]);
+
+    // Folder Permissions
+    $viewAnySWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_folder->name]);
+    $viewSWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_folder->name]);
+    $addSWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::create_sws_folder->name]);
+    $updateSWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::update_sws_folder->name]);
+    $deleteSWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::delete_sws_folder->name]);
+    $sortSWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::sort_sws_folder->name]);
+    $replicateSWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::replicate_sws_folder->name]);
+    $restoreSWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_folder->name]);
+    $forceDeleteSWSFolderPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_folder->name]);
+
+    // Short links folder Model Permissions
+    $viewAnySwsSLFolderPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_sl_folder->name]);
+    $viewSwsSLFolderPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_sl_folder->name]);
+    $addSwsSLFolderPermission = Permission::create(['name' => WSPermissionsEnum::create_sws_sl_folder->name]);
+    $updateSwsSLFolderPermission = Permission::create(['name' => WSPermissionsEnum::update_sws_sl_folder->name]);
+    $deleteSwsSLFolderPermission = Permission::create(['name' => WSPermissionsEnum::delete_sws_sl_folder->name]);
+    $sortSwsSLFolderPermission = Permission::create(['name' => WSPermissionsEnum::sort_sws_sl_folder->name]);
+    $replicateSwsSLFolderPermission = Permission::create(['name' => WSPermissionsEnum::replicate_sws_sl_folder->name]);
+    $restoreSwsSLFolderPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_sl_folder->name]);
+    $forceSwsSLDeleteFolderPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_sl_folder->name]);
+
+    // Link in bio folder Model Permissions
+    $viewAnySwsLIBFolderPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_lib_folder->name]);
+    $viewSwsLIBFolderPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_lib_folder->name]);
+    $addSwsLIBFolderPermission = Permission::create(['name' => WSPermissionsEnum::create_sws_lib_folder->name]);
+    $updateSwsLIBFolderPermission = Permission::create(['name' => WSPermissionsEnum::update_sws_lib_folder->name]);
+    $deleteSwsLIBFolderPermission = Permission::create(['name' => WSPermissionsEnum::delete_sws_lib_folder->name]);
+    $sortSwsLIBFolderPermission = Permission::create(['name' => WSPermissionsEnum::sort_sws_lib_folder->name]);
+    $replicateSwsLIBFolderPermission = Permission::create(['name' => WSPermissionsEnum::replicate_sws_lib_folder->name]);
+    $restoreSwsLIBFolderPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_lib_folder->name]);
+    $forceSwsLIBDeleteFolderPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_lib_folder->name]);
 
 
     $wsAdminRolePermissions = [
@@ -159,6 +202,16 @@ class SWSRoleAndPermissionsSeeder extends Seeder
       $replicateSWSUtmTagPermission,
       $restoreSWSUtmTagPermission,
       $forceDeleteSWSUtmTagPermission,
+
+      // Embeded widget
+      $viewAnySWSEmbededWidgetPermission,
+      $viewSWSEmbededWidgetPermission,
+      $addSWSEmbededWidgetPermission,
+      $updateSWSEmbededWidgetPermission,
+      $deleteSWSEmbededWidgetPermission,
+      $replicateSWSEmbededWidgetPermission,
+      $restoreSWSEmbededWidgetPermission,
+      $forceDeleteSWSEmbededWidgetPermission,
 
       // Short link
       $viewAnySWSShortLinkPermission,
@@ -219,6 +272,39 @@ class SWSRoleAndPermissionsSeeder extends Seeder
       $replicateSWSCommentPermission,
       $restoreSWSCommentPermission,
       $forceDeleteSWSCommentPermission,
+
+      // Folders
+      $viewAnySWSFolderPermission,
+      $viewSWSFolderPermission,
+      $addSWSFolderPermission,
+      $updateSWSFolderPermission,
+      $deleteSWSFolderPermission,
+      $sortSWSFolderPermission,
+      $replicateSWSFolderPermission,
+      $restoreSWSFolderPermission,
+      $forceDeleteSWSFolderPermission,
+
+      // Short link folder
+      $viewAnySwsSLFolderPermission,
+      $viewSwsSLFolderPermission,
+      $addSwsSLFolderPermission,
+      $updateSwsSLFolderPermission,
+      $deleteSwsSLFolderPermission,
+      $sortSwsSLFolderPermission,
+      $replicateSwsSLFolderPermission,
+      $restoreSwsSLFolderPermission,
+      $forceSwsSLDeleteFolderPermission,
+
+      // Link in bio folder
+      $viewAnySwsLIBFolderPermission,
+      $viewSwsLIBFolderPermission,
+      $addSwsLIBFolderPermission,
+      $updateSwsLIBFolderPermission,
+      $deleteSwsLIBFolderPermission,
+      $sortSwsLIBFolderPermission,
+      $replicateSwsLIBFolderPermission,
+      $restoreSwsLIBFolderPermission,
+      $forceSwsLIBDeleteFolderPermission,
     ];
 
     /**

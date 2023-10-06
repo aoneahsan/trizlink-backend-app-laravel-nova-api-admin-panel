@@ -18,6 +18,7 @@ use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\UtmTagController;
 use App\Http\Controllers\Zaions\ZLink\Common\ApiKeyController;
 use App\Http\Controllers\Zaions\ZLink\Common\FolderController;
+use App\Http\Controllers\Zaions\ZLink\Common\SWSFolderController;
 use App\Http\Controllers\Zaions\ZLink\Label\LabelController;
 use App\Http\Controllers\Zaions\ZLink\Label\SWSLabelController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LibBlockController;
@@ -197,9 +198,9 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         Route::controller(SWSShortLinkController::class)->group(function () {
             Route::get('/user/sws/member/{memberId}/short-links', 'index');
             Route::post('/user/sws/member/{memberId}/short-links', 'store');
-            Route::get('/user/sws/member/{memberId}/short-links/{itemId}', 'show');
-            Route::put('/user/sws/member/{memberId}/short-links/{itemId}', 'update');
-            Route::delete('/user/sws/member/{memberId}/short-links/{itemId}', 'destroy');
+            Route::get('/user/sws/member/{memberId}/short-link/{itemId}', 'show');
+            Route::put('/user/sws/member/{memberId}/short-link/{itemId}', 'update');
+            Route::delete('/user/sws/member/{memberId}/short-link/{itemId}', 'destroy');
 
             Route::get('/user/sws/member/{memberId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
         });
@@ -242,6 +243,18 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::delete('/user/workspaces/{workspaceId}/folder/{itemId}', 'destroy');
             Route::get('/user/workspaces/{workspaceId}/get/shortLink/folders', 'getShortLinksFolders');
             Route::get('/user/workspaces/{workspaceId}/get/linkInBio/folders', 'getLinkInBioFolders');
+        });
+
+        // Share workspaces folder
+        Route::controller(SWSFolderController::class)->group(function () {
+            Route::get('/user/sws/member/{memberId}/folder', 'index');
+            Route::post('/user/sws/member/{memberId}/folder', 'store');
+            // Route::put('/user/sws/member/{memberId}/folders/reorder', 'updateSortOrderNo');
+            Route::get('/user/sws/member/{memberId}/folder/{itemId}', 'show');
+            Route::put('/user/sws/member/{memberId}/folder/{itemId}', 'update');
+            Route::delete('/user/sws/member/{memberId}/folder/{itemId}', 'destroy');
+            Route::get('/user/sws/member/{memberId}/get/shortLink/folders', 'getShortLinksFolders');
+            Route::get('/user/sws/member/{memberId}/get/linkInBio/folders', 'getLinkInBioFolders');
         });
 
         // Time slot

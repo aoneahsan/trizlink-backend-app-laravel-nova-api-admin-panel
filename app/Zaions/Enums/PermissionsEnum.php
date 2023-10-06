@@ -203,6 +203,7 @@ enum PermissionsEnum: string
   case restore_utmTag = 'restore_utmTag';
   case forceDelete_utmTag = 'forceDelete_utmTag';
 
+
     // short link
   case viewAny_shortLink = 'viewAny_shortLink';
   case view_shortLink = 'view_shortLink';
@@ -289,9 +290,32 @@ enum PermissionsEnum: string
   case create_folder = 'create_folder';
   case update_folder = 'update_folder';
   case delete_folder = 'delete_folder';
+  case sort_folder = 'sort_folder';
   case replicate_folder = 'replicate_folder';
   case restore_folder = 'restore_folder';
   case forceDelete_folder = 'forceDelete_folder';
+
+    // Short links Folder
+  case viewAny_sl_folder = 'viewAny_sl_folder';
+  case view_sl_folder = 'view_sl_folder';
+  case create_sl_folder = 'create_sl_folder';
+  case update_sl_folder = 'update_sl_folder';
+  case delete_sl_folder = 'delete_sl_folder';
+  case sort_sl_folder = 'sort_sl_folder';
+  case replicate_sl_folder = 'replicate_sl_folder';
+  case restore_sl_folder = 'restore_sl_folder';
+  case forceDelete_sl_folder = 'forceDelete_sl_folder';
+
+    // Link-in-bio Folder
+  case viewAny_lib_folder = 'viewAny_lib_folder';
+  case view_lib_folder = 'view_lib_folder';
+  case create_lib_folder = 'create_lib_folder';
+  case update_lib_folder = 'update_lib_folder';
+  case delete_lib_folder = 'delete_lib_folder';
+  case sort_lib_folder = 'sort_lib_folder';
+  case replicate_lib_folder = 'replicate_lib_folder';
+  case restore_lib_folder = 'restore_lib_folder';
+  case forceDelete_lib_folder = 'forceDelete_lib_folder';
 
     // Embeded widgets
   case viewAny_embededWidget = 'viewAny_embededWidget';

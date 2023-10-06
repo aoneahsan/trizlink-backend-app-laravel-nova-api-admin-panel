@@ -5,41 +5,52 @@ namespace App\Http\Controllers\Zaions\ZLink\Common;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\ZLink\Common\FolderResource;
 use App\Models\Default\WorkSpace;
+use App\Models\Default\WSTeamMember;
 use App\Models\ZLink\Common\Folder;
 use App\Zaions\Enums\FolderModalsEnum;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\WSMemberAccountStatusEnum;
+use App\Zaions\Enums\WSPermissionsEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
-class FolderController extends Controller
+class SWSFolderController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $workspaceId)
+    public function index(Request $request, $memberId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        // getting workspace
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackNotFoundResponse([
-                "item" => ['Workspace not found!']
-            ]);
-        }
-
         try {
-            $itemsCount = Folder::where('userId', $currentUser->id)->count();
-            $items = Folder::where('userId', $currentUser->id)->orderBy('sortOrderNo', 'asc')->get();
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $itemsCount = Folder::where('workspaceId', $workspace->id)->count();
+            $items = Folder::where('workspaceId', $workspace->id)->orderBy('sortOrderNo', 'asc')->get();
 
             return response()->json([
                 'success' => true,
@@ -62,38 +73,59 @@ class FolderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $workspaceId)
+    public function store(Request $request, $memberId)
     {
-        $request->validate([
-            'title' => 'required|string|max:250',
-            'icon' => 'nullable|string|max:250',
-            'isStared' => 'nullable|boolean',
-            'isHidden' => 'nullable|boolean',
-            'isFavorite' => 'nullable|boolean',
-            'folderForModel' => 'nullable|string',
-            'isPasswordProtected' => 'nullable|boolean',
-            'password' => 'nullable|string|max:250',
-            'isDefault' => 'nullable|boolean',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        // getting workspace
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackNotFoundResponse([
-                "item" => ['Workspace not found!']
-            ]);
-        }
-
         try {
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $request->validate([
+                'title' => 'required|string|max:250',
+                'icon' => 'nullable|string|max:250',
+                'isStared' => 'nullable|boolean',
+                'isHidden' => 'nullable|boolean',
+                'isFavorite' => 'nullable|boolean',
+                'folderForModel' => 'nullable|string',
+                'isPasswordProtected' => 'nullable|boolean',
+                'password' => 'nullable|string|max:250',
+                'isDefault' => 'nullable|boolean',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
+            if ($request->folderForModel) {
+                switch ($request->folderForModel) {
+                    case FolderModalsEnum::shortlink->name:
+                        Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_sl_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+                        break;
+
+                    case FolderModalsEnum::linkInBio->name:
+                        Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_lib_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+                        break;
+                }
+            }
+
             $result = Folder::create([
                 'uniqueId' => uniqid(),
-                'userId' => $currentUser->id,
+                'createdBy' => $currentUser->id,
                 'workspaceId' => $workspace->id,
                 'title' => $request->has('title') ? $request->title : null,
                 'icon' => $request->has('icon') ? $request->icon : null,
@@ -126,23 +158,31 @@ class FolderController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $workspaceId, $itemId)
+    public function show(Request $request, $memberId, $itemId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        // getting workspace
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackNotFoundResponse([
-                "item" => ['Workspace not found!']
-            ]);
-        }
-
         try {
-            $item = Folder::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $item = Folder::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 return ZHelpers::sendBackRequestCompletedResponse([
@@ -165,37 +205,57 @@ class FolderController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $workspaceId, $itemId)
+    public function update(Request $request, $memberId, $itemId)
     {
-        $request->validate([
-            'title' => 'required|string|max:250',
-            'icon' => 'nullable|string|max:250',
-            'isStared' => 'nullable|boolean',
-            'isHidden' => 'nullable|boolean',
-            'isFavorite' => 'nullable|boolean',
-            'folderForModel' => 'nullable|string',
-            'isPasswordProtected' => 'nullable|boolean',
-            'password' => 'nullable|string|max:250',
-            'isDefault' => 'nullable|boolean',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        // getting workspace
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackNotFoundResponse([
-                "item" => ['Workspace not found!']
-            ]);
-        }
-
         try {
-            $item = Folder::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $request->validate([
+                'title' => 'required|string|max:250',
+                'icon' => 'nullable|string|max:250',
+                'isStared' => 'nullable|boolean',
+                'isHidden' => 'nullable|boolean',
+                'isFavorite' => 'nullable|boolean',
+                'folderForModel' => 'nullable|string',
+                'isPasswordProtected' => 'nullable|boolean',
+                'password' => 'nullable|string|max:250',
+                'isDefault' => 'nullable|boolean',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
+            if ($request->folderForModel) {
+                switch ($request->folderForModel) {
+                    case FolderModalsEnum::shortlink->name:
+                        Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_sl_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+                        break;
+
+                    case FolderModalsEnum::linkInBio->name:
+                        Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_lib_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+                        break;
+                }
+            }
+
+            $item = Folder::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->update([
@@ -212,7 +272,8 @@ class FolderController extends Controller
                     'extraAttributes' => $request->has('extraAttributes') ? $request->extraAttributes : $item->extraAttributes,
                 ]);
 
-                $item = Folder::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+                $item = Folder::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new FolderResource($item)
                 ]);
@@ -232,23 +293,31 @@ class FolderController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $workspaceId, $itemId)
+    public function destroy(Request $request, $memberId, $itemId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        // getting workspace
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackNotFoundResponse([
-                "item" => ['Workspace not found!']
-            ]);
-        }
-
         try {
-            $item = Folder::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $item = Folder::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->forceDelete();
@@ -263,25 +332,33 @@ class FolderController extends Controller
         }
     }
 
-    public function getShortLinksFolders(Request $request, $workspaceId)
+    public function getShortLinksFolders(Request $request, $memberId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        // getting workspace
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackNotFoundResponse([
-                "item" => ['Workspace not found!']
-            ]);
-        }
         try {
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            $itemsCount = Folder::where('userId', $currentUser->id)->where('workspaceId', $workspaceId)->where('folderForModel', FolderModalsEnum::shortlink->name)->count();
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_sl_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $items = Folder::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::shortlink->name)->get();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $itemsCount = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::shortlink->name)->count();
+
+            $items = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::shortlink->name)->get();
 
             return response()->json([
                 'success' => true,
@@ -298,25 +375,33 @@ class FolderController extends Controller
         }
     }
 
-    public function getLinkInBioFolders(Request $request, $workspaceId)
+    public function getLinkInBioFolders(Request $request, $memberId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        // getting workspace
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackNotFoundResponse([
-                "item" => ['Workspace not found!']
-            ]);
-        }
         try {
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            $itemsCount = Folder::where('userId', $currentUser->id)->where('workspaceId', $workspaceId)->where('folderForModel', FolderModalsEnum::linkInBio->name)->count();
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_lib_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $items = Folder::where('userId', $currentUser->id)->where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::linkInBio->name)->get();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $itemsCount = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::linkInBio->name)->count();
+
+            $items = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::linkInBio->name)->get();
 
             return response()->json([
                 'success' => true,
@@ -333,26 +418,34 @@ class FolderController extends Controller
         }
     }
 
-    public function updateSortOrderNo(Request $request, $workspaceId)
+    public function updateSortOrderNo(Request $request, $memberId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        // getting workspace
-        $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-        if (!$workspace) {
-            return ZHelpers::sendBackNotFoundResponse([
-                "item" => ['Workspace not found!']
-            ]);
-        }
-
-        $request->validate([
-            'folders' => 'required' // array of all folders ids ()  {id: string}[]
-        ]);
-
         try {
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::sort_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $request->validate([
+                'folders' => 'required' // array of all folders ids ()  {id: string}[]
+            ]);
+
             $folders = $request->input('folders');
 
             // Loop through the folders and update the sortOrderNo field

@@ -260,9 +260,30 @@ class RolePermissionsSeeder extends Seeder
         $addFolderPermission = Permission::create(['name' => PermissionsEnum::create_folder->name]);
         $updateFolderPermission = Permission::create(['name' => PermissionsEnum::update_folder->name]);
         $deleteFolderPermission = Permission::create(['name' => PermissionsEnum::delete_folder->name]);
+        $sortFolderPermission = Permission::create(['name' => PermissionsEnum::sort_folder->name]);
         $replicateFolderPermission = Permission::create(['name' => PermissionsEnum::replicate_folder->name]);
         $restoreFolderPermission = Permission::create(['name' => PermissionsEnum::restore_folder->name]);
         $forceDeleteFolderPermission = Permission::create(['name' => PermissionsEnum::forceDelete_folder->name]);
+        // Short links folder Model Permissions
+        $viewAnySLFolderPermission = Permission::create(['name' => PermissionsEnum::viewAny_sl_folder->name]);
+        $viewSLFolderPermission = Permission::create(['name' => PermissionsEnum::view_sl_folder->name]);
+        $addSLFolderPermission = Permission::create(['name' => PermissionsEnum::create_sl_folder->name]);
+        $updateSLFolderPermission = Permission::create(['name' => PermissionsEnum::update_sl_folder->name]);
+        $deleteSLFolderPermission = Permission::create(['name' => PermissionsEnum::delete_sl_folder->name]);
+        $sortSLFolderPermission = Permission::create(['name' => PermissionsEnum::sort_sl_folder->name]);
+        $replicateSLFolderPermission = Permission::create(['name' => PermissionsEnum::replicate_sl_folder->name]);
+        $restoreSLFolderPermission = Permission::create(['name' => PermissionsEnum::restore_sl_folder->name]);
+        $forceDeleteSLFolderPermission = Permission::create(['name' => PermissionsEnum::forceDelete_sl_folder->name]);
+        // Link in bio folder Model Permissions
+        $viewAnyLIBFolderPermission = Permission::create(['name' => PermissionsEnum::viewAny_lib_folder->name]);
+        $viewLIBFolderPermission = Permission::create(['name' => PermissionsEnum::view_lib_folder->name]);
+        $addLIBFolderPermission = Permission::create(['name' => PermissionsEnum::create_lib_folder->name]);
+        $updateLIBFolderPermission = Permission::create(['name' => PermissionsEnum::update_lib_folder->name]);
+        $deleteLIBFolderPermission = Permission::create(['name' => PermissionsEnum::delete_lib_folder->name]);
+        $sortLIBFolderPermission = Permission::create(['name' => PermissionsEnum::sort_lib_folder->name]);
+        $replicateLIBFolderPermission = Permission::create(['name' => PermissionsEnum::replicate_lib_folder->name]);
+        $restoreLIBFolderPermission = Permission::create(['name' => PermissionsEnum::restore_lib_folder->name]);
+        $forceDeleteLIBFolderPermission = Permission::create(['name' => PermissionsEnum::forceDelete_lib_folder->name]);
         // Embeded widgets
         $viewAnyEmbededWidgetPermission = Permission::create(['name' => PermissionsEnum::viewAny_embededWidget->name]);
         $viewEmbededWidgetPermission = Permission::create(['name' => PermissionsEnum::view_embededWidget->name]);
@@ -518,6 +539,7 @@ class RolePermissionsSeeder extends Seeder
             $addApiKeyPermission,
             $updateApiKeyPermission,
             $deleteApiKeyPermission,
+            $sortFolderPermission,
             $replicateApiKeyPermission,
             $restoreApiKeyPermission,
             $forceDeleteApiKeyPermission,
@@ -530,6 +552,26 @@ class RolePermissionsSeeder extends Seeder
             $replicateFolderPermission,
             $restoreFolderPermission,
             $forceDeleteFolderPermission,
+            // shortlink folder
+            $viewAnySLFolderPermission,
+            $viewSLFolderPermission,
+            $addSLFolderPermission,
+            $updateSLFolderPermission,
+            $deleteSLFolderPermission,
+            $sortSLFolderPermission,
+            $replicateSLFolderPermission,
+            $restoreSLFolderPermission,
+            $forceDeleteSLFolderPermission,
+            // link-in-bio folders
+            $viewAnyLIBFolderPermission,
+            $viewLIBFolderPermission,
+            $addLIBFolderPermission,
+            $updateLIBFolderPermission,
+            $deleteLIBFolderPermission,
+            $sortLIBFolderPermission,
+            $replicateLIBFolderPermission,
+            $restoreLIBFolderPermission,
+            $forceDeleteLIBFolderPermission,
             // Embeded Widget
             $viewAnyEmbededWidgetPermission,
             $viewEmbededWidgetPermission,

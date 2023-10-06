@@ -49,6 +49,16 @@ enum WSPermissionsEnum: string
   case restore_sws_utmTag = 'restore_sws_utmTag';
   case forceDelete_sws_utmTag = 'forceDelete_sws_utmTag';
 
+  // Embed widgets
+  case viewAny_sws_embededWidget = 'viewAny_sws_embededWidget';
+  case view_sws_embededWidget = 'view_sws_embededWidget';
+  case create_sws_embededWidget = 'create_sws_embededWidget';
+  case update_sws_embededWidget = 'update_sws_embededWidget';
+  case delete_sws_embededWidget = 'delete_sws_embededWidget';
+  case replicate_sws_embededWidget = 'replicate_sws_embededWidget';
+  case restore_sws_embededWidget = 'restore_sws_embededWidget';
+  case forceDelete_sws_embededWidget = 'forceDelete_sws_embededWidget';
+
     // short link
   case viewAny_sws_shortLink = 'viewAny_sws_shortLink';
   case view_sws_shortLink = 'view_sws_shortLink';
@@ -98,4 +108,37 @@ enum WSPermissionsEnum: string
   case replicate_sws_comment = 'replicate_sws_comment';
   case restore_sws_comment = 'restore_sws_comment';
   case forceDelete_sws_comment = 'forceDelete_sws_comment';
+
+    // Folder
+  case viewAny_sws_folder = 'viewAny_sws_folder';
+  case view_sws_folder = 'view_sws_folder';
+  case create_sws_folder = 'create_sws_folder';
+  case update_sws_folder = 'update_sws_folder';
+  case delete_sws_folder = 'delete_sws_folder';
+  case sort_sws_folder = 'sort_sws_folder';
+  case replicate_sws_folder = 'replicate_sws_folder';
+  case restore_sws_folder = 'restore_sws_folder';
+  case forceDelete_sws_folder = 'forceDelete_sws_folder';
+
+    // Short links Folder
+  case viewAny_sws_sl_folder = 'viewAny_sws_sl_folder';
+  case view_sws_sl_folder = 'view_sws_sl_folder';
+  case create_sws_sl_folder = 'create_sws_sl_folder';
+  case update_sws_sl_folder = 'update_sws_sl_folder';
+  case delete_sws_sl_folder = 'delete_sws_sl_folder';
+  case sort_sws_sl_folder = 'sort_sws_sl_folder';
+  case replicate_sws_sl_folder = 'replicate_sws_sl_folder';
+  case restore_sws_sl_folder = 'restore_sws_sl_folder';
+  case forceDelete_sws_sl_folder = 'forceDelete_sws_sl_folder';
+
+    // Link-in-bio Folder
+  case viewAny_sws_lib_folder = 'viewAny_sws_lib_folder';
+  case view_sws_lib_folder = 'view_sws_lib_folder';
+  case create_sws_lib_folder = 'create_sws_lib_folder';
+  case update_sws_lib_folder = 'update_sws_lib_folder';
+  case delete_sws_lib_folder = 'delete_sws_lib_folder';
+  case sort_sws_lib_folder = 'sort_sws_lib_folder';
+  case replicate_sws_lib_folder = 'replicate_sws_lib_folder';
+  case restore_sws_lib_folder = 'restore_sws_lib_folder';
+  case forceDelete_sws_lib_folder = 'forceDelete_sws_lib_folder';
 }
