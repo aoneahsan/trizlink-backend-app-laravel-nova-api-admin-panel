@@ -440,50 +440,5 @@ class SWSShortLinkController extends Controller
         }
     }
 
-    public function checkShortLinkPassword(Request $request, $urlPath)
-    {
-        try {
-            //code...
-            if ($urlPath && Str::length($urlPath) === 6) {
-                $item = ShortLink::where('shortUrlPath', $urlPath)->first();
-
-                if ($item) {
-                    $request->validate([
-                        'password' => 'required|string|max:250',
-                    ]);
-
-                    $linkPasswordEnable =
-                        $item->password['enabled'];
-
-                    $linkPassword = $item->password['password'];
-
-                    if ($linkPasswordEnable) {
-                        if ($linkPassword === $request->password) {
-                            return
-                                ZHelpers::sendBackRequestCompletedResponse([
-                                    'item' => [
-                                        'success' => true
-                                    ]
-                                ]);
-                        } else {
-                            return ZHelpers::sendBackBadRequestResponse([
-                                'password' => ['Wrong password.']
-                            ]);
-                        }
-                    }
-                } else {
-                    return ZHelpers::sendBackInvalidParamsResponse([
-                        'urlPath' => 'invalid url path.'
-                    ]);
-                }
-            } else {
-                return ZHelpers::sendBackInvalidParamsResponse([
-                    'urlPath' => 'invalid url path.'
-                ]);
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
+    
 }
