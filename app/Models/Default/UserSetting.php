@@ -20,8 +20,13 @@ class UserSetting extends Model
     ];
 
     // Relationship methods
-    public function user(): BelongsTo
+    // public function user(): BelongsTo
+    // {
+    //     return $this->belongsTo(User::class, 'userId', 'id');
+    // }
+
+    public function workspace(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'userId', 'id');
+        return $this->belongsTo(WorkSpace::class, 'workspaceId', 'id');
     }
 }

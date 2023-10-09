@@ -5,6 +5,7 @@ use App\Http\Controllers\Zaions\Common\FileUploadController;
 use App\Http\Controllers\Zaions\Notification\NotificationController;
 use App\Http\Controllers\Zaions\StaticPageController;
 use App\Http\Controllers\Zaions\Testing\TestController;
+use App\Http\Controllers\Zaions\User\SWSUserSettingController;
 use App\Http\Controllers\Zaions\User\UserController;
 use App\Http\Controllers\Zaions\User\UserEmailController;
 use App\Http\Controllers\Zaions\User\UserSettingController;
@@ -114,11 +115,29 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // user
         Route::controller(UserSettingController::class)->group(function () {
-            Route::get('/user/settings', 'index');
-            Route::post('/user/settings', 'store');
-            Route::get('/user/settings/{type}', 'show');
-            Route::put('/user/settings/{itemId}', 'update');
-            Route::delete('/user/settings/{itemId}', 'destroy');
+            Route::get('/user/workspace/{workspaceId}/modal-settings', 'index');
+            Route::post('/user/workspace/{workspaceId}/modal-settings', 'store');
+            Route::get('/user/workspace/{workspaceId}/modal-settings/{type}', 'show');
+            Route::put('/user/workspace/{workspaceId}/modal-settings/{type}', 'update');
+            Route::delete('/user/workspace/{workspaceId}/modal-settings/{type}', 'destroy');
+            // Route::get('/user/settings', 'index');
+            // Route::post('/user/settings', 'store');
+            // Route::get('/user/settings/{type}', 'show');
+            // Route::put('/user/settings/{itemId}', 'update');
+            // Route::delete('/user/settings/{itemId}', 'destroy');
+        });
+
+        Route::controller(SWSUserSettingController::class)->group(function () {
+            Route::get('/user/sws/member/{memberId}/modal-settings', 'index');
+            Route::post('/user/sws/member/{memberId}/modal-settings', 'store');
+            Route::get('/user/sws/member/{memberId}/modal-settings/{type}', 'show');
+            Route::put('/user/sws/member/{memberId}/modal-settings/{type}', 'update');
+            Route::delete('/user/sws/member/{memberId}/modal-settings/{type}', 'destroy');
+            // Route::get('/user/settings', 'index');
+            // Route::post('/user/settings', 'store');
+            // Route::get('/user/settings/{type}', 'show');
+            // Route::put('/user/settings/{itemId}', 'update');
+            // Route::delete('/user/settings/{itemId}', 'destroy');
         });
 
         // notification
@@ -127,7 +146,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::put('/user/notification/markAsRead/{id}', 'markAsRead');
             Route::put('/user/notification/markAllAsRead', 'markAllAsRead');
             // Route::post('/user/settings', 'store');
-            // Route::get('/user/settings/{type}/{workspaceUniqueId}', 'show');
+            // Route::get('/user/settings/{type}/{workspaceId}', 'show');
             // Route::put('/user/settings/{itemId}', 'update');
             // Route::delete('/user/settings/{itemId}', 'destroy');
         });

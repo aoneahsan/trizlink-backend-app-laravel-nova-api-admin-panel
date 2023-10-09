@@ -87,6 +87,16 @@ class SWSRoleAndPermissionsSeeder extends Seeder
     $restoreSWSUtmTagPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_utmTag->name]);
     $forceDeleteSWSUtmTagPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_utmTag->name]);
 
+    // User settings.
+    $viewAnySWSUSSettings = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_USSettings->name]);
+    $viewSWSUSSettings = Permission::create(['name' => WSPermissionsEnum::view_sws_USSettings->name]);
+    $addSWSUSSettings = Permission::create(['name' => WSPermissionsEnum::create_sws_USSettings->name]);
+    $updateSWSUSSettings = Permission::create(['name' => WSPermissionsEnum::update_sws_USSettings->name]);
+    $deleteSWSUSSettings = Permission::create(['name' => WSPermissionsEnum::delete_sws_USSettings->name]);
+    $replicateSWSUSSettings = Permission::create(['name' => WSPermissionsEnum::replicate_sws_USSettings->name]);
+    $restoreSWSUSSettings = Permission::create(['name' => WSPermissionsEnum::restore_sws_USSettings->name]);
+    $forceDeleteSWSUSSettings = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_USSettings->name]);
+
     // Share embed widget model permissions
     $viewAnySWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_embededWidget->name]);
     $viewSWSEmbededWidgetPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_embededWidget->name]);
@@ -202,6 +212,16 @@ class SWSRoleAndPermissionsSeeder extends Seeder
       $replicateSWSUtmTagPermission,
       $restoreSWSUtmTagPermission,
       $forceDeleteSWSUtmTagPermission,
+
+      // User settings.
+      $viewAnySWSUSSettings,
+      $viewSWSUSSettings,
+      $addSWSUSSettings,
+      $updateSWSUSSettings,
+      $deleteSWSUSSettings,
+      $replicateSWSUSSettings,
+      $restoreSWSUSSettings,
+      $forceDeleteSWSUSSettings,
 
       // Embeded widget
       $viewAnySWSEmbededWidgetPermission,

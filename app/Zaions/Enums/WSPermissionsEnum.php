@@ -29,6 +29,16 @@ enum WSPermissionsEnum: string
   case restore_sws_workspace = 'restore_sws_workspace';
   case forceDelete_sws_workspace = 'forceDelete_sws_workspace';
 
+      // US Settings
+      case viewAny_sws_USSettings = 'viewAny_sws_USSettings';
+      case view_sws_USSettings = 'view_sws_USSettings';
+      case create_sws_USSettings = 'create_sws_USSettings';
+      case update_sws_USSettings = 'update_sws_USSettings';
+      case delete_sws_USSettings = 'delete_sws_USSettings';
+      case replicate_sws_USSettings = 'replicate_sws_USSettings';
+      case restore_sws_USSettings = 'restore_sws_USSettings';
+      case forceDelete_sws_USSettings = 'forceDelete_sws_USSettings';
+
     // Pixel
   case viewAny_sws_pixel = 'viewAny_sws_pixel';
   case view_sws_pixel = 'view_sws_pixel';

@@ -17,7 +17,7 @@ class UserSettingResource extends JsonResource
         return [
             'id' => $this->uniqueId,
             'type' => $this->type,
-            'workspaceUniqueId' => $this->workspaceUniqueId,
+            'workspaceId' => $this->workspaceId,
             'settings' => $this->settings,
 
             'sortOrderNo' => $this->sortOrderNo,

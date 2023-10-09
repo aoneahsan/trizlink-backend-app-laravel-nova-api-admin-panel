@@ -173,7 +173,7 @@ enum PermissionsEnum: string
   case detach_utm_tag_from_workspace = 'detach_utm_tag_from_workspace';
   case update_workspace_utm_tag = 'update_workspace_utm_tag';
 
-    // Workspace
+    // US Settings
   case viewAny_USSettings = 'viewAny_USSettings';
   case view_USSettings = 'view_USSettings';
   case create_USSettings = 'create_USSettings';

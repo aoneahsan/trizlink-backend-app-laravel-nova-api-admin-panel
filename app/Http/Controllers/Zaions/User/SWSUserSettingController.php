@@ -6,34 +6,47 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserSettingResource;
 use App\Models\Default\UserSetting;
 use App\Models\Default\WorkSpace;
+use App\Models\Default\WSTeamMember;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\WSMemberAccountStatusEnum;
+use App\Zaions\Enums\WSPermissionsEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
-class UserSettingController extends Controller
+class SWSUserSettingController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $workspaceId)
+    public function index(Request $request, $memberId)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
-                    "item" => ['Workspace not found!']
+                    "item" => ['Share workspace not found!']
                 ]);
             }
+
 
             $itemsCount = UserSetting::where('workspaceId', $workspace->id)->count();
             $items = UserSetting::where('workspaceId', $workspace->id)->get();
@@ -59,15 +72,23 @@ class UserSettingController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $workspaceId)
+    public function store(Request $request, $memberId)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -115,19 +136,28 @@ class UserSettingController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $workspaceId, $type)
+    public function show(Request $request, $memberId, $type)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::view_sws_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
                     "item" => ['Workspace not found!']
-                ]   );
+                ]);
             }
 
             $item = UserSetting::where('type', $type)->where('workspaceId', $workspace->id)->first();
@@ -138,11 +168,11 @@ class UserSettingController extends Controller
                     'item' => new UserSettingResource($item)
                 ]);
             } else {
-                 // we don't went to show error if not found item
-                 return ZHelpers::sendBackRequestCompletedResponse(['item' => []]);
-                 // return ZHelpers::sendBackNotFoundResponse([
-                 //     'item' => ['Setting not found!']
-                 // ]);
+                // we don't went to show error if not found item
+                return ZHelpers::sendBackRequestCompletedResponse(['item' => []]);
+                // return ZHelpers::sendBackNotFoundResponse([
+                //     'item' => ['Setting not found!']
+                // ]);
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
@@ -156,14 +186,23 @@ class UserSettingController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $workspaceId, $type)
+    public function update(Request $request, $memberId, $type)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -213,14 +252,23 @@ class UserSettingController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $workspaceId, $itemId)
+    public function destroy(Request $request, $memberId, $itemId)
     {
         try {
             $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_USSettings->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([

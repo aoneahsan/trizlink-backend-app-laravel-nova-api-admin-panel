@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('user_settings', function (Blueprint $table) {
             $table->id();
             $table->string('uniqueId')->nullable();
-            $table->unsignedBigInteger('userId');
-            $table->unsignedBigInteger('workspaceUniqueId')->nullable();
+            $table->unsignedBigInteger('createdBy');
+            $table->unsignedBigInteger('workspaceId')->nullable();
 
             $table->json('settings')->nullable();
             $table->string('type')->nullable();
@@ -23,8 +23,8 @@ return new class extends Migration
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(true)->nullable();
             $table->json('extraAttributes')->nullable();
-            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('workspaceUniqueId')->references('id')->on('work_spaces')->onDelete('cascade');
+            // $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });
