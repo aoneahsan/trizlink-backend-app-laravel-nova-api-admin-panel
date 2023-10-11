@@ -16,6 +16,7 @@ use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceTeamController;
 use App\Http\Controllers\Zaions\Workspace\WSTeamMemberController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
+use App\Http\Controllers\Zaions\ZLink\Analytics\SWSPixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\UtmTagController;
 use App\Http\Controllers\Zaions\ZLink\Common\ApiKeyController;
 use App\Http\Controllers\Zaions\ZLink\Common\FolderController;
@@ -226,13 +227,21 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // Pixel
         Route::controller(PixelController::class)->group(function () {
-            Route::get('/user/pixel', 'index');
-            Route::post('/user/pixel', 'store');
-            Route::get('/user/pixel/{itemId}', 'show');
-            Route::put('/user/pixel/{itemId}', 'update');
-            Route::delete('/user/pixel/{itemId}', 'destroy');
+            Route::get('/user/workspace/{workspaceId}/pixel', 'index');
+            Route::post('/user/workspace/{workspaceId}/pixel', 'store');
+            Route::get('/user/workspace/{workspaceId}/pixel/{itemId}', 'show');
+            Route::put('/user/workspace/{workspaceId}/pixel/{itemId}', 'update');
+            Route::delete('/user/workspace/{workspaceId}/pixel/{itemId}', 'destroy');
         });
 
+        // Share workspace pixel 
+        Route::controller(SWSPixelController::class)->group(function () {
+            Route::get('/user/sws/member/{memberId}/pixel', 'index');
+            Route::post('/user/sws/member/{memberId}/pixel', 'store');
+            Route::get('/user/sws/member/{memberId}/pixel/{itemId}', 'show');
+            Route::put('/user/sws/member/{memberId}/pixel/{itemId}', 'update');
+            Route::delete('/user/sws/member/{memberId}/pixel/{itemId}', 'destroy');
+        });
 
         // UTM Tags
         Route::controller(UtmTagController::class)->group(function () {

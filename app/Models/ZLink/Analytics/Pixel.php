@@ -20,13 +20,13 @@ class Pixel extends Model
     ];
 
     // Relationship methods
-    public function user(): BelongsTo
+    public function workspaces(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'userId', 'id');
+        return $this->belongsTo(WorkSpace::class, 'workspaceId', 'id');
     }
 
-    public function workspaces()
-    {
-        return $this->morphToMany(WorkSpace::class, 'modal', 'workspace_modal_connections');
-    }
+    // public function workspaces()
+    // {
+    //     return $this->morphToMany(WorkSpace::class, 'modal', 'workspace_modal_connections');
+    // }
 }

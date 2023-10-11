@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Zaions\ZLink\Analytics;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\ZLink\Analytics\PixelResource;
+use App\Models\Default\WorkSpace;
 use App\Models\ZLink\Analytics\Pixel;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
@@ -19,17 +20,24 @@ class PixelController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, $workspaceId)
     {
-        $currentUser = $request->user();
-
-        // check for access
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        $userId = $currentUser->id;
         try {
-            $itemsCount = Pixel::where('userId', $userId)->count();
-            $items = Pixel::where('userId', $userId)->get();
+            $currentUser = $request->user();
+
+            // check for access
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $itemsCount = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->count();
+            $items = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->get();
 
             return response()->json([
                 'success' => true,
@@ -52,32 +60,39 @@ class PixelController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $workspaceId)
     {
-        $request->validate([
-            'platform' => 'required|string|max:250',
-            'title' => 'required|string|max:250',
-            'pixelId' => 'required|string|max:250',
-            'sortOrderNo' => 'nullable|integer',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-        $userId = $currentUser->id;
         try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $request->validate([
+                'platform' => 'required|string|max:250',
+                'title' => 'required|string|max:250',
+                'pixelId' => 'required|string|max:250',
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
             $result = Pixel::create([
                 'uniqueId' => uniqid(),
-                'userId' => $userId,
+                'createdBy' => $currentUser->id,
+                'workspaceId' => $workspace->id,
                 'platform' => $request->has('platform') ? $request->platform : null,
                 'title' => $request->has('title') ? $request->title : null,
                 'pixelId' => $request->has('pixelId') ? $request->pixelId : null,
                 'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
-                'isActive' => $request->has('isActive') ? $request->isActive
-                    : null,
+                'isActive' => $request->has('isActive') ? $request->isActive : null,
                 'extraAttributes' => $request->has('extraAttributes') ? $request->extraAttributes : null,
             ]);
 
@@ -99,24 +114,30 @@ class PixelController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $itemId)
+    public function show(Request $request, $workspaceId, $itemId)
     {
-
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-
         try {
-            $item = Pixel::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $item = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->where('uniqueId', $itemId)->first();
 
             if ($item) {
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new PixelResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Pixel not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -131,23 +152,32 @@ class PixelController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $itemId)
+    public function update(Request $request, $workspaceId, $itemId)
     {
-        $request->validate([
-            'platform' => 'required|string|max:250',
-            'title' => 'required|string|max:250',
-            'pixelId' => 'required|string|max:250',
-            'sortOrderNo' => 'nullable|integer',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
         try {
-            $item = Pixel::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $request->validate([
+                'platform' => 'required|string|max:250',
+                'title' => 'required|string|max:250',
+                'pixelId' => 'required|string|max:250',
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
+
+            $item = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->where('uniqueId', $itemId)->first();
 
             if ($item) {
                 $item->update([
@@ -160,13 +190,14 @@ class PixelController extends Controller
                     'extraAttributes' => $request->has('extraAttributes') ? $request->extraAttributes : $request->extraAttributes,
                 ]);
 
-                $item = Pixel::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+                $item = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->where('uniqueId', $itemId)->first();
+
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new PixelResource($item)
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
-                    'item' => ['Not found!']
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Pixel not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -180,14 +211,22 @@ class PixelController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $itemId)
+    public function destroy(Request $request, $workspaceId, $itemId)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
         try {
-            $item = Pixel::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['No workspace found!']
+                ]);
+            }
+
+            $item = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->where('uniqueId', $itemId)->first();
 
             if ($item) {
                 $item->forceDelete();
@@ -195,7 +234,7 @@ class PixelController extends Controller
                     'item' => ['success' => true]
                 ]);
             } else {
-                return ZHelpers::sendBackRequestFailedResponse([
+                return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['Pixel not found!']
                 ]);
             }
