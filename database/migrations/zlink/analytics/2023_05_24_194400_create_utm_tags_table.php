@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('utm_tags', function (Blueprint $table) {
             $table->id();
             $table->string('uniqueId')->nullable();
-            $table->unsignedBigInteger('userId');
+            $table->unsignedBigInteger('workspaceId');
+            $table->unsignedBigInteger('createdBy');
 
             $table->string('templateName')->nullable();
             $table->string('utmCampaign')->nullable();
@@ -23,7 +24,7 @@ return new class extends Migration
             $table->string('utmTerm')->nullable();
             $table->string('utmContent')->nullable();
 
-            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
 
             $table->integer('sortOrderNo')->default(0)->nullable();
             $table->boolean('isActive')->default(true)->nullable();

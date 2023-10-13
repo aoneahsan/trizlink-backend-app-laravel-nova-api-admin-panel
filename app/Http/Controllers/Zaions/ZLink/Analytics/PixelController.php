@@ -36,8 +36,8 @@ class PixelController extends Controller
                 ]);
             }
 
-            $itemsCount = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->count();
-            $items = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->get();
+            $itemsCount = Pixel::where('workspaceId', $workspace->id)->count();
+            $items = Pixel::where('workspaceId', $workspace->id)->get();
 
             return response()->json([
                 'success' => true,
@@ -129,7 +129,7 @@ class PixelController extends Controller
                 ]);
             }
 
-            $item = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->where('uniqueId', $itemId)->first();
+            $item = Pixel::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
 
             if ($item) {
                 return ZHelpers::sendBackRequestCompletedResponse([
@@ -177,7 +177,7 @@ class PixelController extends Controller
             ]);
 
 
-            $item = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->where('uniqueId', $itemId)->first();
+            $item = Pixel::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
 
             if ($item) {
                 $item->update([
@@ -190,7 +190,7 @@ class PixelController extends Controller
                     'extraAttributes' => $request->has('extraAttributes') ? $request->extraAttributes : $request->extraAttributes,
                 ]);
 
-                $item = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->where('uniqueId', $itemId)->first();
+                $item = Pixel::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new PixelResource($item)
@@ -226,7 +226,7 @@ class PixelController extends Controller
                 ]);
             }
 
-            $item = Pixel::where('workspaceId', $workspace->id)->where('createdBy', $currentUser->id)->where('uniqueId', $itemId)->first();
+            $item = Pixel::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
 
             if ($item) {
                 $item->forceDelete();

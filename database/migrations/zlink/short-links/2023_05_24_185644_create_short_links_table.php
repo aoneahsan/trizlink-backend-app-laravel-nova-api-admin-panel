@@ -21,7 +21,7 @@ return new class extends Migration
             $table->json('target')->nullable();
             $table->string('title')->nullable();
             $table->string('folderId')->nullable();
-            $table->string('featureImg')->nullable();
+            $table->json('featureImg')->nullable();
             $table->text('description')->nullable();
             $table->string('pixelIds')->nullable();
             $table->json('utmTagInfo')->nullable();

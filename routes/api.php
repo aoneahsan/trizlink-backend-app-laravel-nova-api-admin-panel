@@ -17,6 +17,7 @@ use App\Http\Controllers\Zaions\Workspace\WorkspaceTeamController;
 use App\Http\Controllers\Zaions\Workspace\WSTeamMemberController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\SWSPixelController;
+use App\Http\Controllers\Zaions\ZLink\Analytics\SWSUtmTagController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\UtmTagController;
 use App\Http\Controllers\Zaions\ZLink\Common\ApiKeyController;
 use App\Http\Controllers\Zaions\ZLink\Common\FolderController;
@@ -245,11 +246,20 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // UTM Tags
         Route::controller(UtmTagController::class)->group(function () {
-            Route::get('/user/utm-tag', 'index');
-            Route::post('/user/utm-tag', 'store');
-            Route::get('/user/utm-tag/{itemId}', 'show');
-            Route::put('/user/utm-tag/{itemId}', 'update');
-            Route::delete('/user/utm-tag/{itemId}', 'destroy');
+            Route::get('/user/workspace/{workspaceId}/utm-tag', 'index');
+            Route::post('/user/workspace/{workspaceId}/utm-tag', 'store');
+            Route::get('/user/workspace/{workspaceId}/utm-tag/{itemId}', 'show');
+            Route::put('/user/workspace/{workspaceId}/utm-tag/{itemId}', 'update');
+            Route::delete('/user/workspace/{workspaceId}/utm-tag/{itemId}', 'destroy');
+        });
+
+        // Share UTM Tags
+        Route::controller(SWSUtmTagController::class)->group(function () {
+            Route::get('/user/sws/member/{memberId}/utm-tag', 'index');
+            Route::post('/user/sws/member/{memberId}/utm-tag', 'store');
+            Route::get('/user/sws/member/{memberId}/utm-tag/{itemId}', 'show');
+            Route::put('/user/sws/member/{memberId}/utm-tag/{itemId}', 'update');
+            Route::delete('/user/sws/member/{memberId}/utm-tag/{itemId}', 'destroy');
         });
 
         // API key

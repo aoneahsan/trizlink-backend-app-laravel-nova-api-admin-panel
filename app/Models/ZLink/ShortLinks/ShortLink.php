@@ -25,6 +25,7 @@ class ShortLink extends Model
         'geoLocationRotatorLinks' => 'array',
         'linkExpirationInfo' => 'array',
         'password' => 'array',
+        'featureImg'=> 'array',
 
     ];
 
