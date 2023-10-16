@@ -17,6 +17,9 @@ enum WSPermissionsEnum: string
   case replicate_sws_member = 'replicate_sws_member';
   case restore_sws_member = 'restore_sws_member';
   case forceDelete_sws_member = 'forceDelete_sws_member';
+  case send_invitation_sws_member = 'send_invitation_sws_member';
+  case resend_invitation_sws_member = 'resend_invitation_sws_member';
+  case update_role_sws_member = 'update_role_sws_member';
 
     // Workspace
   case viewAny_sws_workspace = 'viewAny_sws_workspace';

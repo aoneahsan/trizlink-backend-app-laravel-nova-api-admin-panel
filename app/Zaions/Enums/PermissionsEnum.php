@@ -156,7 +156,9 @@ enum PermissionsEnum: string
   case replicate_WSTeamMember = 'replicate_WSTeamMember';
   case restore_WSTeamMember = 'restore_WSTeamMember';
   case forceDelete_WSTeamMember = 'forceDelete_WSTeamMember';
-  case invite_WSTeamMember = 'invite_WSTeamMember';
+  case send_invitation_WSTeamMember = 'send_invitation_WSTeamMember';
+  case resend_invitation_WSTeamMember = 'resend_invitation_WSTeamMember';
+  case update_role_WSTeamMember = 'update_role_WSTeamMember';
 
     // Workspace Members
   case attach_workspace_members = 'attach_workspace_members';

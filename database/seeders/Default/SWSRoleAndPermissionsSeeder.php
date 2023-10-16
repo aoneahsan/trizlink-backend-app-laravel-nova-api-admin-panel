@@ -56,6 +56,9 @@ class SWSRoleAndPermissionsSeeder extends Seeder
     $replicateSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::replicate_sws_member->name]);
     $restoreSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_member->name]);
     $forceDeleteSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::forceDelete_sws_member->name]);
+    $sendInvitationSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::send_invitation_sws_member->name]);
+    $resendInvitationSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::resend_invitation_sws_member->name]);
+    $updateRoleSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::update_role_sws_member->name]);
 
     // Share comment model permissions
     $viewAnySWSCommentPermission = Permission::create(['name' => WSPermissionsEnum::viewAny_sws_comment->name]);
@@ -282,6 +285,9 @@ class SWSRoleAndPermissionsSeeder extends Seeder
       $replicateSWSMemberPermission,
       $restoreSWSMemberPermission,
       $forceDeleteSWSMemberPermission,
+      $sendInvitationSWSMemberPermission,
+      $resendInvitationSWSMemberPermission,
+      $updateRoleSWSMemberPermission,
 
       // Comments.
       $viewAnySWSCommentPermission,

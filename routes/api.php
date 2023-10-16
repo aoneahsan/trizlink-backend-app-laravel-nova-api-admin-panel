@@ -14,7 +14,8 @@ use App\Http\Controllers\Zaions\WorkSpace\WorkSpaceController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceMemberController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceTeamController;
-use App\Http\Controllers\Zaions\Workspace\WSTeamMemberController;
+use App\Http\Controllers\Zaions\Workspace\MemberController;
+use App\Http\Controllers\Zaions\Workspace\SWSMemberController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\SWSPixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\SWSUtmTagController;
@@ -173,16 +174,28 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         });
 
         // Workspace Team member
-        Route::controller(WSTeamMemberController::class)->group(function () {
+        Route::controller(MemberController::class)->group(function () {
             Route::get('/user/workspace/{workspaceId}/member', 'getAllInvitationData');
             Route::post('/user/workspace/{workspaceId}/member/send-invitation', 'sendInvitation');
             Route::put('/user/workspace/{workspaceId}/member/resend-invitation/{itemId}', 'resendInvitation');
-            Route::get('/user/member/{itemId}', 'getInvitationData');
+            Route::get('/user/workspace/{workspaceId}/member/{itemId}', 'getInvitationData');
             // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
-            Route::put('/user/update-invitation/{itemId}', 'updateInvitationStatus');
+            Route::put('/user/workspace/{workspaceId}/update-invitation/{itemId}', 'updateInvitationStatus');
             Route::put('/user/workspace/{workspaceId}/update-role/{itemId}', 'updateRole');
 
             Route::delete('/user/workspace/{workspaceId}/member/{itemId}', 'destroy');
+        });
+
+        Route::controller(SWSMemberController::class)->group(function () {
+            Route::get('/user/sws/member/{memberId}/ws/member', 'getAllInvitationData');
+            Route::post('/user/sws/member/{memberId}/ws/member/send-invitation', 'sendInvitation');
+            Route::put('/user/sws/member/{memberId}/ws/member/resend-invitation/{itemId}', 'resendInvitation');
+            Route::get('/user/sws/member/{memberId}/ws/member/{itemId}', 'getInvitationData');
+            // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
+            Route::put('/user/sws/member/{memberId}/ws/update-invitation/{itemId}', 'updateInvitationStatus');
+            Route::put('/user/sws/member/{memberId}/ws/update-role/{itemId}', 'updateRole');
+
+            Route::delete('/user/sws/member/{memberId}/ws/member/{itemId}', 'destroy');
         });
 
         // Attach modal (pixel, UTM tag etc.) to workspace.
@@ -406,7 +419,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     });
 
     // Workspace Team member
-    Route::controller(WSTeamMemberController::class)->group(function () {
+    Route::controller(MemberController::class)->group(function () {
         Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
     });
 });

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('wilToken', 1000)->nullable(); // wilToken -> workspaceInviteLinkToken.
             $table->string('uniqueId');
-            $table->unsignedBigInteger('userId'); // (user how created this request)
+            $table->unsignedBigInteger('inviterId'); // (user how created this request)
             $table->unsignedBigInteger('workspaceId'); // (workspace whom the team belongs)
             // $table->unsignedBigInteger('teamId'); // (team of workspace where member is invited)
             $table->unsignedBigInteger('memberRoleId'); // (role id to assign member)
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->boolean('isFavorite')->default(false)->nullable();
             $table->json('extraAttributes')->nullable();
 
-            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            // $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
 
             $table->softDeletes();
