@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('w_s_team_members', function (Blueprint $table) {
             $table->id();
             $table->string('wilToken', 1000)->nullable(); // wilToken -> workspaceInviteLinkToken.
+            $table->string('shortUrlId', 12)->nullable(); // shortUrlId -> if user create a short url to share this will be id we will check if id is same then redirect to token
             $table->string('uniqueId');
             $table->unsignedBigInteger('inviterId'); // (user how created this request)
             $table->unsignedBigInteger('workspaceId'); // (workspace whom the team belongs)

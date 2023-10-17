@@ -402,6 +402,60 @@ class SWSMemberController extends Controller
         }
     }
 
+    public function createShortLinkId(Request $request,  $memberId, $itemId)
+    {
+        try {
+            $currentUser = $request->user();
+            // first getting the member from member we will get share workspace
+            $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            if (!$member) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+
+            $request->validate([
+                'status' => 'required|string',
+            ]);
+
+            // $member->userId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+
+            if ($workspace) {
+                $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
+
+                if ($item) {
+                    $shortUrlIdLength = 12;
+                    $shortUrlId = ZHelpers::zGenerateRandomString($shortUrlIdLength);
+
+                   $result = $item->update([
+                        'shortUrlId' => $shortUrlId,
+                    ]);
+
+                    if($result){
+                        $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => new WSTeamMemberResource($item),
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Member not found!']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Share workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *

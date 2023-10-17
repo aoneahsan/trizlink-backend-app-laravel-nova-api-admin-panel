@@ -148,17 +148,18 @@ enum PermissionsEnum: string
   case forceDelete_workspaceTeam = 'forceDelete_workspaceTeam';
 
     // Workspace member
-  case viewAny_WSTeamMember = 'viewAny_WSTeamMember';
-  case view_WSTeamMember = 'view_WSTeamMember';
-  case create_WSTeamMember = 'create_WSTeamMember';
-  case update_WSTeamMember = 'update_WSTeamMember';
-  case delete_WSTeamMember = 'delete_WSTeamMember';
-  case replicate_WSTeamMember = 'replicate_WSTeamMember';
-  case restore_WSTeamMember = 'restore_WSTeamMember';
-  case forceDelete_WSTeamMember = 'forceDelete_WSTeamMember';
-  case send_invitation_WSTeamMember = 'send_invitation_WSTeamMember';
-  case resend_invitation_WSTeamMember = 'resend_invitation_WSTeamMember';
-  case update_role_WSTeamMember = 'update_role_WSTeamMember';
+  case viewAny_ws_member = 'viewAny_ws_member';
+  case view_ws_member = 'view_ws_member';
+  case create_ws_member = 'create_ws_member';
+  case update_ws_member = 'update_ws_member';
+  case delete_ws_member = 'delete_ws_member';
+  case replicate_ws_member = 'replicate_ws_member';
+  case restore_ws_member = 'restore_ws_member';
+  case forceDelete_ws_member = 'forceDelete_ws_member';
+  case send_invitation_ws_member = 'send_invitation_ws_member';
+  case resend_invitation_ws_member = 'resend_invitation_ws_member';
+  case update_memberRole_ws_member = 'update_memberRole_ws_member';
+  case create_shortUrl_ws_member = 'create_shortUrl_ws_member';
 
     // Workspace Members
   case attach_workspace_members = 'attach_workspace_members';

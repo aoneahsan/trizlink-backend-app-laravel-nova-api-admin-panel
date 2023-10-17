@@ -182,6 +182,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
             Route::put('/user/workspace/{workspaceId}/update-invitation/{itemId}', 'updateInvitationStatus');
             Route::put('/user/workspace/{workspaceId}/update-role/{itemId}', 'updateRole');
+            Route::put('/user/workspace/{workspaceId}/create-short-url/{itemId}', 'createShortLinkId');
 
             Route::delete('/user/workspace/{workspaceId}/member/{itemId}', 'destroy');
         });
@@ -194,6 +195,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
             Route::put('/user/sws/member/{memberId}/ws/update-invitation/{itemId}', 'updateInvitationStatus');
             Route::put('/user/sws/member/{memberId}/ws/update-role/{itemId}', 'updateRole');
+            Route::put('/user/sws/member/{memberId}/ws/create-short-url/{itemId}', 'createShortLinkId');
 
             Route::delete('/user/sws/member/{memberId}/ws/member/{itemId}', 'destroy');
         });
@@ -421,5 +423,6 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     // Workspace Team member
     Route::controller(MemberController::class)->group(function () {
         Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
+        Route::get('/user/short-url/check', 'shortUrlCheck');
     });
 });

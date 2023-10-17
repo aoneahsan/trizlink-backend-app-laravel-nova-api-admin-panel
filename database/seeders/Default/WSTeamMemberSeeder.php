@@ -44,7 +44,7 @@ class WSTeamMemberSeeder extends Seeder
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
-            'userId' => $ahsanUser->id,
+            'inviterId' => $ahsanUser->id,
             'workspaceId' => $ahsanSWS->id,
             'memberRoleId' => $wsAdministrator->id,
             'memberId' => $superAdminUser->id,
@@ -56,7 +56,7 @@ class WSTeamMemberSeeder extends Seeder
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
-            'userId' => $ahsanUser->id,
+            'inviterId' => $ahsanUser->id,
             'workspaceId' => $ahsanSWS->id,
             'memberRoleId' => $wsManager->id,
             'memberId' => $adminUser->id,
@@ -68,7 +68,7 @@ class WSTeamMemberSeeder extends Seeder
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
-            'userId' => $ahsanUser->id,
+            'inviterId' => $ahsanUser->id,
             'workspaceId' => $ahsanSWS->id,
             'memberRoleId' => $wsContributor->id,
             'memberId' => $simpleUser->id,
@@ -80,7 +80,7 @@ class WSTeamMemberSeeder extends Seeder
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
-            'userId' => $ahsanUser->id,
+            'inviterId' => $ahsanUser->id,
             'workspaceId' => $ahsanSWS->id,
             'memberRoleId' => $wsWriter->id,
             'memberId' => $wsUser1->id,
@@ -92,7 +92,7 @@ class WSTeamMemberSeeder extends Seeder
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
-            'userId' => $ahsanUser->id,
+            'inviterId' => $ahsanUser->id,
             'workspaceId' => $ahsanSWS->id,
             'memberRoleId' => $wsApprover->id,
             'memberId' => $wsUser2->id,
@@ -104,7 +104,7 @@ class WSTeamMemberSeeder extends Seeder
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
-            'userId' => $ahsanUser->id,
+            'inviterId' => $ahsanUser->id,
             'workspaceId' => $ahsanSWS->id,
             'memberRoleId' => $wsCommenter->id,
             'memberId' => $wsUser3->id,
@@ -116,7 +116,7 @@ class WSTeamMemberSeeder extends Seeder
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
-            'userId' => $ahsanUser->id,
+            'inviterId' => $ahsanUser->id,
             'workspaceId' => $ahsanSWS->id,
             'memberRoleId' => $wsGuest->id,
             'memberId' => $wsUser4->id,

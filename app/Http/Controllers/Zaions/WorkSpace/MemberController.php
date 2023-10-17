@@ -36,7 +36,7 @@ class MemberController extends Controller
     {
         try {
             $currentUser = $request->user();
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
 
@@ -65,7 +65,7 @@ class MemberController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::send_invitation_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::send_invitation_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $request->validate([
                 'email' => 'required|string|max:65',
@@ -189,7 +189,7 @@ class MemberController extends Controller
             //code...
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::resend_invitation_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::resend_invitation_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
 
             $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
@@ -256,7 +256,7 @@ class MemberController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
 
@@ -288,7 +288,7 @@ class MemberController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $request->validate([
                 'status' => 'required|string',
@@ -359,6 +359,7 @@ class MemberController extends Controller
         }
     }
 
+
     /**
      * Remove the specified resource from storage.
      *
@@ -370,7 +371,7 @@ class MemberController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
 
@@ -408,7 +409,7 @@ class MemberController extends Controller
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_role_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_memberRole_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $request->validate([
                 'role' => 'required|string',
@@ -453,13 +454,54 @@ class MemberController extends Controller
         }
     }
 
+    public function createShortLinkId(Request $request,  $workspaceId, $itemId)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_shortUrl_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+
+            if ($workspace) {
+                $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
+
+                if ($item) {
+                    $shortUrlIdLength = 12;
+                    $shortUrlId = ZHelpers::zGenerateRandomString($shortUrlIdLength);
+
+                   $result = $item->update([
+                        'shortUrlId' => $shortUrlId,
+                    ]);
+
+                    if($result){
+                        $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
+                        return ZHelpers::sendBackRequestCompletedResponse([
+                            'item' => new WSTeamMemberResource($item),
+                        ]);
+                    }
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Member not found!']
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['Workspace not found!']
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
     // Public
     public function validateAndUpdateInvitation(Request $request)
     {
         try {
             // $currentUser = $request->user();
 
-            // Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::invite_WSTeamMember->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            // Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::invite_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             $request->validate([
                 'token' => 'required|string',
@@ -513,6 +555,34 @@ class MemberController extends Controller
                 ]);
             }
             //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function shortUrlCheck(Request $request)
+    {
+        try {
+            $request->validate([
+                'shortUrlId' => 'required|string|max:12',
+            ]);
+            $memberInvitation = WSTeamMember::where('shortUrlId', $request->shortUrlId)->first();
+            if ($memberInvitation) {
+
+                return ZHelpers::sendBackRequestCompletedResponse([
+                    'item' => [
+                        'token' => $memberInvitation->wilToken,
+                        'success' => false
+                    ],
+                ]);
+            } else {
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => [
+                        'message' => 'Invitation not found!',
+                        'success' => false
+                    ]
+                ]);
+            }
+        } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }

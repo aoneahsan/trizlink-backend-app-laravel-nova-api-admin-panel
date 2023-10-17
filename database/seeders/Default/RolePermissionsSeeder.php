@@ -146,17 +146,18 @@ class RolePermissionsSeeder extends Seeder
         $forceDeleteWorkspaceTeamPermission = Permission::create(['name' => PermissionsEnum::forceDelete_workspaceTeam->name]);
 
         // Team members
-        $viewAnyWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::viewAny_WSTeamMember->name]);
-        $viewWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::view_WSTeamMember->name]);
-        $addWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::create_WSTeamMember->name]);
-        $updateWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::update_WSTeamMember->name]);
-        $deleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::delete_WSTeamMember->name]);
-        $replicateWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::replicate_WSTeamMember->name]);
-        $restoreWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::restore_WSTeamMember->name]);
-        $forceDeleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::forceDelete_WSTeamMember->name]);
-        $sendInviteDeleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::send_invitation_WSTeamMember->name]);
-        $resendInviteDeleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::resend_invitation_WSTeamMember->name]);
-        $updateRoleWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::update_role_WSTeamMember->name]);
+        $viewAnyWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::viewAny_ws_member->name]);
+        $viewWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::view_ws_member->name]);
+        $addWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::create_ws_member->name]);
+        $updateWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::update_ws_member->name]);
+        $deleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::delete_ws_member->name]);
+        $replicateWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::replicate_ws_member->name]);
+        $restoreWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::restore_ws_member->name]);
+        $forceDeleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::forceDelete_ws_member->name]);
+        $sendInviteDeleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::send_invitation_ws_member->name]);
+        $resendInviteDeleteWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::resend_invitation_ws_member->name]);
+        $updateRoleWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::update_memberRole_ws_member->name]);
+        $createShortUrlWSTeamMemberPermission = Permission::create(['name' => PermissionsEnum::create_shortUrl_ws_member->name]);
         // UserSetting Model Permissions
         $viewAnyUSSettingsPermission = Permission::create(['name' => PermissionsEnum::viewAny_USSettings->name]);
         $viewUSSettingsPermission = Permission::create(['name' => PermissionsEnum::view_USSettings->name]);
@@ -447,6 +448,7 @@ class RolePermissionsSeeder extends Seeder
             $sendInviteDeleteWSTeamMemberPermission,
             $resendInviteDeleteWSTeamMemberPermission,
             $updateRoleWSTeamMemberPermission,
+            $createShortUrlWSTeamMemberPermission,
             // UserSetting
             $viewAnyUSSettingsPermission,
             $viewUSSettingsPermission,
