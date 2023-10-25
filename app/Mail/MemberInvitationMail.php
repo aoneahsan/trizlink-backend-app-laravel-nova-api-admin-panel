@@ -43,7 +43,7 @@ class MemberInvitationMail extends Mailable implements ShouldQueue
 
     public function redirectUrl()
     {
-        return env('FRONTEND_URL', '') . '/accept-invitation?token=' . $this->wilToken;
+        return config('appENVs.FRONTEND_URL') . '/accept-invitation?token=' . $this->wilToken;
     }
 
     /**
