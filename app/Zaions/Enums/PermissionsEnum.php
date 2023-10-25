@@ -158,6 +158,7 @@ enum PermissionsEnum: string
   case forceDelete_ws_member = 'forceDelete_ws_member';
   case send_invitation_ws_member = 'send_invitation_ws_member';
   case resend_invitation_ws_member = 'resend_invitation_ws_member';
+  case cancel_invitation_ws_member = 'cancel_invitation_ws_member';
   case update_memberRole_ws_member = 'update_memberRole_ws_member';
   case create_shortUrl_ws_member = 'create_shortUrl_ws_member';
 

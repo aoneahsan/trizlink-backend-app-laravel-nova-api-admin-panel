@@ -43,8 +43,8 @@ class SWSShortLinkController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -91,12 +91,12 @@ class SWSShortLinkController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
-                    "item" => ['Workspace not found!']
+                    "item" => ['Share workspace not found!']
                 ]);
             }
 
@@ -208,12 +208,12 @@ class SWSShortLinkController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
-                    "item" => ['Workspace not found!']
+                    "item" => ['Share workspace not found!']
                 ]);
             }
 
@@ -255,8 +255,8 @@ class SWSShortLinkController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -355,8 +355,8 @@ class SWSShortLinkController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([

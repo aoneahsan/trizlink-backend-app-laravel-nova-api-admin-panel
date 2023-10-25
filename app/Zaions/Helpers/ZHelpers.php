@@ -414,6 +414,16 @@ class ZHelpers
     return $randomString;
   }
 
+ public static function zEncryptUniqueId($uniqueId){
+  // Encrypt the unique ID using Laravel's Crypt facade
+  $encryptedUniqueId = \Illuminate\Support\Facades\Crypt::encryptString($uniqueId);
+
+  // Encode the encrypted ID using base64 to make it URL-safe
+  $encodedEncryptedId = base64_encode($encryptedUniqueId);
+  $urlSafeEncodedId = urlencode($encodedEncryptedId);
+
+  return $urlSafeEncodedId;
+ }
 
   public static function zGenerateAndEncryptUniqueId()
   {

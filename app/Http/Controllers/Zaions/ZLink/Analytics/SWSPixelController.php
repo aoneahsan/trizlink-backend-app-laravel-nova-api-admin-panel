@@ -38,8 +38,8 @@ class SWSPixelController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -80,8 +80,8 @@ class SWSPixelController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -144,8 +144,8 @@ class SWSPixelController extends Controller
             ]);
         }
 
-        // $member->userId => id of owner of the workspace
-        $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+        // $member->inviterId => id of owner of the workspace
+        $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
         if (!$workspace) {
             return ZHelpers::sendBackNotFoundResponse([
@@ -192,8 +192,8 @@ class SWSPixelController extends Controller
                 ]);
             }
             
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
             
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -249,7 +249,7 @@ class SWSPixelController extends Controller
         try {
             $currentUser = $request->user();
             // first getting the member from member we will get share workspace
-            $member = WSTeamMember::where('uniqueId',  )->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
+            $member = WSTeamMember::where('uniqueId',  $memberId    )->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
             
             Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_pixel->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
             
@@ -259,8 +259,8 @@ class SWSPixelController extends Controller
                 ]);
             }
             
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
             
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([

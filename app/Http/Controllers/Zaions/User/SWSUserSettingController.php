@@ -38,8 +38,8 @@ class SWSUserSettingController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -87,8 +87,8 @@ class SWSUserSettingController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -151,8 +151,8 @@ class SWSUserSettingController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -201,8 +201,8 @@ class SWSUserSettingController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -267,8 +267,8 @@ class SWSUserSettingController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([

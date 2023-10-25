@@ -20,6 +20,7 @@ enum WSPermissionsEnum: string
   case send_invitation_sws_member = 'send_invitation_sws_member';
   case resend_invitation_sws_member = 'resend_invitation_sws_member';
   case update_memberRole_sws_member = 'update_role_sws_member';
+  case cancel_invitation_sws_member = 'cancel_invitation_sws_member';
   case create_shortUrl_sws_member = 'create_shortUrl_sws_member';
 
     // Workspace

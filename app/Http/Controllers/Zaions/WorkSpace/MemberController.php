@@ -302,36 +302,40 @@ class MemberController extends Controller
 
                 // Checking in invitation is not null.
                 if ($invitation) {
-                    $message = null;
-
-                    if ($request->status === WSMemberAccountStatusEnum::accepted->value) {
-                        $invitation->update([
-                            'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
-                            'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
-                        ]);
-                        $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
+                    if($request->status === WSMemberAccountStatusEnum::accepted->value || $request->status === WSMemberAccountStatusEnum::rejected->value){
+                        $message = null;
+    
+                        if ($request->status === WSMemberAccountStatusEnum::accepted->value) {
+                            $invitation->update([
+                                'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
+                                'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                            ]);
+                            $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
+                        }
+    
+                        if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
+                            $invitation->update([
+                                'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
+                                'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                            ]);
+                            $message = '"' .
+                                $currentUser->username . '"' . ' has rejected your invitation.';
+                        }
+    
+                        $data = [
+                            'invitee' => $invitation->memberId,
+                            'message' => $message,
+                            'inviterUserId' => $invitation->inviterId,
+                        ];
+    
+                        $inviter = User::where('id', $invitation->inviterId)->first();
+    
+                        $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
                     }
-
-                    if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
-                        $invitation->update([
-                            'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
-                            'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
-                        ]);
-                        $message = '"' .
-                            $currentUser->username . '"' . ' has rejected your invitation.';
-                    }
-
-                    $data = [
-                        'invitee' => $invitation->memberId,
-                        'message' => $message,
-                        'inviterUserId' => $invitation->inviterId,
-                    ];
-
-                    $inviter = User::where('id', $invitation->inviterId)->first();
-
-                    $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
 
                     if ($request->status === WSMemberAccountStatusEnum::cancel->value) {
+                        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::cancel_invitation_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
                         $invitation->update([
                             'accountStatus' => WSMemberAccountStatusEnum::cancel->value,
                             'wilToken' => null,
@@ -559,19 +563,16 @@ class MemberController extends Controller
         }
     }
 
-    public function shortUrlCheck(Request $request)
+    public function shortUrlCheck(Request $request, $shortUrlId)
     {
         try {
-            $request->validate([
-                'shortUrlId' => 'required|string|max:12',
-            ]);
-            $memberInvitation = WSTeamMember::where('shortUrlId', $request->shortUrlId)->first();
+            $memberInvitation = WSTeamMember::where('shortUrlId', $shortUrlId)->first();
             if ($memberInvitation) {
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => [
-                        'token' => $memberInvitation->wilToken,
-                        'success' => false
+                        'token' => ZHelpers::zEncryptUniqueId($memberInvitation->wilToken),
+                        'success' => true
                     ],
                 ]);
             } else {

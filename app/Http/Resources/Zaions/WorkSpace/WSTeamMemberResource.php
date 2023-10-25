@@ -41,6 +41,7 @@ class WSTeamMemberResource extends JsonResource
                 'id' => $this->workspaceTeam->uniqueId,
                 'title' => $this->workspaceTeam->title,
             ] : null,
+            'shortUrlId' => $this->shortUrlId,
             'sortOrderNo' => $this->sortOrderNo,
             'isActive' => $this->isActive,
             'extraAttributes' => $this->extraAttributes, 'formattedCreatedAt' => $this->created_at->diffForHumans(),

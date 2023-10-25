@@ -48,8 +48,8 @@ class SWSMemberController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if ($workspace) {
                 $items = WSTeamMember::where('workspaceId', $workspace->id)->get();
@@ -95,8 +95,8 @@ class SWSMemberController extends Controller
                 'extraAttributes' => 'nullable|json',
             ]);
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if ($workspace) {
                 $item = WSTeamMember::where('email', $request->email)->where('workspaceId', $workspace->id)->first();
@@ -216,8 +216,8 @@ class SWSMemberController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if ($workspace) {
                 $invitation = WSTeamMember::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
@@ -291,8 +291,8 @@ class SWSMemberController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if ($workspace) {
                 $invitation = WSTeamMember::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
@@ -336,8 +336,8 @@ class SWSMemberController extends Controller
                 'status' => 'required|string',
             ]);
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if($workspace){
                 // Getting the invitation.
@@ -345,36 +345,40 @@ class SWSMemberController extends Controller
     
                 // Checking in invitation is not null.
                 if ($invitation) {
-                    $message = null;
-    
-                    if ($request->status === WSMemberAccountStatusEnum::accepted->value) {
-                        $invitation->update([
-                            'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
-                            'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
-                        ]);
-                        $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
+                    if($request->status === WSMemberAccountStatusEnum::accepted->value || $request->status === WSMemberAccountStatusEnum::rejected->value){
+                        $message = null;
+        
+                        if ($request->status === WSMemberAccountStatusEnum::accepted->value) {
+                            $invitation->update([
+                                'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
+                                'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                            ]);
+                            $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
+                        }
+        
+                        if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
+                            $invitation->update([
+                                'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
+                                'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                            ]);
+                            $message = '"' .
+                                $currentUser->username . '"' . ' has rejected your invitation.';
+                        }
+        
+                        $data = [
+                            'invitee' => $invitation->memberId,
+                            'message' => $message,
+                            'inviterUserId' => $invitation->userId,
+                        ];
+        
+                        $inviter = User::where('id', $invitation->userId)->first();
+        
+                        $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
                     }
-    
-                    if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
-                        $invitation->update([
-                            'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
-                            'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
-                        ]);
-                        $message = '"' .
-                            $currentUser->username . '"' . ' has rejected your invitation.';
-                    }
-    
-                    $data = [
-                        'invitee' => $invitation->memberId,
-                        'message' => $message,
-                        'inviterUserId' => $invitation->userId,
-                    ];
-    
-                    $inviter = User::where('id', $invitation->userId)->first();
-    
-                    $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
     
                     if ($request->status === WSMemberAccountStatusEnum::cancel->value) {
+                        Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::cancel_invitation_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
                         $invitation->update([
                             'accountStatus' => WSMemberAccountStatusEnum::cancel->value,
                             'wilToken' => null,
@@ -417,12 +421,8 @@ class SWSMemberController extends Controller
                 ]);
             }
 
-            $request->validate([
-                'status' => 'required|string',
-            ]);
-
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if ($workspace) {
                 $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
@@ -477,8 +477,8 @@ class SWSMemberController extends Controller
                 ]);
             }
 
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if ($workspace) {
                 $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
@@ -516,7 +516,7 @@ class SWSMemberController extends Controller
             // first getting the member from member we will get share workspace
             $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_role_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_memberRole_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -528,8 +528,8 @@ class SWSMemberController extends Controller
                 'role' => 'required|string',
             ]);
             
-            // $member->userId => id of owner of the workspace
-            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->userId)->first();
+            // $member->inviterId => id of owner of the workspace
+            $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
             
             if ($workspace) {
 

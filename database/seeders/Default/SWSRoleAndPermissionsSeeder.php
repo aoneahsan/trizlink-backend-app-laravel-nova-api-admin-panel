@@ -59,6 +59,7 @@ class SWSRoleAndPermissionsSeeder extends Seeder
     $sendInvitationSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::send_invitation_sws_member->name]);
     $resendInvitationSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::resend_invitation_sws_member->name]);
     $updateRoleSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::update_memberRole_sws_member->name]);
+    $cancelRoleSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::cancel_invitation_sws_member->name]);
     $createShortUrlSWSMemberPermission = Permission::create(['name' => WSPermissionsEnum::create_shortUrl_sws_member->name]);
 
     // Share comment model permissions
@@ -289,6 +290,7 @@ class SWSRoleAndPermissionsSeeder extends Seeder
       $sendInvitationSWSMemberPermission,
       $resendInvitationSWSMemberPermission,
       $updateRoleSWSMemberPermission,
+      $cancelRoleSWSMemberPermission,
       $createShortUrlSWSMemberPermission,
 
       // Comments.
@@ -345,7 +347,7 @@ class SWSRoleAndPermissionsSeeder extends Seeder
      */
 
     $wsManagerRolePermissions = array_filter($wsAdminRolePermissions, function ($permission) {
-      return !Str::of($permission->name)->contains('restore_') && !Str::of($permission->name)->contains('_member') && !Str::of($permission->name)->contains('replicate_') && !Str::of($permission->name)->contains('forceDelete_');
+      return !Str::of($permission->name)->contains('restore_') && !Str::of($permission->name)->contains('replicate_') && !Str::of($permission->name)->contains('forceDelete_'); // !Str::of($permission->name)->contains('_member') &&
     });
 
     $wsContributorRolePermissions = array_filter($wsAdminRolePermissions, function ($permission) {
