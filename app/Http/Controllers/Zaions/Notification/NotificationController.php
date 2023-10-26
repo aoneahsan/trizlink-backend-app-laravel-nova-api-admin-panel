@@ -28,7 +28,7 @@ class NotificationController extends Controller
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_notification->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if ($currentUser->id) {
-                $allNotification =  $currentUser->notifications()->get();
+                $allNotification =  $currentUser->notifications()->orderBy('created_at', 'desc')->get();
                 $allNotificationCount =  $currentUser->notifications()->count();
 
                 return ZHelpers::sendBackRequestCompletedResponse([

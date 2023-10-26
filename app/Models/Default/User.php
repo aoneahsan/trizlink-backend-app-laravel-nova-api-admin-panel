@@ -45,6 +45,7 @@ class User extends Authenticatable
         'profileImage' => 'array',
         'email_verified_at' => 'datetime',
         'OPTCodeValidTill' => 'datetime',
+        'lastSeenAt' => 'datetime',
     ];
 
     public function wantsBreadcrumbs()

@@ -34,7 +34,7 @@ class SharedWSController extends Controller
 
             // check user
             $userId = $currentUser->id;
-            $sharedWSs = WSTeamMember::where('memberId', $userId)->where('accountStatus',  '!=', WSMemberAccountStatusEnum::rejected->value)->where('accountStatus',  '!=', WSMemberAccountStatusEnum::leaved->value)->with('workspace')->get();
+            $sharedWSs = WSTeamMember::where('memberId', $userId)->where('accountStatus',  '!=', WSMemberAccountStatusEnum::rejected->value)->where('accountStatus',  '!=', WSMemberAccountStatusEnum::leaved->value)->with('workspace')->with('inviter')->get();
             $sharedWSsCount = WSTeamMember::where('memberId', $userId)->with('workspace')->count();
 
 

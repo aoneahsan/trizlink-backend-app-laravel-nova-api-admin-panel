@@ -38,6 +38,7 @@ class UserSeeder extends Seeder
             'email' => 'ahsan@zaions.com',
             'password' => Hash::make("asd123!@#"),
             'email_verified_at' => Carbon::now(),
+            'lastSeenAt' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
             'dailyMinOfficeTimeActivity' => 85
         ]);
@@ -59,6 +60,7 @@ class UserSeeder extends Seeder
             'email' => 'superAdmin@zaions.com',
             'password' => Hash::make("asd123!@#"),
             'email_verified_at' => Carbon::now(),
+            'lastSeenAt' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
             'dailyMinOfficeTimeActivity' => 85
         ]);
@@ -79,6 +81,7 @@ class UserSeeder extends Seeder
             'slug' => 'admin',
             'email' => 'admin@zaions.com',
             'password' => Hash::make("asd123!@#"),
+            'lastSeenAt' => Carbon::now(),
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
             'dailyMinOfficeTimeActivity' => 85
@@ -100,6 +103,7 @@ class UserSeeder extends Seeder
             'slug' => 'user',
             'email' => 'user@zaions.com',
             'password' => Hash::make("asd123!@#"),
+            'lastSeenAt' => Carbon::now(),
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
             'dailyMinOfficeTimeActivity' => 85
@@ -127,6 +131,7 @@ class UserSeeder extends Seeder
             'username' => 'test-user-1',
             'slug' => 'sws-user-1',
             'email' => 'test1@zaions.com',
+            'lastSeenAt' => Carbon::now(),
             'password' => Hash::make("asd123!@#"),
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
@@ -149,6 +154,7 @@ class UserSeeder extends Seeder
             'username' => 'test-user-2',
             'slug' => 'sws-user-2',
             'email' => 'test2@zaions.com',
+            'lastSeenAt' => Carbon::now(),
             'password' => Hash::make("asd123!@#"),
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
@@ -171,6 +177,7 @@ class UserSeeder extends Seeder
             'username' => 'test-user-3',
             'slug' => 'sws-user-3',
             'email' => 'test3@zaions.com',
+            'lastSeenAt' => Carbon::now(),
             'password' => Hash::make("asd123!@#"),
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
@@ -193,6 +200,7 @@ class UserSeeder extends Seeder
             'username' => 'test-user-4',
             'slug' => 'sws-user-4',
             'email' => 'test4@zaions.com',
+            'lastSeenAt' => Carbon::now(),
             'password' => Hash::make("asd123!@#"),
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,
@@ -215,6 +223,7 @@ class UserSeeder extends Seeder
             'username' => 'test-user-5',
             'slug' => 'sws-user-5',
             'email' => 'test5@zaions.com',
+            'lastSeenAt' => Carbon::now(),
             'password' => Hash::make("asd123!@#"),
             'email_verified_at' => Carbon::now(),
             'dailyMinOfficeTime' => 8,

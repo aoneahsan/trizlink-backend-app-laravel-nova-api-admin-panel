@@ -29,9 +29,9 @@ class WSTeamMember extends Model
 
     // Relationship methods
 
-    public function user(): BelongsTo
+    public function inviter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'userId', 'id');
+        return $this->belongsTo(User::class, 'inviterId', 'id');
     }
 
     public function workspace(): BelongsTo

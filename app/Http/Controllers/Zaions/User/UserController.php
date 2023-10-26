@@ -7,6 +7,7 @@ use App\Http\Resources\Zaions\User\UserDataResource;
 use App\Jobs\Zaions\Mail\SendMailJob;
 use App\Mail\OTPMail;
 use App\Models\Default\User;
+use Illuminate\Database\Query\Builder;
 use App\Models\Default\UserEmail;
 use App\Models\Default\WSTeamMember;
 use App\Zaions\Enums\EmailStatusEnum;
@@ -488,7 +489,7 @@ class UserController extends Controller
                     'string',
                     'email',
                     'max:255',
-                    Rule::unique(User::class),
+                    Rule::unique(User::class)->where(fn (Builder $query) => $query->where('signUpType', SignUpTypeEnum::normal->value)),
                 ],
             ]);
             //code...
@@ -496,17 +497,27 @@ class UserController extends Controller
             $otp = ZHelpers::generateUniqueNumericOTP();
             $otpValidTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
 
-            $user = User::create([
-                'uniqueId' => uniqid(),
-                'email' => $request->email,
-                'OTPCode' => $otp,
-                'signUpType' => SignUpTypeEnum::normal->value,
-                'OTPCodeValidTill' => $otpValidTime
-            ]);
+            $userExist = User::where('email', $request->email)->where('signUpType', SignUpTypeEnum::invite->value)->first();
 
-            $userRole = Role::where('name', RolesEnum::user->name)->get();
+            if($userExist){
+                $userExist->update([
+                    'OTPCode' => $otp,
+                    'OTPCodeValidTill' => $otpValidTime
+                ]);
 
-            $user->assignRole($userRole);
+            }else{
+                $user = User::create([
+                    'uniqueId' => uniqid(),
+                    'email' => $request->email,
+                    'OTPCode' => $otp,
+                    'signUpType' => SignUpTypeEnum::normal->value,
+                    'OTPCodeValidTill' => $otpValidTime
+                ]);
+                
+                $userRole = Role::where('name', RolesEnum::user->name)->get();
+    
+                $user->assignRole($userRole);
+            }
 
             $user = User::where('email', $request->email)->first();
 
@@ -651,7 +662,8 @@ class UserController extends Controller
 
                         $user->update([
                             'OTPCode' => null,
-                            'OTPCodeValidTill' => null
+                            'OTPCodeValidTill' => null,
+                            'signUpType' => SignUpTypeEnum::normal->value,
                         ]);
 
                         $userEmail = UserEmail::where('email', $user->email)->first();
@@ -818,8 +830,8 @@ class UserController extends Controller
 
     function updatePassword(Request $request)
     {
-        $currentUser = $request->user();
         try {
+            $currentUser = $request->user();
             $request->validate([
                 'newPassword' => ['required', 'string', new Password, 'confirmed'],
             ]);
@@ -879,6 +891,31 @@ class UserController extends Controller
                     'item' => ['User with this email not found.']
                 ]);
             }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    function updateUserStatus(Request $request)
+    {
+        try {
+            $currentUser = $request->user();
+
+            $lastSeenAt = Carbon::now()->addMinutes(config('zLinkConfig.lastSeenAtAddTime'));
+
+            $currentUser->update([
+                'lastSeenAt' => $lastSeenAt
+            ]);
+
+            // frontend ma ek constant bna jis ma time interval set ho for start 60s per set kar dy
+            $currentUser = User::where('id', $request->user()->id)->first();
+
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'item' => [
+                    'user' => new UserDataResource($currentUser)
+                ]
+            ]);
         } catch (\Throwable $th) {
             //throw $th;
             return ZHelpers::sendBackServerErrorResponse($th);

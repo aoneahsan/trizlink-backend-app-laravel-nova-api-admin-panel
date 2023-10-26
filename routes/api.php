@@ -16,6 +16,7 @@ use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceTeamController;
 use App\Http\Controllers\Zaions\Workspace\MemberController;
 use App\Http\Controllers\Zaions\Workspace\SWSMemberController;
+use App\Http\Controllers\Zaions\WorkSpace\WSMemberController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\SWSPixelController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\SWSUtmTagController;
@@ -96,6 +97,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/role/permissions', 'getUserPermissions');
             Route::put('/user/update-account-info', 'updateAccountInfo');
             Route::put('/user/password-resend-otp', 'resendPassword');
+            Route::put('/user/update-user-status', 'updateUserStatus');
             Route::put('/user/update-password', 'updatePassword');
             Route::put('/user/validate-password', 'validateCurrentPassword');
             Route::put('/user/validate-password-otp', 'confirmValidateCurrentPasswordOtp');
@@ -174,7 +176,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         });
 
         // Workspace Team member
-        Route::controller(MemberController::class)->group(function () {
+        Route::controller(WSMemberController::class)->group(function () {
             Route::get('/user/workspace/{workspaceId}/member', 'getAllInvitationData');
             Route::post('/user/workspace/{workspaceId}/member/send-invitation', 'sendInvitation');
             Route::put('/user/workspace/{workspaceId}/member/resend-invitation/{itemId}', 'resendInvitation');

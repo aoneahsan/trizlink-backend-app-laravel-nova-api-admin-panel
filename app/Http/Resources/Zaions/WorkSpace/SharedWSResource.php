@@ -16,8 +16,15 @@ class SharedWSResource extends JsonResource
     {
         return [
             'id' => $this->uniqueId ? $this->uniqueId : null,
+            'user' => $this->inviter ? [
+                'id' => $this->inviter->uniqueId,
+                'username' => $this->inviter->username,
+                'email' => $this->inviter->email,
+                'profilePitcher' => $this->inviter->profilePitcher,
+                'lastSeenAt' => $this->user && $this->user->lastSeenAt ? $this->user->lastSeenAt : null,
+                'lastSeenAtFormatted' => $this->user && $this->user->lastSeenAt ? $this->user->lastSeenAt->diffForHumans() : null,
+            ] : null,
             'accountStatus' => $this->accountStatus,
-            'user' => $this->user,
             'workspaceId' => $this->workspace ? $this->workspace['uniqueId'] : null,
             'workspaceName' => $this->workspace ? $this->workspace['title'] : null,
             'workspaceTimezone' => $this->workspace ? $this->workspace['timezone'] : null,

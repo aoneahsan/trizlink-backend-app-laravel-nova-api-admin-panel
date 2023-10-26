@@ -20,6 +20,7 @@ use Illuminate\Validation\Rule;
 use Laravel\Fortify\Http\Requests\LoginRequest;
 use Laravel\Fortify\Rules\Password;
 use Laravel\Socialite\Facades\Socialite;
+use App\Zaions\Enums\SignUpTypeEnum;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
@@ -78,7 +79,7 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->where('signUpType', SignUpTypeEnum::normal->value)->first();
 
         if ($user) {
             if (Hash::check($request->password, $user->password)) {

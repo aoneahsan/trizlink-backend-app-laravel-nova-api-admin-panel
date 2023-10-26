@@ -33,10 +33,11 @@ class UserDataResource extends JsonResource
             'city' => $this->city,
             'profilePitcher' => $this->profilePitcher,
             'avatar' => $this->avatar,
-            'createdAt' => $this->created_at,
-            'updatedAt' => $this->updated_at,
+            'createdAt' => $this->created_at->diffForHumans(),
+            'updatedAt' => $this->updated_at->diffForHumans(),
             'email_verified_at' => $this->email_verified_at,
-            'lastSeen' => $this->lastSeen
-        ];
+            'lastSeenAt' => $this->lastSeenAt ? $this->lastSeenAt : null,
+            'lastSeenAtFormatted' => $this->lastSeenAt ? $this->lastSeenAt->diffForHumans(): null,
+        ]; 
     }
 }

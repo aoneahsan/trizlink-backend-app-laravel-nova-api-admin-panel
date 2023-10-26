@@ -85,7 +85,7 @@ class LabelController extends Controller
 
             $result = Label::create([
                 'uniqueId' => uniqid(),
-                'userId' => $currentUser->id,
+                'createdBy' => $currentUser->id,
                 'workspaceId' => $workspace->id,
 
                 'title' => $request->has('title') ? $request->title : null,

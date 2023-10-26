@@ -27,6 +27,8 @@ class WorkSpaceResource extends JsonResource
                 'username' => $this->user->username,
                 'email' => $this->user->email,
                 'profilePitcher' => $this->user->profilePitcher,
+                'lastSeenAt' => $this->user && $this->user->lastSeenAt ? $this->user->lastSeenAt : null,
+                'lastSeenAtFormatted' => $this->user && $this->user->lastSeenAt ? $this->user->lastSeenAt->diffForHumans() : null,
             ] : null,
 
             'sortOrderNo' => $this->sortOrderNo,
