@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Zaions\WorkSpace;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\WorkSpace\SharedWSResource;
 use App\Http\Resources\Zaions\WorkSpace\WorkSpaceResource;
+use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
 use App\Models\Default\WSTeamMember;
+use App\Notifications\Workspace\Team\WSTeamMemberInvitation;
+use App\Zaions\Enums\NotificationTypeEnum;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
@@ -223,7 +226,7 @@ class SharedWSController extends Controller
             // first getting the member from member we will get share workspace
             $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            // Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -236,6 +239,17 @@ class SharedWSController extends Controller
             ]);
 
             if ($result) {
+                $data = [
+                    'invitee' => $member->memberId,
+                    'message' => '"' .
+                    $currentUser->username . '"' . ' has leaved ' . '"' . $member->workspace->title . '"' . 'your invitation.',
+                    'inviterUserId' => $member->inviterId,
+                ];
+
+                $inviter = User::where('id', $member->inviterId)->first();
+
+                $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
+
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => [
                         'success' => true
