@@ -99,7 +99,7 @@ class SharedWSController extends Controller
         try {
             $currentUser = $request->user();
 
-            $item = WSTeamMember::where('uniqueId', $itemId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('user')->with('memberRole')->first();
+            $item = WSTeamMember::where('uniqueId', $itemId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('inviter')->with('memberRole')->first();
 
             if ($item) {
 

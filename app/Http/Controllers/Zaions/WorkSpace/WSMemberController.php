@@ -289,11 +289,11 @@ class WSMemberController extends Controller
                 'status' => 'required|string',
             ]);
 
-            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->first();
 
             if ($workspace) {
                 // Getting the invitation.
-                $invitation = WSTeamMember::where('uniqueId', $invitationId)->where('workspaceId', $workspace->id)->first();
+                $invitation = WSTeamMember::where('memberId', $currentUser->id)->where('uniqueId', $invitationId)->where('workspaceId', $workspace->id)->first();
 
                 // Checking in invitation is not null.
                 if ($invitation) {
@@ -340,7 +340,7 @@ class WSMemberController extends Controller
                     $invitation = WSTeamMember::where('uniqueId', $invitationId)->with('workspace')->first();
 
                     return ZHelpers::sendBackRequestCompletedResponse([
-                        'item' => new WSMemberResource($invitation),
+                        'item' => new WSMemberResource($invitation)
                     ]);
                 } else {
                     return ZHelpers::sendBackBadRequestResponse([
