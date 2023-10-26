@@ -242,7 +242,7 @@ class SharedWSController extends Controller
                 $data = [
                     'invitee' => $member->memberId,
                     'message' => '"' .
-                    $currentUser->username . '"' . ' has leaved ' . '"' . $member->workspace->title . '"' . 'your invitation.',
+                    $currentUser->username . '"' . ' has leaved ' . '"' . $member->workspace->title . '"' . ' workspace.',
                     'inviterUserId' => $member->inviterId,
                 ];
 
