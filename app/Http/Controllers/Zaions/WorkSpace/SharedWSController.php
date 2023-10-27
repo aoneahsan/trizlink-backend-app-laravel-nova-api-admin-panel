@@ -236,6 +236,7 @@ class SharedWSController extends Controller
 
             $result = $member->update([
                 'accountStatus' => WSMemberAccountStatusEnum::leaved->value,
+                'wilToken' => null
             ]);
 
             if ($result) {

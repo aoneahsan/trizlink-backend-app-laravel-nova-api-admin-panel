@@ -443,6 +443,15 @@ class UserController extends Controller
                                 'signUpType' => SignUpTypeEnum::normal->value,
                                 'username' => $request->username,
                             ]);
+                            // adding a default email entry from $user in userEmail.
+                            UserEmail::create([
+                                'uniqueId' => uniqid(),
+                                'userId' => $user->id,
+                                'email' => $user->email,
+                                'status' => EmailStatusEnum::Verified->value,
+                                'isDefault' => true,
+                                'isPrimary' => true,
+                            ]);
 
                             $user = User::where('email', $request->email)->first();
 
@@ -499,13 +508,12 @@ class UserController extends Controller
 
             $userExist = User::where('email', $request->email)->where('signUpType', SignUpTypeEnum::invite->value)->first();
 
-            if($userExist){
+            if ($userExist) {
                 $userExist->update([
                     'OTPCode' => $otp,
                     'OTPCodeValidTill' => $otpValidTime
                 ]);
-
-            }else{
+            } else {
                 $user = User::create([
                     'uniqueId' => uniqid(),
                     'email' => $request->email,
@@ -513,24 +521,24 @@ class UserController extends Controller
                     'signUpType' => SignUpTypeEnum::normal->value,
                     'OTPCodeValidTill' => $otpValidTime
                 ]);
-                
+
                 $userRole = Role::where('name', RolesEnum::user->name)->get();
-    
+
                 $user->assignRole($userRole);
             }
 
             $user = User::where('email', $request->email)->first();
 
             if ($user->OTPCode) {
-                // adding a default email entry from user in userEmail.
-                UserEmail::create([
-                    'uniqueId' => uniqid(),
-                    'userId' => $user->id,
-                    'email' => $user->email,
-                    'status' => EmailStatusEnum::Verified->value,
-                    'isDefault' => true,
-                    'isPrimary' => true,
-                ]);
+                // // adding a default email entry from user in userEmail.
+                // UserEmail::create([
+                //     'uniqueId' => uniqid(),
+                //     'userId' => $user->id,
+                //     'email' => $user->email,
+                //     'status' => EmailStatusEnum::Verified->value,
+                //     'isDefault' => true,
+                //     'isPrimary' => true,
+                // ]);
                 // Send the invitation mail to the memberUser.
                 // SendMailJob::dispatch($user);
                 Mail::send(new OTPMail($user, $user->OTPCode, 'Sign up confirm OTP'));
@@ -715,6 +723,15 @@ class UserController extends Controller
                 $user->update([
                     'password' => Hash::make($request->password),
                     'username' => $request->username ? $request->username : $user->username,
+                ]);
+                // adding a default email entry from $user in userEmail.
+                UserEmail::create([
+                    'uniqueId' => uniqid(),
+                    'userId' => $user->id,
+                    'email' => $user->email,
+                    'status' => EmailStatusEnum::Verified->value,
+                    'isDefault' => true,
+                    'isPrimary' => true,
                 ]);
 
                 $user = User::where('email', $request->email)->first();

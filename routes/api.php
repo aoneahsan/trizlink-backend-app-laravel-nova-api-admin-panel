@@ -423,7 +423,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     });
 
     // Workspace Team member
-    Route::controller(MemberController::class)->group(function () {
+    Route::controller(WSMemberController::class)->group(function () {
         Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
         Route::get('/user/ws-member/short-url/check/{shortUrlId}', 'shortUrlCheck');
     });

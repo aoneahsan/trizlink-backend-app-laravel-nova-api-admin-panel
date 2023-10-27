@@ -304,6 +304,7 @@ class WSMemberController extends Controller
                             $invitation->update([
                                 'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
                                 'inviteAcceptedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                                'wilToken' => null
                             ]);
                             $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
                         }
@@ -312,6 +313,7 @@ class WSMemberController extends Controller
                             $invitation->update([
                                 'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
                                 'inviteRejectedAt' => Carbon::now($currentUser->getUserTimezoneAttribute()),
+                                'wilToken' => null
                             ]);
                             $message = '"' .
                                 $currentUser->username . '"' . ' has rejected your invitation.';
@@ -508,7 +510,7 @@ class WSMemberController extends Controller
             ]);
 
             $token = ZHelpers::zDecryptUniqueId($request->token);
-
+            
             if ($token) {
                 // $memberInvitation = WSTeamMember::where('wilToken', $token)->where('email', $request->email)->first();
                 $memberInvitation = WSTeamMember::where('wilToken', $token)->first();
