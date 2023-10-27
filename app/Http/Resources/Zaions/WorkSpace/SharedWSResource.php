@@ -20,7 +20,7 @@ class SharedWSResource extends JsonResource
                 'id' => $this->inviter->uniqueId,
                 'username' => $this->inviter->username,
                 'email' => $this->inviter->email,
-                'profilePitcher' => $this->inviter->profilePitcher,
+                'avatar' => $this->inviter->avatar,
                 'lastSeenAt' => $this->inviter->lastSeenAt ? $this->inviter->lastSeenAt : null,
                 'lastSeenAtFormatted' => $this->inviter->lastSeenAt ? $this->inviter->lastSeenAt->diffForHumans() : null,
             ] : null,

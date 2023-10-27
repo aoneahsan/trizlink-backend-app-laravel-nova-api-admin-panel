@@ -58,6 +58,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     // Test Routes
     Route::controller(TestController::class)->group(function () {
         Route::get('/notify-user', 'notifyUser');
+        Route::post('/data-list-test', 'testingPaginationInPhp'); // pagination, sorting, ordering, filters, searching
     });
 
     // Guest Routes
@@ -159,6 +160,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // Workspace
         Route::controller(WorkSpaceController::class)->group(function () {
             Route::get('/user/workspaces', 'index');
+            Route::post('/user/workspaces/list', 'index');
             Route::post('/user/workspaces', 'store');
             Route::get('/user/workspaces/{itemId}', 'show');
             Route::put('/user/workspaces/{itemId}', 'update');
@@ -397,6 +399,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // Get Shared Workspaces
         Route::controller(SharedWSController::class)->group(function () {
             Route::get('/user/shared-ws', 'index');
+            Route::post('/user/shared-ws/list', 'index');
             Route::get('/user/shared-ws/get-member-role-permissions/{itemId}', 'getUserRoleAndPermissions');
             Route::get('/user/shared-ws/get-share-ws-info-data/{itemId}', 'getShareWSInfoData');
             Route::put('/user/shared-ws/{itemId}/member-id/{memberId}', 'updateShareWSInfoData');
