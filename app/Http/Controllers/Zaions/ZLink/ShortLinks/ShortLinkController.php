@@ -59,6 +59,58 @@ class ShortLinkController extends Controller
         }
     }
 
+    public function index2(Request $request, $workspaceId, $pageNumber, $paginationLimit)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+
+            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $itemsQuery = ShortLink::query()->where('workspaceId', $workspace->id);
+            $paginationOffset = '';
+
+            if (intval($pageNumber) && $pageNumber > -1) {
+                $paginationOffset = intval($paginationLimit) * intval($pageNumber);
+                $itemsQuery = $itemsQuery->skip($paginationOffset);
+            } else {
+                $itemsQuery = $itemsQuery->skip(0);
+            }
+
+            if (intval($paginationLimit) && $paginationLimit > 0) {
+                $itemsQuery = $itemsQuery->limit($paginationLimit)->get();
+            } else {
+                $itemsQuery = $itemsQuery->limit(config('zLinkConfig.defaultLimit'))->get();
+            }
+
+            // $itemsCount = $itemsQuery->count();
+
+            $itemsCount = ShortLink::where('workspaceId', $workspace->id)->count();
+            // $items = ShortLink::where('workspaceId', $workspace->id)->get();
+
+            return response()->json([
+                'success' => true,
+                'errors' => [],
+                'message' => 'Request Completed Successfully!',
+                'data' => [
+                    'items' => ShortLinkResource::collection($itemsQuery),
+                    'itemsCount' => $itemsCount
+                ],
+                'status' => 200
+            ]);
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -142,7 +194,7 @@ class ShortLinkController extends Controller
                 'shortUrlPath' => $shortLinkUrlPath,
                 'folderId' => $request->has('folderId') ? $request->folderId : null,
                 'notes' => $request->has('notes') ? $request->notes : null,
-                'tags' => $request->has('tags') ? $request->tags : null,
+                'tags' => $request->has('tags') ? ZHelpers::zJsonDecode($request->tags) : null,
                 'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : null,
                 'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : null,
                 'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : null,
@@ -268,7 +320,7 @@ class ShortLinkController extends Controller
                     'shortUrlPath' => $request->has('shortUrlPath') ? $request->shortUrlPath : $item->shortUrlPath,
                     'folderId' => $request->has('folderId') ? $request->folderId : $item->folderId,
                     'notes' => $request->has('notes') ? $request->notes : $item->notes,
-                    'tags' => $request->has('tags') ? $request->tags : $item->tags,
+                    'tags' => $request->has('tags') ?  ZHelpers::zJsonDecode($request->tags) : $item->tags,
                     'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : $item->abTestingRotatorLinks,
                     'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : $item->geoLocationRotatorLinks,
                     'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : $item->linkExpirationInfo,

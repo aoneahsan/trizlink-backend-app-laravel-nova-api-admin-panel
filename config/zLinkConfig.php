@@ -7,8 +7,13 @@ return [
   'optExpireAddTime' => 5,
 
   /*
-  * Number of minates added to user->lastSeenAt.
+  * Number of minutes added to user->lastSeenAt.
   */
   'lastSeenAtAddTime'=> 2,
+
+  /*
+  * items default limit.
+  */
+  'defaultLimit' => 30
   
 ];

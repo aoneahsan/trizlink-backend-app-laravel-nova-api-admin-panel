@@ -21,11 +21,11 @@ class WorkSpaceController extends Controller
      */
     public function index(Request $request)
     {
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
         try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
             $itemsCount = WorkSpace::where('userId', $currentUser->id)->count();
             $items = WorkSpace::where('userId', $currentUser->id)->with('user')->get();
 
@@ -35,7 +35,56 @@ class WorkSpaceController extends Controller
                 'message' => 'Request Completed Successfully!',
                 'data' => [
                     'items' => WorkSpaceResource::collection($items),
-                    'itemsCount' => $itemsCount
+                    'itemsCount' => $itemsCount,
+                ],
+                'status' => 200
+            ]);
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index2(Request $request, $pageNumber, $paginationLimit)
+    {
+        try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+            $itemsQuery = WorkSpace::query()->where('userId', $currentUser->id)->with('user');
+            $paginationOffset = '';
+
+            if (intval($pageNumber) && $pageNumber > -1) {
+                $paginationOffset = intval($paginationLimit) * intval($pageNumber);
+                $itemsQuery = $itemsQuery->skip($paginationOffset);
+            } else {
+                $itemsQuery = $itemsQuery->skip(0);
+            }
+
+            if (intval($paginationLimit) && $paginationLimit > 0) {
+                $itemsQuery = $itemsQuery->limit($paginationLimit)->get();
+            } else {
+                $itemsQuery = $itemsQuery->limit(config('zLinkConfig.defaultLimit'))->get();
+            }
+
+            $itemsCount = $itemsQuery->count();
+            $items = WorkSpace::where('userId', $currentUser->id)->with('user')->get();
+
+            return response()->json([
+                'success' => true,
+                'errors' => [],
+                'message' => 'Request Completed Successfully!',
+                'data' => [
+                    'items' => WorkSpaceResource::collection($itemsQuery),
+                    'itemsCount' => $itemsCount,
+                    'pageNumber' => $pageNumber,
+                    'paginationLimit' => $paginationLimit,
+                    'paginationOffset' => $paginationOffset
                 ],
                 'status' => 200
             ]);
@@ -52,24 +101,24 @@ class WorkSpaceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:200',
-            'timezone' => 'nullable|string|max:200',
-            'workspaceImage' => 'nullable|string',
-            'internalPost' => 'nullable|boolean',
-            'workspaceData' => 'nullable|json',
-            'isFavorite' => 'nullable|boolean',
-
-            'sortOrderNo' => 'nullable|integer',
-            'isActive' => 'nullable|boolean',
-            'extraAttributes' => 'nullable|json',
-        ]);
-
-        $currentUser = $request->user();
-
-        Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
         try {
+            $request->validate([
+                'title' => 'required|string|max:200',
+                'timezone' => 'nullable|string|max:200',
+                'workspaceImage' => 'nullable|string',
+                'internalPost' => 'nullable|boolean',
+                'workspaceData' => 'nullable|json',
+                'isFavorite' => 'nullable|boolean',
+
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
+
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
             $result = WorkSpace::create([
                 'uniqueId' => uniqid(),
 

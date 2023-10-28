@@ -160,7 +160,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // Workspace
         Route::controller(WorkSpaceController::class)->group(function () {
             Route::get('/user/workspaces', 'index');
-            Route::post('/user/workspaces/list', 'index');
+            Route::get('/user/workspaces/page-number/{pageNumber}/limit/{paginationLimit}', 'index2');
             Route::post('/user/workspaces', 'store');
             Route::get('/user/workspaces/{itemId}', 'show');
             Route::put('/user/workspaces/{itemId}', 'update');
@@ -226,6 +226,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // ShortLink
         Route::controller(ShortLinkController::class)->group(function () {
             Route::get('/user/workspaces/{workspaceId}/short-links', 'index');
+            Route::get('/user/workspaces/{workspaceId}/short-links/page-number/{pageNumber}/limit/{paginationLimit}', 'index2');
             Route::post('/user/workspaces/{workspaceId}/short-links', 'store');
             Route::get('/user/workspaces/{workspaceId}/short-links/{itemId}', 'show');
             Route::put('/user/workspaces/{workspaceId}/short-links/{itemId}', 'update');
