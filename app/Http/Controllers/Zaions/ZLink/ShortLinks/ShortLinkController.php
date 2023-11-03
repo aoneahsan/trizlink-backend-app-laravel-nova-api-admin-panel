@@ -463,7 +463,7 @@ class ShortLinkController extends Controller
                     // TODO: create separate function (may be in this same file)
                     $result = SLAnalytics::create([
                         'uniqueId' => uniqid(),
-                        'userId' => $item->userId,
+                        'userId' => $item->createdBy,
                         'shortLinkId' => $item->id,
                         'type' => $request->has('type') ? $request->type : null,
                         'userIP' => $request->has('userIP') ? $request->userIP : null,

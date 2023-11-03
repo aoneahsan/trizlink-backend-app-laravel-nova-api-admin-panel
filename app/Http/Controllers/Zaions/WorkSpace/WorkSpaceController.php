@@ -73,7 +73,6 @@ class WorkSpaceController extends Controller
             }
 
             $itemsCount = $itemsQuery->count();
-            $items = WorkSpace::where('userId', $currentUser->id)->with('user')->get();
 
             return response()->json([
                 'success' => true,
