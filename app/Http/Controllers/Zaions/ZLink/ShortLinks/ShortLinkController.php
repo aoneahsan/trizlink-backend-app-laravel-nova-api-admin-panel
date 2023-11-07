@@ -145,7 +145,7 @@ class ShortLinkController extends Controller
                 // 'shortUrl' => 'nullable|json',
                 'folderId' => 'nullable|string',
                 'notes' => 'nullable|string|max:1000',
-                'tags' => 'nullable|string',
+                'tags' => 'nullable|json',
                 'abTestingRotatorLinks' => 'nullable|json',
                 'geoLocationRotatorLinks' => 'nullable|json',
                 'linkExpirationInfo' => 'nullable|json',

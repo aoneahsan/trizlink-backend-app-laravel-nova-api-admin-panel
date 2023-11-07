@@ -26,6 +26,7 @@ class ShortLink extends Model
         'linkExpirationInfo' => 'array',
         'password' => 'array',
         'featureImg'=> 'array',
+        'tags'=> 'array',
 
     ];
 
