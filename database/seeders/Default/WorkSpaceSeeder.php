@@ -15,7 +15,7 @@ class WorkSpaceSeeder extends Seeder
     public function run(): void
     {
         //
-        $ahsanUser = User::where('email', 'ahsan@zaions.com')->first();
+        $ahsanUser = User::where('email', env('ADMIN_EMAIL'))->first();
         $simpleUser = User::where('email', 'user@zaions.com')->first();
 
         WorkSpace::create([

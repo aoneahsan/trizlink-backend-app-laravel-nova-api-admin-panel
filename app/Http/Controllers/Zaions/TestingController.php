@@ -48,7 +48,7 @@ class TestingController extends Controller
 
         // dd($workspace, $workspace->pixel);
 
-        // $user = \App\Models\Default\User::where('email', 'ahsan@zaions.com')->first();
+        // $user = \App\Models\Default\User::where('email', env('ADMIN_EMAIL'))->first();
 
         // if ($user) {
         // will just get overwrite by the last value
@@ -93,7 +93,7 @@ class TestingController extends Controller
     {
 
         // Code to send notification
-        $result = Notification::send(User::where('email', 'ahsan@zaions.com')->first(), new TestNotification('ahsan', 'asad'));
+        $result = Notification::send(User::where('email', env('ADMIN_EMAIL'))->first(), new TestNotification('ahsan', 'asad'));
 
         dd($result);
     }
@@ -108,5 +108,19 @@ class TestingController extends Controller
         $selected = DatabaseNotification::where('zlNotificationType', 'testNotification')->get();
 
         dd($all, $selected);
+    }
+
+    function testingSocialAuthLogic()
+    {
+        try {
+            $encryptedData = 'U2FsdGVkX19sYpvy8HXdzp/xDflbxPjA35vLbPw5KEq58U5Bs3HFofdKbAtZJ+SStaRHnBSn7Qq+pubEObaY6CB+vxA06MrbNwy8Nr+wRFZQgNQFbepJkwM7PImAQrJRMvI74aPaCmheJ8ecQf3QhRV6ABhsKocdiopYZS7MlO57SNQjRIE2h7HiDfmLaS8SyT3bgOf1ycFo3CjdmFXY9zPX513LLmbZoH5tFm+WP/7GWt8YJ5a1CzC8xmWo1VvGP13hp929iIg4+ukcHwizcMqfkKOZxEnypW7oEQ5JF7zKGRnodEoEXg/OZH5kxWSMc8uLa5oDzUOQAhjU1clWBRd0ph59PjAypeY61dRxV4KDwrK89TJvzVX+/XkwCyQCIfgkuvvEwyClCyeibRcdSA==';
+
+            $decryptedData = ZHelpers::decryptData($encryptedData);
+
+            dd($decryptedData);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
     }
 }

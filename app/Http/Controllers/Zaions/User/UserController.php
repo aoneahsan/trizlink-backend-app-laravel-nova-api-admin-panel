@@ -27,7 +27,7 @@ class UserController extends Controller
 {
     public function listUsers(Request $request)
     {
-        $items = User::where('email', 'ahsan@zaions.com')->with('actions', 'nova_notifications')->get();
+        $items = User::where('email', env('ADMIN_EMAIL'))->with('actions', 'nova_notifications')->get();
         return ZHelpers::sendBackRequestCompletedResponse([
             // 'items' => UserDataResource::collection($items),
             'items' => $items,

@@ -10,6 +10,7 @@ use App\Notifications\TestNotification;
 use App\Notifications\UserAccount\LastLogoutNotification;
 use App\Notifications\UserAccount\NewDeviceLoginNotification;
 use App\Zaions\Enums\EmailStatusEnum;
+use App\Zaions\Enums\EncryptKeysEnum;
 use App\Zaions\Enums\NotificationTypeEnum;
 use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Helpers\ZHelpers;
@@ -22,6 +23,7 @@ use Laravel\Fortify\Rules\Password;
 use Laravel\Socialite\Facades\Socialite;
 use App\Zaions\Enums\SignUpTypeEnum;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -200,6 +202,60 @@ class AuthController extends Controller
             }
         } catch (\Throwable $th) {
             //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function socialLogin(Request $request)
+    {
+        try {
+            $request->validate([
+                EncryptKeysEnum::accessToken->value => 'required|string',
+                EncryptKeysEnum::time->value => 'required|string',
+            ]);
+            
+
+            $response = Http::get('https://www.googleapis.com/oauth2/v3/userinfo', [
+                'access_token' => $request->{EncryptKeysEnum::accessToken->value},
+            ]);
+
+            
+
+            if ($response->successful()) {
+                $userInfo = $response->json();
+
+                if($userInfo){
+                    $userExist = User::where('email', $userInfo['email'])->where('signUpType', SignUpTypeEnum::normal->value)->first();
+
+                    if($userExist){
+                        $token = $userExist->createToken('auth');
+
+                        return response()->json([
+                            'success' => true,
+                            'errors' => [],
+                            'data' => [
+                                'user' => new UserDataResource($userExist),
+                                'token' => $token
+                            ],
+                            'message' => 'Request Completed Successfully!',
+                            'status' => 201
+                        ], 201);
+                    }else {
+                        return response()->json([
+                            'success' => false,
+                            'errors' => [
+                                'email' => ['No User found with this email.'],
+                                'message' => ['Try signing up or use a different email.'],
+                            ],
+                            'data' => [],
+                            'message' => 'Request Failed.',
+                            'status' => 400
+                        ], 400);
+                    }
+                }
+            }
+
+        } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }

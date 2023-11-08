@@ -21,7 +21,7 @@ class WSTeamMemberSeeder extends Seeder
     public function run(): void
     {
         //
-        $ahsanUser = User::where('email', 'ahsan@zaions.com')->first();
+        $ahsanUser = User::where('email', env('ADMIN_EMAIL'))->first();
         $superAdminUser = User::where('email', 'superAdmin@zaions.com')->first();
         $adminUser = User::where('email', 'admin@zaions.com')->first();
         $simpleUser = User::where('email', 'user@zaions.com')->first();

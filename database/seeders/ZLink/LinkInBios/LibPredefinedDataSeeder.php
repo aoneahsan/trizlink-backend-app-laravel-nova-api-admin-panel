@@ -16,7 +16,7 @@ class LibPredefinedDataSeeder extends Seeder
     public function run(): void
     {
 
-        $user = User::where('email', env('ADMIN_EMAIL', 'ahsan@zaions.com'))->first();
+        $user = User::where('email', env('ADMIN_EMAIL'))->first();
 
         $perDefinedDataArray = [
             // Messenger Platform

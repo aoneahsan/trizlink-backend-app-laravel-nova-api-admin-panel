@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Zaions\Auth\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,7 @@ Route::controller(TestingController::class)->group(function () {
     Route::get('/z-testing', 'zTestingRouteRes');
     Route::get('/zt-send-notifications', 'testingCustomColumnInLNotificationsSend');
     Route::get('/zt-get-notifications', 'testingCustomColumnInLNotificationsGet');
+    Route::get('/zt-soial-auth', 'testingSocialAuthLogic');
 });
 
 Route::redirect('/', config('nova.path'));

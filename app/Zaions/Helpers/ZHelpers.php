@@ -468,4 +468,18 @@ class ZHelpers
 
     return $otp;
   }
+  // Encryption
+  public static function encryptData($val)
+  {
+      return \Illuminate\Support\Facades\Crypt::encrypt(json_encode($val), false, env('CRYPTO_SECRET'));
+  }
+  
+  // Decryption
+  public static function decryptData($val)
+  {
+      // return json_decode(\Illuminate\Support\Facades\Crypt::decrypt($val, false, env('CRYPTO_SECRET')), true);
+      return json_decode($val);
+      // return \Illuminate\Support\Facades\Crypt::decrypt($val, false, env('CRYPTO_SECRET'));
+  }
 }
+

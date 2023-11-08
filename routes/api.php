@@ -64,6 +64,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     // Guest Routes
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login');
+        Route::post('/social-login', 'socialLogin');
         Route::post('/register', 'register');
         Route::post('/auth/google/redirect', 'googleRedirect');
         Route::post('/auth/google/callback', 'googleCallback');

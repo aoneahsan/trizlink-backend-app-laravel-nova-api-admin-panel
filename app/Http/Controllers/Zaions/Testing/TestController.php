@@ -13,7 +13,7 @@ class TestController extends Controller
 {
     public function notifyUser(Request $request)
     {
-        $user = User::where('email', 'ahsan@zaions.com')->first();
+        $user = User::where('email', env('ADMIN_EMAIL'))->first();
 
         if ($user) {
             $user->notify(
