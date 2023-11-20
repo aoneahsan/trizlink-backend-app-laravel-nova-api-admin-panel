@@ -2,6 +2,7 @@
 
 namespace App\Models\Default;
 
+use App\Models\Default\Notification\UserNotificationSetting;
 use App\Models\Zaions\User\UserSetting;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\RolesEnum;
@@ -89,6 +90,11 @@ class User extends Authenticatable
     public function userSettings(): HasMany
     {
         return $this->HasMany(UserSetting::class, 'userId', 'id');
+    }
+
+    public function USNotificationSettings(): HasOne
+    {
+        return $this->HasOne(UserNotificationSetting::class, 'userId', 'id');
     }
 
     // User can belong to many workspace as member (added by other user)

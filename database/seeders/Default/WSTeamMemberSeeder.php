@@ -3,10 +3,12 @@
 
 namespace Database\Seeders\Default;
 
+use App\Models\Default\Notification\WSNotificationSetting;
 use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
 use App\Models\Default\WSTeamMember;
 use App\Zaions\Enums\RolesEnum;
+use App\Zaions\Enums\WSEnum;
 use App\Zaions\Enums\WSMemberAccountStatusEnum;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -42,7 +44,7 @@ class WSTeamMemberSeeder extends Seeder
 
         $ahsanSWS = WorkSpace::where('userId', $ahsanUser->id)->first();
 
-        WSTeamMember::create([
+       WSTeamMember::create([
             'uniqueId' => uniqid(),
             'inviterId' => $ahsanUser->id,
             'workspaceId' => $ahsanSWS->id,
@@ -52,6 +54,12 @@ class WSTeamMemberSeeder extends Seeder
             'accountStatus' =>  WSMemberAccountStatusEnum::accepted->value,
             'inviteAcceptedAt' => Carbon::now(),
             'invitedAt' => Carbon::now(),
+        ]);
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $superAdminUser->id,
+            'workspaceId' => $ahsanSWS->id,
+            'type' => WSEnum::shareWorkspace->value,
         ]);
 
         WSTeamMember::create([
@@ -65,6 +73,12 @@ class WSTeamMemberSeeder extends Seeder
             'inviteAcceptedAt' => Carbon::now(),
             'invitedAt' => Carbon::now(),
         ]);
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $adminUser->id,
+            'workspaceId' => $ahsanSWS->id,
+            'type' => WSEnum::shareWorkspace->value,
+        ]);
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
@@ -76,6 +90,12 @@ class WSTeamMemberSeeder extends Seeder
             'accountStatus' =>  WSMemberAccountStatusEnum::accepted->value,
             'inviteAcceptedAt' => Carbon::now(),
             'invitedAt' => Carbon::now(),
+        ]);
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $simpleUser->id,
+            'workspaceId' => $ahsanSWS->id,
+            'type' => WSEnum::shareWorkspace->value,
         ]);
 
         WSTeamMember::create([
@@ -89,6 +109,12 @@ class WSTeamMemberSeeder extends Seeder
             'inviteAcceptedAt' => Carbon::now(),
             'invitedAt' => Carbon::now(),
         ]);
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser1->id,
+            'workspaceId' => $ahsanSWS->id,
+            'type' => WSEnum::shareWorkspace->value,
+        ]);
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
@@ -100,6 +126,12 @@ class WSTeamMemberSeeder extends Seeder
             'accountStatus' =>  WSMemberAccountStatusEnum::accepted->value,
             'inviteAcceptedAt' => Carbon::now(),
             'invitedAt' => Carbon::now(),
+        ]);
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser2->id,
+            'workspaceId' => $ahsanSWS->id,
+            'type' => WSEnum::shareWorkspace->value,
         ]);
 
         WSTeamMember::create([
@@ -113,6 +145,12 @@ class WSTeamMemberSeeder extends Seeder
             'inviteAcceptedAt' => Carbon::now(),
             'invitedAt' => Carbon::now(),
         ]);
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser3->id,
+            'workspaceId' => $ahsanSWS->id,
+            'type' => WSEnum::shareWorkspace->value,
+        ]);
 
         WSTeamMember::create([
             'uniqueId' => uniqid(),
@@ -124,6 +162,12 @@ class WSTeamMemberSeeder extends Seeder
             'accountStatus' =>  WSMemberAccountStatusEnum::accepted->value,
             'inviteAcceptedAt' => Carbon::now(),
             'invitedAt' => Carbon::now(),
+        ]);
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $wsUser4->id,
+            'workspaceId' => $ahsanSWS->id,
+            'type' => WSEnum::shareWorkspace->value,
         ]);
     }
 }

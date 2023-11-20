@@ -175,7 +175,7 @@ class SWSMemberController extends Controller
                         ];
 
                         // Send notification to the memberUser.
-                        $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::wsTeamMemberInvitation));
+                        $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::personal));
 
                         return ZHelpers::sendBackRequestCompletedResponse([
                             'item' => new WSMemberResource($wsTeamMemberInvite),
@@ -254,7 +254,7 @@ class SWSMemberController extends Controller
                     ];
 
                     // Send notification to the memberUser.
-                    $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::wsTeamMemberInvitation));
+                    $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::personal));
 
                     return ZHelpers::sendBackRequestCompletedResponse([
                         'item' => new WSMemberResource($invitation),
@@ -373,7 +373,7 @@ class SWSMemberController extends Controller
         
                         $inviter = User::where('id', $invitation->userId)->first();
         
-                        $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
+                        $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::personal));
                     }
     
                     if ($request->status === WSMemberAccountStatusEnum::cancel->value) {

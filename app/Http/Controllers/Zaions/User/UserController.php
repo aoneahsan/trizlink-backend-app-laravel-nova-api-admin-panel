@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
 use App\Jobs\Zaions\Mail\SendMailJob;
 use App\Mail\OTPMail;
+use App\Models\Default\Notification\UserNotificationSetting;
 use App\Models\Default\User;
 use Illuminate\Database\Query\Builder;
 use App\Models\Default\UserEmail;
@@ -452,6 +453,8 @@ class UserController extends Controller
                                 'isDefault' => true,
                                 'isPrimary' => true,
                             ]);
+                            // added default user notification settings
+                            ZHelpers::createDefaultUSNotificationData($user->id);
 
                             $user = User::where('email', $request->email)->first();
 

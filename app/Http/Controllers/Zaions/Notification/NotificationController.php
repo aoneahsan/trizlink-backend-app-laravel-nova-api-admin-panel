@@ -20,7 +20,7 @@ class NotificationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function allNotification(Request $request)
+    public function allNotification(Request $request, $type)
     {
         try {
             $currentUser = $request->user();
@@ -28,8 +28,8 @@ class NotificationController extends Controller
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_notification->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if ($currentUser->id) {
-                $allNotification =  $currentUser->notifications()->orderBy('created_at', 'desc')->get();
-                $allNotificationCount =  $currentUser->notifications()->count();
+                $allNotification =  $currentUser->notifications()->where('zlNotificationType', $type)->orderBy('created_at', 'desc')->get();
+                $allNotificationCount =  $currentUser->notifications()->where('zlNotificationType', $type)->count();
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'items' => NotificationResource::collection(

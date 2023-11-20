@@ -187,6 +187,27 @@ enum PermissionsEnum: string
   case restore_USSettings = 'restore_USSettings';
   case forceDelete_USSettings = 'forceDelete_USSettings';
 
+  
+  // User Notifications Settings
+  case viewAny_USNotificationSettings = 'viewAny_USNotificationSettings';
+  case view_USNotificationSettings = 'view_USNotificationSettings';
+  case create_USNotificationSettings = 'create_USNotificationSettings';
+  case update_USNotificationSettings = 'update_USNotificationSettings';
+  case delete_USNotificationSettings = 'delete_USNotificationSettings';
+  case replicate_USNotificationSettings = 'replicate_USNotificationSettings';
+  case restore_USNotificationSettings = 'restore_USNotificationSettings';
+  case forceDelete_USNotificationSettings = 'forceDelete_USNotificationSettings';
+
+  // Workspace Notifications Settings
+  case viewAny_WSNotificationSettings = 'viewAny_WSNotificationSettings';
+  case view_WSNotificationSettings = 'view_WSNotificationSettings';
+  case create_WSNotificationSettings = 'create_WSNotificationSettings';
+  case update_WSNotificationSettings = 'update_WSNotificationSettings';
+  case delete_WSNotificationSettings = 'delete_WSNotificationSettings';
+  case replicate_WSNotificationSettings = 'replicate_WSNotificationSettings';
+  case restore_WSNotificationSettings = 'restore_WSNotificationSettings';
+  case forceDelete_WSNotificationSettings = 'forceDelete_WSNotificationSettings';
+
     // Pixel
   case viewAny_pixel = 'viewAny_pixel';
   case view_pixel = 'view_pixel';
@@ -277,6 +298,7 @@ enum PermissionsEnum: string
   case replicate_customDomain = 'replicate_customDomain';
   case restore_customDomain = 'restore_customDomain';
   case forceDelete_customDomain = 'forceDelete_customDomain';
+
 
     // api key
   case viewAny_apiKey = 'viewAny_apiKey';

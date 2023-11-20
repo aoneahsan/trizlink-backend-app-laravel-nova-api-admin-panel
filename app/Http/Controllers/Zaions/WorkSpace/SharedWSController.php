@@ -249,7 +249,7 @@ class SharedWSController extends Controller
 
                 $inviter = User::where('id', $member->inviterId)->first();
 
-                $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
+                $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::personal));
 
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => [

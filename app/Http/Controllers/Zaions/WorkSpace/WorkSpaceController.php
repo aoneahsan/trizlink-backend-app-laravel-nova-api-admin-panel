@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Zaions\WorkSpace;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\WorkSpace\WorkSpaceResource;
+use App\Models\Default\Notification\WSNotificationSetting;
 use App\Models\Default\WorkSpace;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\WSEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -135,6 +137,14 @@ class WorkSpaceController extends Controller
             ]);
 
             if ($result) {
+
+                WSNotificationSetting::create([
+                    'uniqueId' => uniqid(),
+                    'userId' => $currentUser->id,
+                    'workspaceId' => $result->id,
+                    'type' => WSEnum::personalWorkspace->value,
+                ]);
+                
                 return ZHelpers::sendBackRequestCompletedResponse([
                     'item' => new WorkSpaceResource($result)
                 ]);

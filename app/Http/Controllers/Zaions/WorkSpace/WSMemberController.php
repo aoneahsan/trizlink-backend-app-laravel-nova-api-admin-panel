@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Zaions\WorkSpace;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\WorkSpace\WSMemberResource;
 use App\Mail\MemberInvitationMail;
+use App\Models\Default\Notification\UserNotificationSetting;
 use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
 use App\Models\Default\WSTeamMember;
@@ -71,10 +72,7 @@ class WSMemberController extends Controller
                 'extraAttributes' => 'nullable|json',
             ]);
 
-            // $requestedRole = $request->role;
-
             $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
-
 
             if ($workspace) {
                 $item = WSTeamMember::where('email', $request->email)->where('workspaceId', $workspace->id)->first();
@@ -91,13 +89,12 @@ class WSMemberController extends Controller
                     $invitedUserExistsInDB = User::where('email', $request->email)->first();
 
                     if (!$invitedUserExistsInDB) {
+                        // If user does not exists in our db then making a invite type account.
                         $user = User::create([
                             'uniqueId' => uniqid(),
-                            // 'name' => $request->name,
                             'email' => $request->email,
                             'signUpType' => SignUpTypeEnum::invite->value
                         ]);
-
 
                         $userRole = Role::where('name', RolesEnum::user->name)->get();
 
@@ -105,8 +102,6 @@ class WSMemberController extends Controller
                     }
 
                     $memberUser = User::where('email', $request->email)->first();
-
-
 
                     // WorkspaceInviteLinkToken
                     [$urlSafeEncodedId, $uniqueId] = ZHelpers::zGenerateAndEncryptUniqueId();
@@ -125,38 +120,42 @@ class WSMemberController extends Controller
                         'invitedAt' => Carbon::now($currentUser->getUserTimezoneAttribute())
                     ]);
 
-
                     if ($wsTeamMemberInvite) {
+                        $memberNotificationSetting = UserNotificationSetting::where('userId', $memberUser->id)->first();
+
                         // Send the invitation mail to the memberUser.
-                        Mail::send(new MemberInvitationMail(
-                            $currentUser,
-                            $memberUser,
-                            $workspace,
-                            $urlSafeEncodedId
-                        ));
-                        // SendMailJob::dispatch(
-                        //     $currentUser,
-                        //     $memberUser,
-                        //     $workspace,
-                        //     $team,
-                        //     $urlSafeEncodedId
-                        // );
+                        if (
+                            ($memberNotificationSetting && $memberNotificationSetting->invitationNotification['email'] === true) || $memberUser->signUpType === SignUpTypeEnum::invite->value
+                        ) {
+                            Mail::send(new MemberInvitationMail(
+                                $currentUser,
+                                $memberUser,
+                                $workspace,
+                                $urlSafeEncodedId
+                            ));
+                        }
 
-                        $message = 'You have received a invitation to join workspace "' . $workspace->title . '" by "' . $currentUser->username . '".';
 
-                        $data = [
-                            'userId' => $memberUser->id,
-                            'message' => $message,
-                            'inviter' => $currentUser->username,
-                            'inviterUserId' => $currentUser->id,
-                            'wsTeamMemberInviteId' => $wsTeamMemberInvite->uniqueId
-                        ];
 
                         // Send notification to the memberUser.
-                        $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::wsTeamMemberInvitation));
+                        if (
+                            ($memberNotificationSetting && $memberNotificationSetting->invitationNotification['inApp'] === true) || $memberUser->signUpType === SignUpTypeEnum::invite->value
+                        ) {
+                            $message = 'You have received a invitation to join workspace "' . $workspace->title . '" by "' .  $currentUser->username . '".';
+                            $data = [
+                                'userId' => $memberUser->id,
+                                'message' => $message,
+                                'inviter' => $currentUser->username,
+                                'inviterUserId' => $currentUser->id,
+                                'wsTeamMemberInviteId' => $wsTeamMemberInvite->uniqueId
+                            ];
+
+                            $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::personal));
+                        }
 
                         return ZHelpers::sendBackRequestCompletedResponse([
                             'item' => new WSMemberResource($wsTeamMemberInvite),
+                            'test' => $memberNotificationSetting->invitationNotification['inApp']
                         ]);
                     } else {
                         return ZHelpers::sendBackRequestFailedResponse([]);
@@ -211,21 +210,32 @@ class WSMemberController extends Controller
 
                     $memberUser = User::where('email', $invitation->email)->first();
 
+                    $memberNotificationSetting = UserNotificationSetting::where('userId', $memberUser->id)->first();
+
+
                     // Send the invitation mail to the memberUser.
-                    Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace,  $urlSafeEncodedId));
+                    if (
+                        ($memberNotificationSetting && $memberNotificationSetting->invitationNotification['email'] === true) || $memberUser->signUpType === SignUpTypeEnum::invite->value
+                    ) {
+                        Mail::send(new MemberInvitationMail($currentUser, $memberUser,  $workspace,  $urlSafeEncodedId));
+                    }
 
-                    $message = 'You have received a invitation to join workspace "' . $workspace->title . '" by "' . $currentUser->username . '".';
-
-                    $data = [
-                        'userId' => $memberUser->id,
-                        'message' => $message,
-                        'inviter' => $currentUser->username,
-                        'inviterUserId' => $currentUser->id,
-                        'wsTeamMemberInviteId' => $invitation->uniqueId
-                    ];
 
                     // Send notification to the memberUser.
-                    $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::wsTeamMemberInvitation));
+                    if (
+                        ($memberNotificationSetting && $memberNotificationSetting->invitationNotification['inApp'] === true) || $memberUser->signUpType === SignUpTypeEnum::invite->value
+                    ) {
+                        $message = 'You have received a invitation to join workspace "' . $workspace->title . '" by "' . $currentUser->username . '".';
+                        $data = [
+                            'userId' => $memberUser->id,
+                            'message' => $message,
+                            'inviter' => $currentUser->username,
+                            'inviterUserId' => $currentUser->id,
+                            'wsTeamMemberInviteId' => $invitation->uniqueId
+                        ];
+
+                        $memberUser->notify(new WSTeamMemberInvitation($data, $memberUser, NotificationTypeEnum::personal));
+                    }
 
                     return ZHelpers::sendBackRequestCompletedResponse([
                         'item' => new WSMemberResource($invitation),
@@ -297,9 +307,9 @@ class WSMemberController extends Controller
 
                 // Checking in invitation is not null.
                 if ($invitation) {
-                    if($request->status === WSMemberAccountStatusEnum::accepted->value || $request->status === WSMemberAccountStatusEnum::rejected->value){
+                    if ($request->status === WSMemberAccountStatusEnum::accepted->value || $request->status === WSMemberAccountStatusEnum::rejected->value) {
                         $message = null;
-    
+
                         if ($request->status === WSMemberAccountStatusEnum::accepted->value) {
                             $invitation->update([
                                 'accountStatus' => WSMemberAccountStatusEnum::accepted->value,
@@ -308,7 +318,7 @@ class WSMemberController extends Controller
                             ]);
                             $message = '"' . $currentUser->username . '"' . ' has accepted your invitation.';
                         }
-    
+
                         if ($request->status === WSMemberAccountStatusEnum::rejected->value) {
                             $invitation->update([
                                 'accountStatus' => WSMemberAccountStatusEnum::rejected->value,
@@ -318,16 +328,21 @@ class WSMemberController extends Controller
                             $message = '"' .
                                 $currentUser->username . '"' . ' has rejected your invitation.';
                         }
-    
-                        $data = [
-                            'invitee' => $invitation->memberId,
-                            'message' => $message,
-                            'inviterUserId' => $invitation->inviterId,
-                        ];
-    
-                        $inviter = User::where('id', $invitation->inviterId)->first();
-    
-                        $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::wsMemberInviteAction));
+
+
+                        $inviterNotificationSetting = UserNotificationSetting::where('userId', $invitation->inviterId)->first();
+
+                        if (($inviterNotificationSetting && $inviterNotificationSetting->invitationNotification['inApp'] === true)) {
+                            $data = [
+                                'invitee' => $invitation->memberId,
+                                'message' => $message,
+                                'inviterUserId' => $invitation->inviterId,
+                            ];
+
+                            $inviter = User::where('id', $invitation->inviterId)->first();
+
+                            $inviter->notify(new WSTeamMemberInvitation($data, $inviter, NotificationTypeEnum::personal));
+                        }
                     }
 
                     if ($request->status === WSMemberAccountStatusEnum::cancel->value) {
@@ -336,13 +351,14 @@ class WSMemberController extends Controller
                         $invitation->update([
                             'accountStatus' => WSMemberAccountStatusEnum::cancel->value,
                             'wilToken' => null,
+                            'make' => $inviterNotificationSetting->invitationNotification
                         ]);
                     }
 
                     $invitation = WSTeamMember::where('uniqueId', $invitationId)->with('workspace')->first();
 
                     return ZHelpers::sendBackRequestCompletedResponse([
-                        'item' => new WSMemberResource($invitation)
+                        'item' => new WSMemberResource($invitation),
                     ]);
                 } else {
                     return ZHelpers::sendBackBadRequestResponse([
@@ -471,11 +487,11 @@ class WSMemberController extends Controller
                     $shortUrlIdLength = 12;
                     $shortUrlId = ZHelpers::zGenerateRandomString($shortUrlIdLength);
 
-                   $result = $item->update([
+                    $result = $item->update([
                         'shortUrlId' => $shortUrlId,
                     ]);
 
-                    if($result){
+                    if ($result) {
                         $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
                         return ZHelpers::sendBackRequestCompletedResponse([
                             'item' => new WSMemberResource($item),
@@ -510,7 +526,7 @@ class WSMemberController extends Controller
             ]);
 
             $token = ZHelpers::zDecryptUniqueId($request->token);
-            
+
             if ($token) {
                 // $memberInvitation = WSTeamMember::where('wilToken', $token)->where('email', $request->email)->first();
                 $memberInvitation = WSTeamMember::where('wilToken', $token)->first();

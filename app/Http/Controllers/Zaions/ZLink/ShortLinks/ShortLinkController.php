@@ -102,7 +102,9 @@ class ShortLinkController extends Controller
                 'message' => 'Request Completed Successfully!',
                 'data' => [
                     'items' => ShortLinkResource::collection($itemsQuery),
-                    'itemsCount' => $itemsCount
+                    'itemsCount' => $itemsCount,
+                    'nextPage' => intval($pageNumber) + 1,
+                    'currentPage' => intval($pageNumber) 
                 ],
                 'status' => 200
             ]);

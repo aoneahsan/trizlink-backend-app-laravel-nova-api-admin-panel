@@ -3,6 +3,8 @@
 use App\Http\Controllers\Zaions\Auth\AuthController;
 use App\Http\Controllers\Zaions\Common\FileUploadController;
 use App\Http\Controllers\Zaions\Notification\NotificationController;
+use App\Http\Controllers\Zaions\Notification\USNotificationSettingController;
+use App\Http\Controllers\Zaions\Notification\WSNotificationSettingController;
 use App\Http\Controllers\Zaions\StaticPageController;
 use App\Http\Controllers\Zaions\Testing\TestController;
 use App\Http\Controllers\Zaions\User\SWSUserSettingController;
@@ -146,10 +148,24 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             // Route::put('/user/settings/{itemId}', 'update');
             // Route::delete('/user/settings/{itemId}', 'destroy');
         });
+        
+        // User notification settings
+        Route::controller(USNotificationSettingController::class)->group(function () {
+            // Route::get('/user/us-notification-setting', 'index');
+            Route::post('/user/us-notification-setting', 'store');
+            Route::get('/user/us-notification-setting', 'show');
+            Route::put('/user/us-notification-setting/{itemId}', 'update');
+        });
+        // Workspace notification notification settings
+        Route::controller(WSNotificationSettingController::class)->group(function () {
+            Route::post('/user/ws-notification-setting/{workspaceId}', 'store');
+            Route::get('/user/ws-notification-setting/{workspaceId}/{type}', 'show');
+            Route::put('/user/ws-notification-setting/{workspaceId}/wsn/{itemId}', 'update');
+        });
 
         // notification
         Route::controller(NotificationController::class)->group(function () {
-            Route::get('/user/notification', 'allNotification');
+            Route::get('/user/notification/type/{type}', 'allNotification');
             Route::put('/user/notification/markAsRead/{id}', 'markAsRead');
             Route::put('/user/notification/markAllAsRead', 'markAllAsRead');
             // Route::post('/user/settings', 'store');

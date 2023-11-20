@@ -6,6 +6,7 @@ use App\Models\Default\User;
 use App\Models\Default\UserEmail;
 use App\Zaions\Enums\EmailStatusEnum;
 use App\Zaions\Enums\RolesEnum;
+use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -52,6 +53,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($ahsanUser->id);
 
 
         $superAdminUser = User::create([
@@ -74,6 +77,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($superAdminUser->id);
 
         // create admin user
         $adminUser = User::create([
@@ -96,6 +101,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($adminUser->id);
 
         // create user user
         $simpleUser = User::create([
@@ -118,6 +125,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($simpleUser->id);
 
         // Assign Roles
         $ahsanUser->assignRole($superAdminRole);
@@ -147,6 +156,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($wsUser1->id);
         $wsUser1->assignRole($userRole);
 
         // create sws test 2 user
@@ -170,6 +181,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($wsUser2->id);
         $wsUser2->assignRole($userRole);
 
         // create sws test 3 user
@@ -193,6 +206,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($wsUser3->id);
         $wsUser3->assignRole($userRole);
 
         // create sws test 4 user
@@ -216,6 +231,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($wsUser4->id);
         $wsUser4->assignRole($userRole);
 
         // create sws test 5 user
@@ -239,6 +256,8 @@ class UserSeeder extends Seeder
             'isDefault' => true,
             'isPrimary' => true,
         ]);
+        // added default user notification settings
+        ZHelpers::createDefaultUSNotificationData($wsUser5->id);
         $wsUser5->assignRole($userRole);
     }
 }

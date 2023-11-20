@@ -168,6 +168,24 @@ class RolePermissionsSeeder extends Seeder
         $replicateUSSettingsPermission = Permission::create(['name' => PermissionsEnum::replicate_USSettings->name]);
         $restoreUSSettingsPermission = Permission::create(['name' => PermissionsEnum::restore_USSettings->name]);
         $forceDeleteUSSettingsPermission = Permission::create(['name' => PermissionsEnum::forceDelete_USSettings->name]);
+        // User Notification Setting Model Permissions
+        $viewAnyUSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::viewAny_USNotificationSettings->name]);
+        $viewUSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::view_USNotificationSettings->name]);
+        $addUSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::create_USNotificationSettings->name]);
+        $updateUSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::update_USNotificationSettings->name]);
+        $deleteUSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::delete_USNotificationSettings->name]);
+        $replicateUSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::replicate_USNotificationSettings->name]);
+        $restoreUSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::restore_USNotificationSettings->name]);
+        $forceDeleteUSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::forceDelete_USNotificationSettings->name]);
+        // Workspace Notification Setting Model Permissions
+        $viewAnyWSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::viewAny_WSNotificationSettings->name]);
+        $viewWSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::view_WSNotificationSettings->name]);
+        $addWSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::create_WSNotificationSettings->name]);
+        $updateWSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::update_WSNotificationSettings->name]);
+        $deleteWSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::delete_WSNotificationSettings->name]);
+        $replicateWSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::replicate_WSNotificationSettings->name]);
+        $restoreWSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::restore_WSNotificationSettings->name]);
+        $forceDeleteWSNotificationSettingsPermission = Permission::create(['name' => PermissionsEnum::forceDelete_WSNotificationSettings->name]);
         // Pixel Model Permissions
         $viewAnyPixelPermission = Permission::create(['name' => PermissionsEnum::viewAny_pixel->name]);
         $viewPixelPermission = Permission::create(['name' => PermissionsEnum::view_pixel->name]);
@@ -460,6 +478,24 @@ class RolePermissionsSeeder extends Seeder
             $replicateUSSettingsPermission,
             $restoreUSSettingsPermission,
             $forceDeleteUSSettingsPermission,
+            // User Notification Setting
+            $viewAnyUSNotificationSettingsPermission,
+            $viewUSNotificationSettingsPermission,
+            $addUSNotificationSettingsPermission,
+            $updateUSNotificationSettingsPermission,
+            $deleteUSNotificationSettingsPermission,
+            $replicateUSNotificationSettingsPermission,
+            $restoreUSNotificationSettingsPermission,
+            $forceDeleteUSNotificationSettingsPermission,
+            // Workspace Notification Setting
+            $viewAnyWSNotificationSettingsPermission,
+            $viewWSNotificationSettingsPermission,
+            $addWSNotificationSettingsPermission,
+            $updateWSNotificationSettingsPermission,
+            $deleteWSNotificationSettingsPermission,
+            $replicateWSNotificationSettingsPermission,
+            $restoreWSNotificationSettingsPermission,
+            $forceDeleteWSNotificationSettingsPermission,
             // Pixel
             $viewAnyPixelPermission,
             $viewPixelPermission,

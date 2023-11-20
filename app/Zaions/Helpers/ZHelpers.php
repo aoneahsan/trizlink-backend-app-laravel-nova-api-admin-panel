@@ -2,6 +2,7 @@
 
 namespace App\Zaions\Helpers;
 
+use App\Models\Default\Notification\UserNotificationSetting;
 use App\Zaions\Enums\NamazEnum;
 use App\Zaions\Enums\RolesEnum;
 use Carbon\Carbon;
@@ -414,16 +415,17 @@ class ZHelpers
     return $randomString;
   }
 
- public static function zEncryptUniqueId($uniqueId){
-  // Encrypt the unique ID using Laravel's Crypt facade
-  $encryptedUniqueId = \Illuminate\Support\Facades\Crypt::encryptString($uniqueId);
+  public static function zEncryptUniqueId($uniqueId)
+  {
+    // Encrypt the unique ID using Laravel's Crypt facade
+    $encryptedUniqueId = \Illuminate\Support\Facades\Crypt::encryptString($uniqueId);
 
-  // Encode the encrypted ID using base64 to make it URL-safe
-  $encodedEncryptedId = base64_encode($encryptedUniqueId);
-  $urlSafeEncodedId = urlencode($encodedEncryptedId);
+    // Encode the encrypted ID using base64 to make it URL-safe
+    $encodedEncryptedId = base64_encode($encryptedUniqueId);
+    $urlSafeEncodedId = urlencode($encodedEncryptedId);
 
-  return $urlSafeEncodedId;
- }
+    return $urlSafeEncodedId;
+  }
 
   public static function zGenerateAndEncryptUniqueId()
   {
@@ -471,15 +473,48 @@ class ZHelpers
   // Encryption
   public static function encryptData($val)
   {
-      return \Illuminate\Support\Facades\Crypt::encrypt(json_encode($val), false, env('CRYPTO_SECRET'));
+    return \Illuminate\Support\Facades\Crypt::encrypt(json_encode($val), false, env('CRYPTO_SECRET'));
   }
-  
+
   // Decryption
   public static function decryptData($val)
   {
-      // return json_decode(\Illuminate\Support\Facades\Crypt::decrypt($val, false, env('CRYPTO_SECRET')), true);
-      return json_decode($val);
-      // return \Illuminate\Support\Facades\Crypt::decrypt($val, false, env('CRYPTO_SECRET'));
+    // return json_decode(\Illuminate\Support\Facades\Crypt::decrypt($val, false, env('CRYPTO_SECRET')), true);
+    return json_decode($val);
+    // return \Illuminate\Support\Facades\Crypt::decrypt($val, false, env('CRYPTO_SECRET'));
+  }
+
+  public static function createDefaultUSNotificationData($userId)
+  {
+    $notification = [
+      'inApp' => true,
+      'email' => true,
+      'push' => true,
+      'sms' => false
+    ];
+
+    UserNotificationSetting::create([
+      'uniqueId' => uniqid(),
+      'userId' => $userId,
+
+      'invitationNotification' => $notification,
+      'newDeviceLogin' => $notification,
+      'passwordReset' => $notification,
+      'otherNotification' => $notification,
+      'browser' => [
+        'push' => true,
+        'playSoundInNotification' => true,
+        'playSoundInMessage' => true,
+      ],
+      'email' => [
+        'frequency' => 'all',
+        'notifications' => [
+          'otherNotifications' => true,
+        ]
+      ],
+      'sms' => [
+        'frequency' => 'all',
+      ]
+    ]);
   }
 }
-

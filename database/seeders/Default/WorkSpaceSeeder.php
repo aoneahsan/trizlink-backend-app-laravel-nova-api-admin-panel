@@ -2,8 +2,10 @@
 
 namespace Database\Seeders\Default;
 
+use App\Models\Default\Notification\WSNotificationSetting;
 use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
+use App\Zaions\Enums\WSEnum;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -18,16 +20,29 @@ class WorkSpaceSeeder extends Seeder
         $ahsanUser = User::where('email', env('ADMIN_EMAIL'))->first();
         $simpleUser = User::where('email', 'user@zaions.com')->first();
 
-        WorkSpace::create([
+        $ahsanWS = WorkSpace::create([
             'uniqueId' => uniqid(),
             'userId' => $ahsanUser->id,
             'title' => 'Ahsan share workspace'
         ]);
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $ahsanUser->id,
+            'workspaceId' => $ahsanWS->id,
+            'type' => WSEnum::personalWorkspace->value,
+        ]);
 
-        WorkSpace::create([
+        $simpleUserWs = WorkSpace::create([
             'uniqueId' => uniqid(),
             'userId' => $simpleUser->id,
             'title' => 'User share workspace'
+        ]);
+
+        WSNotificationSetting::create([
+            'uniqueId' => uniqid(),
+            'userId' => $simpleUser->id,
+            'workspaceId' => $simpleUserWs->id,
+            'type' => WSEnum::personalWorkspace->value,
         ]);
     }
 }
