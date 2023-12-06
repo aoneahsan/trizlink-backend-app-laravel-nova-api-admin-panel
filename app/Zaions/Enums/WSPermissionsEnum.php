@@ -156,4 +156,24 @@ enum WSPermissionsEnum: string
   case replicate_sws_lib_folder = 'replicate_sws_lib_folder';
   case restore_sws_lib_folder = 'restore_sws_lib_folder';
   case forceDelete_sws_lib_folder = 'forceDelete_sws_lib_folder';
+
+    // lib Block
+  case viewAny_sws_libBlock = 'viewAny_sws_libBlock';
+  case view_sws_libBlock = 'view_sws_libBlock';
+  case create_sws_libBlock = 'create_sws_libBlock';
+  case update_sws_libBlock = 'update_sws_libBlock';
+  case delete_sws_libBlock = 'delete_sws_libBlock';
+  case replicate_sws_libBlock = 'replicate_sws_libBlock';
+  case restore_sws_libBlock = 'restore_sws_libBlock';
+  case forceDelete_sws_libBlock = 'forceDelete_sws_libBlock';
+
+    // lib pre defined data
+  case viewAny_sws_libPerDefinedData = 'viewAny_sws_libPerDefinedData';
+  case view_sws_libPerDefinedData = 'view_sws_libPerDefinedData';
+  case create_sws_libPerDefinedData = 'create_sws_libPerDefinedData';
+  case update_sws_libPerDefinedData = 'update_sws_libPerDefinedData';
+  case delete_sws_libPerDefinedData = 'delete_sws_libPerDefinedData';
+  case replicate_sws_libPerDefinedData = 'replicate_sws_libPerDefinedData';
+  case restore_sws_libPerDefinedData = 'restore_sws_libPerDefinedData';
+  case forceDelete_sws_libPerDefinedData = 'forceDelete_sws_libPerDefinedData';
 }

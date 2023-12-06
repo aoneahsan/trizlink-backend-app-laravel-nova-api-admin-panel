@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
 use App\Notifications\TestNotification;
+use App\Zaions\Enums\ResponseCodesEnum;
+use App\Zaions\Enums\ResponseMessagesEnum;
 use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Gate;
 
 class TestingController extends Controller
 {
@@ -22,8 +25,10 @@ class TestingController extends Controller
         // dd($otpTime > Carbon::now());
         // Test check if user is super admin
         // $user = $request->user();
-        dd(Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString());
-
+        // dd(Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString());
+//         $isShareWs = false;
+//         $response = Gate::allowIf($isShareWs ? true : true, $isShareWs ? ResponseMessagesEnum::Unauthorized->name : null, $isShareWs ?  ResponseCodesEnum::Unauthorized->name : null);;
+// dd($response);
         // Test - working with Carbon date and time
         // $carbonNow = Carbon::now($request->user()?->userTimezone);
         // $carbonNow = Carbon::now();

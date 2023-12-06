@@ -124,16 +124,16 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // user
         Route::controller(UserSettingController::class)->group(function () {
-            Route::get('/user/workspace/{workspaceId}/modal-settings', 'index');
-            Route::post('/user/workspace/{workspaceId}/modal-settings', 'store');
-            Route::get('/user/workspace/{workspaceId}/modal-settings/{type}', 'show');
-            Route::put('/user/workspace/{workspaceId}/modal-settings/{type}', 'update');
-            Route::delete('/user/workspace/{workspaceId}/modal-settings/{type}', 'destroy');
-            // Route::get('/user/settings', 'index');
-            // Route::post('/user/settings', 'store');
-            // Route::get('/user/settings/{type}', 'show');
-            // Route::put('/user/settings/{itemId}', 'update');
-            // Route::delete('/user/settings/{itemId}', 'destroy');
+            // Route::get('/user/workspace/{workspaceId}/modal-settings', 'index');
+            Route::get('/user/{type}/{uniqueId}/modal-settings', 'index');
+            // Route::post('/user/workspace/{workspaceId}/modal-settings', 'store');
+            Route::post('/user/{type}/{uniqueId}/modal-settings', 'store');
+            // Route::get('/user/workspace/{workspaceId}/modal-settings/{type}', 'show');
+            Route::get('/user/{type}/{uniqueId}/modal-settings/{swType}', 'show');
+            // Route::put('/user/workspace/{workspaceId}/modal-settings/{type}', 'update');
+            Route::put('/user/{type}/{uniqueId}/modal-settings/{swType}', 'update');
+            // Route::delete('/user/workspace/{workspaceId}/modal-settings/{type}', 'destroy');
+            Route::delete('/user/{type}/{uniqueId}/modal-settings/{swType}', 'destroy');
         });
 
         Route::controller(SWSUserSettingController::class)->group(function () {
@@ -142,11 +142,6 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/sws/member/{memberId}/modal-settings/{type}', 'show');
             Route::put('/user/sws/member/{memberId}/modal-settings/{type}', 'update');
             Route::delete('/user/sws/member/{memberId}/modal-settings/{type}', 'destroy');
-            // Route::get('/user/settings', 'index');
-            // Route::post('/user/settings', 'store');
-            // Route::get('/user/settings/{type}', 'show');
-            // Route::put('/user/settings/{itemId}', 'update');
-            // Route::delete('/user/settings/{itemId}', 'destroy');
         });
         
         // User notification settings
@@ -310,14 +305,20 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // Folder
         Route::controller(FolderController::class)->group(function () {
-            Route::get('/user/workspaces/{workspaceId}/folder', 'index');
-            Route::post('/user/workspaces/{workspaceId}/folder', 'store');
+            // Route::get('/user/workspaces/{workspaceId}/folder', 'index');
+            Route::get('/user/{type}/{uniqueId}/folder/{modal}', 'index');
+
+            // 
+            Route::post('/user/{type}/{uniqueId}/folder', 'store');
             // Route::put('/user/workspaces/{workspaceId}/folders/reorder', 'updateSortOrderNo');
-            Route::get('/user/workspaces/{workspaceId}/folder/{itemId}', 'show');
-            Route::put('/user/workspaces/{workspaceId}/folder/{itemId}', 'update');
-            Route::delete('/user/workspaces/{workspaceId}/folder/{itemId}', 'destroy');
+            Route::get('/user/{type}/{uniqueId}/folder/{itemId}', 'show');
+            // Route::get('/user/workspaces/{workspaceId}/folder/{itemId}', 'show');
+            Route::put('/user/{type}/{uniqueId}/folder/{itemId}', 'update');    
+            // Route::put('/user/workspaces/{workspaceId}/folder/{itemId}', 'update');
+            Route::delete('/user/{type}/{uniqueId}/folder/{itemId}', 'destroy');
+            // Route::delete('/user/workspaces/{workspaceId}/folder/{itemId}', 'destroy');
             Route::get('/user/workspaces/{workspaceId}/get/shortLink/folders', 'getShortLinksFolders');
-            Route::get('/user/workspaces/{workspaceId}/get/linkInBio/folders', 'getLinkInBioFolders');
+            Route::get('/user/{type}/{uniqueId}/get/linkInBio/folders', 'getLinkInBioFolders');
         });
 
         // Share workspaces folder
@@ -389,29 +390,40 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // LinkInBio
         Route::controller(LinkInBioController::class)->group(function () {
-            Route::get('/user/workspaces/{workspaceId}/link-in-bio', 'index');
-            Route::post('/user/workspaces/{workspaceId}/link-in-bio', 'store');
-            Route::get('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'show');
-            Route::put('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'update');
-            Route::delete('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'destroy');
+            // Route::get('/user/workspaces/{uniqueId}/link-in-bio/{type}', 'index');
+            Route::get('/user/{type}/{uniqueId}/link-in-bio', 'index');
+            // Route::post('/user/workspaces/{workspaceId}/link-in-bio', 'store');
+            Route::post('/user/{type}/{uniqueId}/link-in-bio', 'store');
+            // Route::get('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'show');
+            Route::get('/user/{type}/{uniqueId}/link-in-bio/{itemId}', 'show');
+            // Route::put('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'update');
+            Route::put('/user/{type}/{uniqueId}/link-in-bio/{itemId}', 'update');
+            // Route::delete('/user/workspaces/{workspaceId}/link-in-bio/{itemId}', 'destroy');
+            Route::delete('/user/{type}/{uniqueId}/link-in-bio/{itemId}', 'destroy');
         });
 
         // LinkInBio block
         Route::controller(LibBlockController::class)->group(function () {
-            Route::get('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block', 'index');
-            Route::post('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block', 'store');
-            Route::get('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block/{itemId}', 'show');
-            Route::put('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block/{itemId}', 'update');
-            Route::delete('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block/{itemId}', 'destroy');
+            // Route::get('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block', 'index');
+            Route::get('/user/{type}/{uniqueId}/lib/{linkInBioId}/lib-block', 'index');
+            // Route::post('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block', 'store');
+            Route::post('/user/{type}/{uniqueId}/lib/{linkInBioId}/lib-block', 'store');
+            // Route::get('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block/{itemId}', 'show');
+            Route::get('/user/{type}/{uniqueId}/lib/{linkInBioId}/lib-block/{itemId}', 'show');
+            // Route::put('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block/{itemId}', 'update');
+            Route::put('/user/{type}/{uniqueId}/lib/{linkInBioId}/lib-block/{itemId}', 'update');
+            // Route::delete('/user/ws/{workspaceId}/lib/{linkInBioId}/lib-block/{itemId}', 'destroy');
+            Route::delete('/user/{type}/{uniqueId}/lib/{linkInBioId}/lib-block/{itemId}', 'destroy');
         });
 
         // LinkInBio pre defined data
         Route::controller(LibPredefinedDataController::class)->group(function () {
-            Route::get('/user/lib-pre-dd/{pddType}', 'index');
-            Route::post('/user/lib-pdd/{pddType}', 'store');
-            Route::get('/user/lib-pdd/{pddType}/{itemId}', 'show');
-            Route::put('/user/lib-pdd/{pddType}/{itemId}', 'update');
-            Route::delete('/user/lib-pdd/{pddType}/{itemId}', 'destroy');
+            // Route::get('/user/lib-pre-dd/{pddType}', 'index');
+            Route::get('/user/{type}/{uniqueId}/lib-pre-dd/{pddType}', 'index');
+            Route::post('/user/{type}/{uniqueId}/lib-pdd/{pddType}', 'store');
+            Route::get('/user/{type}/{uniqueId}/lib-pdd/{pddType}/{itemId}', 'show');
+            Route::put('/user/{type}/{uniqueId}/lib-pdd/{pddType}/{itemId}', 'update');
+            Route::delete('/user/{type}/{uniqueId}/lib-pdd/{pddType}/{itemId}', 'destroy');
         });
 
         // Get Shared Workspaces

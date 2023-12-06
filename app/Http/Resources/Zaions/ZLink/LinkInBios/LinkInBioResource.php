@@ -42,6 +42,10 @@ class LinkInBioResource extends JsonResource
             'sortOrderNo' => $this->sortOrderNo,
             'isActive' => $this->isActive,
             'extraAttributes' => $this->extraAttributes,
+            
+            'formattedCreatedAt' => $this->created_at->diffForHumans(),
+            'formattedUpdatedAt' => $this->updated_at->diffForHumans(),
+
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at
         ];

@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Zaions\ZLink\ShortLinks;
+namespace App\Http\Controllers\Zaions\ZLink\LinkInBios;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Zaions\ZLink\ShortLinks\ShortLinkResource;
-use App\Http\Resources\Zaions\Zlink\ShortLinks\SLPublicPageResource;
+use App\Http\Resources\Zaions\ZLink\LinkInBios\LinkInBioResource;
 use App\Models\Default\WorkSpace;
 use App\Models\Default\WSTeamMember;
-use App\Models\ZLink\ShortLinks\ShortLink;
-use App\Models\ZLink\ShortLinks\SLAnalytics;
+use App\Models\ZLink\LinkInBios\LinkInBio;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
@@ -17,11 +15,8 @@ use App\Zaions\Enums\WSPermissionsEnum;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
 
-use function Spatie\SslCertificate\length;
-
-class SWSShortLinkController extends Controller
+class SWSLinkInBioController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -32,16 +27,17 @@ class SWSShortLinkController extends Controller
     {
         try {
             $currentUser = $request->user();
+
             // first getting the member from member we will get share workspace
             $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
-
-            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['Share workspace not found!']
                 ]);
             }
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_linkInBio->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             // $member->inviterId => id of owner of the workspace
             $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
@@ -52,18 +48,12 @@ class SWSShortLinkController extends Controller
                 ]);
             }
 
-            $itemsCount = ShortLink::where('workspaceId', $workspace->id)->count();
-            $items = ShortLink::where('workspaceId', $workspace->id)->get();
+            $itemsCount = LinkInBio::where('workspaceId', $workspace->id)->count();
+            $items = LinkInBio::where('workspaceId', $workspace->id)->get();
 
-            return response()->json([
-                'success' => true,
-                'errors' => [],
-                'message' => 'Request Completed Successfully!',
-                'data' => [
-                    'items' => ShortLinkResource::collection($items),
-                    'itemsCount' => $itemsCount
-                ],
-                'status' => 200
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'items' => LinkInBioResource::collection($items),
+                'itemsCount' => $itemsCount
             ]);
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
@@ -80,16 +70,17 @@ class SWSShortLinkController extends Controller
     {
         try {
             $currentUser = $request->user();
+
             // first getting the member from member we will get share workspace
             $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
-
-            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             if (!$member) {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['Share workspace not found!']
                 ]);
             }
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_linkInBio->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             // $member->inviterId => id of owner of the workspace
             $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
@@ -101,89 +92,66 @@ class SWSShortLinkController extends Controller
             }
 
             $request->validate([
-                'type' => 'required|string|max:250',
-                'target' => 'required|json',
-                'title' => 'required|string|max:250',
-                'shortUrlPath' => 'nullable|string|max:6',
-                'shortUrlDomain' => 'nullable|string|max:250',
-                'featureImg' => 'nullable|json',
-                'description' => 'nullable|string|max:1000',
-                'pixelIds' => 'nullable|string|max:250',
+                'linkInBioTitle' => 'required|string',
+                'featureImg' => 'nullable|string',
+                'title' => 'nullable|string',
+                'description' => 'nullable|string',
+                'pixelIds' => 'nullable|json',
                 'utmTagInfo' => 'nullable|json',
-                // 'shortUrl' => 'nullable|json',
-                'folderId' => 'nullable|string',
-                'notes' => 'nullable|string|max:250',
-                'tags' => 'nullable|string|max:250',
+                'shortUrl' => 'nullable|json',
+                'folderId' => 'nullable|integer',
+                'notes' => 'nullable|string',
+                'tags' => 'nullable|string',
                 'abTestingRotatorLinks' => 'nullable|json',
                 'geoLocationRotatorLinks' => 'nullable|json',
                 'linkExpirationInfo' => 'nullable|json',
                 'password' => 'nullable|json',
                 'favicon' => 'nullable|string',
-                'isFavorite' => 'nullable|boolean',
+                'theme' => 'nullable|json',
+                'settings' => 'nullable|json',
+                'poweredBy' => 'nullable|json',
                 'sortOrderNo' => 'nullable|integer',
                 'isActive' => 'nullable|boolean',
                 'extraAttributes' => 'nullable|json',
             ]);
 
-            $shortLinkUrlPath = $request->shortUrlPath;
-
-            if ($request->has('shortUrlPath') && Str::length($request->shortUrlPath) === 6) {
-                $checkShortUrlPath = ShortLink::where('shortUrlPath', $request->shortUrlPath)->first();
-
-                if ($checkShortUrlPath) {
-                    return ZHelpers::sendBackRequestFailedResponse([
-                        'shortUrlPath' => 'custom path has been taken.'
-                    ]);
-                }
-            } else {
-                do {
-                    $generatedShortUrlPath = ZHelpers::zGenerateRandomString();
-                    $checkShortUrlPath = ShortLink::where('shortUrlPath', $generatedShortUrlPath)->exists();
-
-                    $shortLinkUrlPath = $generatedShortUrlPath;
-                } while ($checkShortUrlPath);
-            }
-
-            $result = ShortLink::create([
+            $result = LinkInBio::create([
                 'uniqueId' => uniqid(),
-                'createdBy' => $currentUser->id,
+                'userId' => $currentUser->id,
                 'workspaceId' => $workspace->id,
 
-                'type' => $request->has('type') ? $request->type : null,
-                'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : null,
+                'linkInBioTitle' => $request->has('linkInBioTitle') ? $request->linkInBioTitle : null,
+                'featureImg' => $request->has('featureImg') ? $request->featureImg : null,
                 'title' => $request->has('title') ? $request->title : null,
-                'featureImg' => $request->has('featureImg') ? ZHelpers::zJsonDecode($request->featureImg) : null,
                 'description' => $request->has('description') ? $request->description : null,
-                'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : null,
+                'pixelIds' => $request->has('pixelIds') ? ZHelpers::zJsonDecode($request->pixelIds) : null,
                 'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : null,
-                // 'shortUrl' =>  $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : null,
-                'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : null,
-                'shortUrlPath' => $shortLinkUrlPath,
+                'shortUrl' => $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : null,
                 'folderId' => $request->has('folderId') ? $request->folderId : null,
                 'notes' => $request->has('notes') ? $request->notes : null,
-                'tags' => $request->has('tags') ? ZHelpers::zJsonDecode($request->tags) : null,
+                'tags' => $request->has('tags') ? $request->tags : null,
                 'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : null,
                 'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : null,
                 'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : null,
                 'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : null,
                 'favicon' => $request->has('favicon') ? $request->favicon : null,
-                'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
 
-                'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
+                'theme' => $request->has('theme') ?  ZHelpers::zJsonDecode($request->theme) : null,
+                'settings' => $request->has('settings') ? ZHelpers::zJsonDecode($request->settings) : null,
+                'poweredBy' => $request->has('poweredBy') ? ZHelpers::zJsonDecode($request->poweredBy) : null,
+                'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : null,
                 'isActive' => $request->has('isActive') ? $request->isActive : null,
-                'extraAttributes' =>  $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : null,
             ]);
 
             if ($result) {
                 return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new ShortLinkResource($result)
+                    'item' => new LinkInBioResource($result)
                 ]);
             } else {
                 return ZHelpers::sendBackRequestFailedResponse([]);
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
-            // return ZHelpers::sendBackRequestFailedResponse($th);
         }
     }
 
@@ -200,13 +168,13 @@ class SWSShortLinkController extends Controller
             // first getting the member from member we will get share workspace
             $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::view_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
             if (!$member) {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['Share workspace not found!']
                 ]);
             }
+
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::view_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
             // $member->inviterId => id of owner of the workspace
             $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
@@ -217,21 +185,22 @@ class SWSShortLinkController extends Controller
                 ]);
             }
 
-            $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+            $item = LinkInBio::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new ShortLinkResource($item)
+                    'item' => new LinkInBioResource($item)
                 ]);
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['Shortlink not found!']
+                    'item' => ['Link-in-bio not found!']
                 ]);
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -247,86 +216,82 @@ class SWSShortLinkController extends Controller
             // first getting the member from member we will get share workspace
             $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
             if (!$member) {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['Share workspace not found!']
                 ]);
             }
 
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_linkInBio->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
             // $member->inviterId => id of owner of the workspace
             $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
-                    "item" => ['Workspace not found!']
+                    "item" => ['Share workspace not found!']
                 ]);
             }
 
             $request->validate([
-                'type' => 'required|string|max:250',
-                'target' => 'required|json',
-                'title' => 'required|string|max:250',
-                'featureImg' => 'nullable|json',
-                'description' => 'nullable|string|max:1000',
-                'pixelIds' => 'nullable|string|max:250',
+                'linkInBioTitle' => 'required|string',
+                'featureImg' => 'nullable|string',
+                'title' => 'nullable|string',
+                'description' => 'nullable|string',
+                'pixelIds' => 'nullable|json',
                 'utmTagInfo' => 'nullable|json',
-                // 'shortUrl' => 'nullable|json',
-                'shortUrlDomain' => 'nullable|string',
-                'shortUrlPath' => 'nullable|string|max:6',
-                'folderId' => 'nullable|string',
-                'notes' => 'nullable|string|max:250',
-                'tags' => 'nullable|string|max:250',
+                'shortUrl' => 'nullable|json',
+                'folderId' => 'nullable|integer',
+                'notes' => 'nullable|string',
+                'tags' => 'nullable|string',
                 'abTestingRotatorLinks' => 'nullable|json',
                 'geoLocationRotatorLinks' => 'nullable|json',
                 'linkExpirationInfo' => 'nullable|json',
                 'password' => 'nullable|json',
                 'favicon' => 'nullable|string',
-                'isFavorite' => 'nullable|boolean',
-
+                'theme' => 'nullable|json',
+                'settings' => 'nullable|json',
+                'poweredBy' => 'nullable|json',
                 'sortOrderNo' => 'nullable|integer',
                 'isActive' => 'nullable|boolean',
                 'extraAttributes' => 'nullable|json',
             ]);
 
-            $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+            $item = LinkInBio::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->update([
-                    'type' => $request->has('type') ? $request->type : $item->type,
-                    'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : $item->target,
+                    'linkInBioTitle' => $request->has('linkInBioTitle') ? $request->linkInBioTitle : $item->linkInBioTitle,
+                    'featureImg' => $request->has('featureImg') ? $request->featureImg : $item->featureImg,
                     'title' => $request->has('title') ? $request->title : $item->title,
-                    'featureImg' => $request->has('featureImg') ? ZHelpers::zJsonDecode($request->featureImg) : $item->featureImg,
                     'description' => $request->has('description') ? $request->description : $item->description,
-                    'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : $item->pixelIds,
+                    'pixelIds' => $request->has('pixelIds') ? ZHelpers::zJsonDecode($request->pixelIds) : $item->pixelIds,
                     'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : $item->utmTagInfo,
-                    'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : $item->shortUrlDomain,
-                    'shortUrlPath' => $request->has('shortUrlPath') ? $request->shortUrlPath : $item->shortUrlPath,
+                    'shortUrl' => $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : $item->shortUrl,
                     'folderId' => $request->has('folderId') ? $request->folderId : $item->folderId,
                     'notes' => $request->has('notes') ? $request->notes : $item->notes,
-                    'tags' => $request->has('tags') ?  ZHelpers::zJsonDecode($request->tags) : $item->tags,
+                    'tags' => $request->has('tags') ? $request->tags : $item->tags,
                     'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : $item->abTestingRotatorLinks,
                     'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : $item->geoLocationRotatorLinks,
                     'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : $item->linkExpirationInfo,
                     'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : $item->password,
                     'favicon' => $request->has('favicon') ? $request->favicon : $item->favicon,
-                    'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : $item->isFavorite,
 
-                    'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo :
-                        $item->sortOrderNo,
-                    'isActive' => $request->has('isActive') ? $item->isActive : $request->isActive,
+                    'theme' => $request->has('theme') ?  ZHelpers::zJsonDecode($request->theme) : $item->theme,
+                    'settings' => $request->has('settings') ? ZHelpers::zJsonDecode($request->settings) : $item->settings,
+                    'poweredBy' => $request->has('poweredBy') ? ZHelpers::zJsonDecode($request->poweredBy) : $item->poweredBy,
                     'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
+                    'isActive' => $request->has('isActive') ? $request->isActive : $item->isActive,
                 ]);
 
-                $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+                $item = LinkInBio::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
                 return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new ShortLinkResource($item)
+                    'item' => new LinkInBioResource($item)
                 ]);
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['Shortlink not found!']
+                    'item' => ['Link-in-bio not found!']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -347,98 +312,35 @@ class SWSShortLinkController extends Controller
             // first getting the member from member we will get share workspace
             $member = WSTeamMember::where('uniqueId', $memberId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace')->with('memberRole')->first();
 
-            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
             if (!$member) {
                 return ZHelpers::sendBackNotFoundResponse([
                     'item' => ['Share workspace not found!']
                 ]);
             }
 
+            Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_linkInBio->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
             // $member->inviterId => id of owner of the workspace
             $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
-                    "item" => ['Workspace not found!']
+                    "item" => ['Share workspace not found!']
                 ]);
             }
-            $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+
+            $item = LinkInBio::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
             if ($item) {
                 $item->forceDelete();
                 return ZHelpers::sendBackRequestCompletedResponse(['item' => ['success' => true]]);
             } else {
                 return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['Shortlink not found!']
+                    'item' => ['Link-in-bio not found!']
                 ]);
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }
-
-    /**
-     * Check if shortUrlPath is available.
-     *
-     * @param  int  $itemId
-     * @return \Illuminate\Http\Response
-     */
-    public function checkShortUrlPathAvailable(Request $request, $workspaceId, $value)
-    {
-        try {
-            $currentUser = $request->user();
-
-            if ($currentUser) {
-
-                // we are defining short url path length exeat 6 digit.
-                if ($value && Str::length($value) === 6) {
-
-
-                    $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
-
-                    if (!$workspace) {
-                        return ZHelpers::sendBackNotFoundResponse([
-                            "item" => ['Workspace not found!']
-                        ]);
-                    }
-
-                    $item = ShortLink::where('shortUrlPath', $value)->first();
-
-                    if ($item) {
-                        return ZHelpers::sendBackRequestCompletedResponse([
-                            'item' => [
-                                'isAvailable' => false,
-                                'message' => 'Not available',
-                                'value' => $value
-
-                            ]
-                        ]);
-                    } else {
-                        return ZHelpers::sendBackRequestCompletedResponse([
-                            'item' => [
-                                'isAvailable' => true,
-                                'message' => 'Available',
-                                'value' => $value
-                            ]
-                        ]);
-                    }
-                } else {
-                    return ZHelpers::sendBackInvalidParamsResponse([
-                        'item' => [
-                            'message' => 'value must be exeat to 6'
-                        ]
-                    ]);
-                }
-            } else {
-                return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['User not found!']
-                ]);
-            }
-        } catch (\Throwable $th) {
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
-
-    
 }
