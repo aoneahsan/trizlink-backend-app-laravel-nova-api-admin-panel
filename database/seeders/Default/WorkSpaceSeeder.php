@@ -23,7 +23,8 @@ class WorkSpaceSeeder extends Seeder
         $ahsanWS = WorkSpace::create([
             'uniqueId' => uniqid(),
             'userId' => $ahsanUser->id,
-            'title' => 'Ahsan share workspace'
+            'title' => 'Ahsan share workspace',
+            'timezone' => 'Asia/Karachi',
         ]);
         WSNotificationSetting::create([
             'uniqueId' => uniqid(),
@@ -35,7 +36,8 @@ class WorkSpaceSeeder extends Seeder
         $simpleUserWs = WorkSpace::create([
             'uniqueId' => uniqid(),
             'userId' => $simpleUser->id,
-            'title' => 'User share workspace'
+            'title' => 'User share workspace',
+            'timezone' => 'Asia/Karachi',
         ]);
 
         WSNotificationSetting::create([
