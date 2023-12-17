@@ -28,7 +28,10 @@ class LinkInBio extends Model
         'theme' => 'array',
         'settings' => 'array',
         'poweredBy' => 'array',
-        'extraAttributes' => 'array'
+        'extraAttributes' => 'array',
+        'featureImg'=> 'array',
+        'favicon'=> 'array',
+        'tags'=> 'array',
     ];
 
     // Relationship methods

@@ -16,25 +16,27 @@ return new class extends Migration
             $table->string('uniqueId')->nullable();
             $table->unsignedBigInteger('userId');
             $table->unsignedBigInteger('workspaceId');
-            $table->unsignedBigInteger('folderId')->default(1);
 
             $table->json('theme')->nullable();
             $table->json('settings')->nullable();
+            $table->string('folderId')->nullable();
             $table->json('poweredBy')->nullable();
             $table->string('linkInBioTitle')->nullable();
-            $table->string('featureImg')->nullable();
+            $table->json('featureImg')->nullable();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->json('pixelIds')->nullable();
             $table->json('utmTagInfo')->nullable();
             $table->json('shortUrl')->nullable();
-            $table->string('notes')->nullable();
+            $table->string('shortUrlDomain')->nullable(); // "zaions.com"
+            $table->string('shortUrlPath')->nullable(); // "/zaions"
+            $table->text('notes')->nullable();
             $table->string('tags')->nullable();
             $table->json('abTestingRotatorLinks')->nullable();
             $table->json('geoLocationRotatorLinks')->nullable();
             $table->json('linkExpirationInfo')->nullable();
             $table->json('password')->nullable();
-            $table->string('favicon')->nullable();
+            $table->json('favicon')->nullable();
             $table->boolean('isFavorite')->nullable();
 
 

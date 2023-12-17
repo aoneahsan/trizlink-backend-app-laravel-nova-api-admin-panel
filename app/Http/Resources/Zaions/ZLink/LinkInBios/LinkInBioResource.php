@@ -36,6 +36,8 @@ class LinkInBioResource extends JsonResource
             'linkExpirationInfo' => $this->linkExpirationInfo,
             'password' => ZHelpers::zJsonDecode($this->password),
             'favicon' => $this->favicon,
+            'shortUrlDomain' => $this->shortUrlDomain,
+            'shortUrlPath' => $this->shortUrlPath,
 
             // 'blocks' => $this->blocks ? LinkInBioBlockResource::collection($this->blocks) : [],
 
