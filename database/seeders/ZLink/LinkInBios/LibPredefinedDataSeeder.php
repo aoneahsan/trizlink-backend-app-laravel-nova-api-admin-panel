@@ -379,15 +379,15 @@ class LibPredefinedDataSeeder extends Seeder
                 "icon" => "carouselBlock",
                 "isActive" => true
             ],
-            [
-                'uniqueId' => uniqid(),
-                'userId' => $user->id,
-                "type" => LibPreDefinedDataModalEnum::RSS->name,
-                "preDefinedDataType" => LibPreDefinedDataModalEnum::blocks->name,
-                "title" => "RSS",
-                "icon" => "RssBlock",
-                "isActive" => true
-            ],
+            // [
+            //     'uniqueId' => uniqid(),
+            //     'userId' => $user->id,
+            //     "type" => LibPreDefinedDataModalEnum::RSS->name,
+            //     "preDefinedDataType" => LibPreDefinedDataModalEnum::blocks->name,
+            //     "title" => "RSS",
+            //     "icon" => "RssBlock",
+            //     "isActive" => true
+            // ], //  once Sir Ahsan explain how to complete them then only finish them.
             [
                 'uniqueId' => uniqid(),
                 'userId' => $user->id,
@@ -415,24 +415,24 @@ class LibPredefinedDataSeeder extends Seeder
                 "icon" => "calenderBlock",
                 "isActive" => true
             ],
-            [
-                'uniqueId' => uniqid(),
-                'userId' => $user->id,
-                "type" => LibPreDefinedDataModalEnum::magento->name,
-                "preDefinedDataType" => LibPreDefinedDataModalEnum::blocks->name,
-                "title" => "Magento",
-                "icon" => "magento",
-                "isActive" => true
-            ],
-            [
-                'uniqueId' => uniqid(),
-                'userId' => $user->id,
-                "type" => LibPreDefinedDataModalEnum::wordpress->name,
-                "preDefinedDataType" => LibPreDefinedDataModalEnum::blocks->name,
-                "title" => "Wordpress",
-                "icon" => "wordpress",
-                "isActive" => true
-            ],
+            // [
+            //     'uniqueId' => uniqid(),
+            //     'userId' => $user->id,
+            //     "type" => LibPreDefinedDataModalEnum::magento->name,
+            //     "preDefinedDataType" => LibPreDefinedDataModalEnum::blocks->name,
+            //     "title" => "Magento",
+            //     "icon" => "magento",
+            //     "isActive" => true
+            // ], //  once Sir Ahsan explain how to complete them then only finish them.
+            // [
+            //     'uniqueId' => uniqid(),
+            //     'userId' => $user->id,
+            //     "type" => LibPreDefinedDataModalEnum::wordpress->name,
+            //     "preDefinedDataType" => LibPreDefinedDataModalEnum::blocks->name,
+            //     "title" => "Wordpress",
+            //     "icon" => "wordpress",
+            //     "isActive" => true
+            // ], //  once Sir Ahsan explain how to complete them then only finish them.
             [
                 'uniqueId' => uniqid(),
                 'userId' => $user->id,

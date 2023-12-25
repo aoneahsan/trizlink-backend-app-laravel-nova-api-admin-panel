@@ -153,27 +153,15 @@ class UserController extends Controller
             'username' => 'required|string|max:250'
         ]);
         try {
-            $userFound = User::where('id', '!=', $request->user()->id)->where('username', $request->username)->first();
+            $userFound = User::where('username', $request->username)->first();
             if ($userFound) {
-                return response()->json([
-                    'errors' => [
-                        'username' => ['username already in use.']
-                    ],
-                    'data' => [],
-                    'success' => false,
-                    'status' => 400,
-                    'message' => 'username already in use.'
+                return ZHelpers::sendBackBadRequestResponse([
+                    'username' => ['The username has already been taken.']
                 ]);
             } else {
-                return response()->json([
-                    'errors' => [],
-                    'data' => [
-                        'username' => 'username is available.'
-                    ],
-                    'success' => true,
-                    'status' => 200,
-                    'message' => 'username is available.'
-                ]);
+                return ZHelpers::sendBackRequestCompletedResponse(['item' => [
+                    'username' => 'The username is available.'
+                ]]);
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
@@ -501,28 +489,40 @@ class UserController extends Controller
                     'string',
                     'email',
                     'max:255',
-                    Rule::unique(User::class)->where(fn (Builder $query) => $query->where('signUpType', SignUpTypeEnum::normal->value)),
+                    Rule::unique(User::class)->where(fn (Builder $query) => $query->where('signUpType', SignUpTypeEnum::normal->value))->where(fn (Builder $query) => $query->where('isSignupCompleted', true)),
                 ],
             ]);
-            //code...
 
             $otp = ZHelpers::generateUniqueNumericOTP();
             $otpValidTime =  Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString();
 
-            $userExist = User::where('email', $request->email)->where('signUpType', SignUpTypeEnum::invite->value)->first();
+            // Case one: If someone already invite this user then signupType will be 'invite' so user can complete sign up to confirm email.
+            $inviteTypeUser = User::where('email', $request->email)->where('signUpType', SignUpTypeEnum::invite->value)->first();
 
-            if ($userExist) {
-                $userExist->update([
-                    'OTPCode' => $otp,
-                    'OTPCodeValidTill' => $otpValidTime
-                ]);
+            // Case two: If user is sign up but not completed signing up and trying again to sign up with same email.
+            $userNotCompletedSigningUp = User::where('email', $request->email)->where('isSignupCompleted', false)->first();
+
+            // If user exsist and one of the above case is match then this values of user will be get updated
+            $valuesToUpdate = [
+                'OTPCode' => $otp,
+                'OTPCodeValidTill' => $otpValidTime,
+                'isSignupCompleted' => false,
+                'isOnboardingCompleted' => false,
+            ];
+
+            if ($inviteTypeUser) {
+                $inviteTypeUser->update($valuesToUpdate);
+            } else if ($userNotCompletedSigningUp) {
+                $userNotCompletedSigningUp->update($valuesToUpdate);
             } else {
                 $user = User::create([
                     'uniqueId' => uniqid(),
                     'email' => $request->email,
                     'OTPCode' => $otp,
                     'signUpType' => SignUpTypeEnum::normal->value,
-                    'OTPCodeValidTill' => $otpValidTime
+                    'OTPCodeValidTill' => $otpValidTime,
+                    'isSignupCompleted' => false,
+                    'isOnboardingCompleted' => false,
                 ]);
 
                 $userRole = Role::where('name', RolesEnum::user->name)->get();
@@ -716,8 +716,9 @@ class UserController extends Controller
         try {
             $request->validate([
                 'email' => 'required|string',
-                'username' => 'nullable|string',
+                'username' => ['nullable', 'string', Rule::unique(User::class)],
                 'password' => ['required', 'string', new Password, 'confirmed'],
+
             ]);
 
             $user = User::where('email', $request->email)->first();
@@ -726,6 +727,8 @@ class UserController extends Controller
                 $user->update([
                     'password' => Hash::make($request->password),
                     'username' => $request->username ? $request->username : $user->username,
+                    'isSignupCompleted' => true,
+                    'isOnboardingCompleted' => true,
                 ]);
                 // adding a default email entry from $user in userEmail.
                 UserEmail::create([

@@ -42,6 +42,8 @@ return new class extends Migration
             $table->string('OTPCode')->nullable()->max(6);
             $table->dateTime('OTPCodeValidTill')->nullable();
             $table->dateTime('lastSeenAt')->nullable();
+            $table->boolean('isSignupCompleted')->default(false)->nullable();
+            $table->boolean('isOnboardingCompleted')->default(false)->nullable();
 
             $table->boolean('isActive')->default(true);
             $table->integer('sortOrderNo')->default(0)->nullable();

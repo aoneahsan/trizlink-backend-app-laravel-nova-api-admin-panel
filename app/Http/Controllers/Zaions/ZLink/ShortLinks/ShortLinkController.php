@@ -139,7 +139,7 @@ class ShortLinkController extends Controller
                 'target' => 'required|json',
                 'title' => 'required|string|max:65',
                 'shortUrlPath' => 'nullable|string|max:6',
-                'shortUrlDomain' => 'nullable|string|max:250',
+                'shortUrlDomain' => 'required|string|max:250',
                 'featureImg' => 'nullable|json',
                 'description' => 'nullable|string|max:300',
                 'pixelIds' => 'nullable|string|max:250',

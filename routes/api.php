@@ -34,6 +34,7 @@ use App\Http\Controllers\Zaions\ZLink\LinkInBios\LinkInBioController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\ShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\CustomDomainController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\EmbededWidgetController;
+use App\Http\Controllers\Zaions\Zlink\ShortLinks\SLAnalyticsController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\SWSShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\TimeSlot\SWSTimeSlotController;
 use App\Http\Controllers\Zaions\ZLink\TimeSlot\TimeSlotController;
@@ -105,7 +106,6 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::put('/user/update-password', 'updatePassword');
             Route::put('/user/validate-password', 'validateCurrentPassword');
             Route::put('/user/validate-password-otp', 'confirmValidateCurrentPasswordOtp');
-            Route::post('/user/username/check', 'checkIfUsernameIsAvailable');
             Route::post('/user/username/update', 'updateUsername');
             // Route::get('/user/{token}', '')->name('password.reset');
             Route::post('/user/delete', 'destroy');
@@ -246,6 +246,12 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
             Route::get('/user/workspaces/{workspaceId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
         });
+
+        // ShortLink Analytics
+        Route::controller(SLAnalyticsController::class)->group(function () {
+            Route::get('/user/{type}/{wsUniqueId}/sl/{slUniqueId}/analytics', 'show');
+        });
+
 
         // Share workspace short links
         Route::controller(SWSShortLinkController::class)->group(function () {
@@ -448,6 +454,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         Route::put('/user/send-otp', 'generateOtp');
         // Route::put('/user/confirm-otp', 'confirmOtp');
         Route::put('/user/set-password', 'setPassword');
+        Route::post('/user/username/check', 'checkIfUsernameIsAvailable');
         Route::post('/user/send-signup-otp', 'sendSignUpOTP');
         Route::put('/user/resend-user-otp', 'resendOTP');
         Route::put('/user/send-forget-password-otp', 'sendForgetPasswordOTP');
