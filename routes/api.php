@@ -62,6 +62,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     Route::controller(TestController::class)->group(function () {
         Route::get('/notify-user', 'notifyUser');
         Route::post('/data-list-test', 'testingPaginationInPhp'); // pagination, sorting, ordering, filters, searching
+        Route::post('/getPageMetaData', 'getPageMetaData');
     });
 
     // Guest Routes
@@ -143,7 +144,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::put('/user/sws/member/{memberId}/modal-settings/{type}', 'update');
             Route::delete('/user/sws/member/{memberId}/modal-settings/{type}', 'destroy');
         });
-        
+
         // User notification settings
         Route::controller(USNotificationSettingController::class)->group(function () {
             // Route::get('/user/us-notification-setting', 'index');
@@ -319,7 +320,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             // Route::put('/user/workspaces/{workspaceId}/folders/reorder', 'updateSortOrderNo');
             Route::get('/user/{type}/{uniqueId}/folder/{itemId}', 'show');
             // Route::get('/user/workspaces/{workspaceId}/folder/{itemId}', 'show');
-            Route::put('/user/{type}/{uniqueId}/folder/{itemId}', 'update');    
+            Route::put('/user/{type}/{uniqueId}/folder/{itemId}', 'update');
             // Route::put('/user/workspaces/{workspaceId}/folder/{itemId}', 'update');
             Route::delete('/user/{type}/{uniqueId}/folder/{itemId}', 'destroy');
             // Route::delete('/user/workspaces/{workspaceId}/folder/{itemId}', 'destroy');

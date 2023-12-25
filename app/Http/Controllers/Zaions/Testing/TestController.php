@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Zaions\Testing;
 use App\Http\Controllers\Controller;
 use App\Models\Default\User;
 use App\Zaions\Helpers\ZHelpers;
+use DOMDocument;
 use Illuminate\Http\Request;
 use Laravel\Nova\Notifications\NovaNotification;
 use Laravel\Nova\URL;
@@ -117,7 +118,7 @@ class TestController extends Controller
 
         // Actual Result Items
         $usersQueryResult = $usersQuery->get();
-        
+
         // total count items
         $usersCountQueryResult = $usersCountQuery->count();
 
@@ -125,5 +126,67 @@ class TestController extends Controller
         // total, currentPage
 
         return response()->json(['total' => $usersCountQueryResult, 'data' => $usersQueryResult], 200);
+    }
+
+    public function getPageMetaData(Request $request)
+    {
+        $url = $request->url;
+        $data = array();
+        // Initialize cURL
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        // Fetch the HTML content
+        $html = curl_exec($curl);
+        // Check for cURL errors
+        if ($html === false) {
+            // Handle error (e.g., return an error message)
+            return ["error" => "Failed to fetch URL"];
+        }
+        // Initialize DOMDocument
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML($html);
+        libxml_clear_errors();
+        // Get the title
+        $title = $dom->getElementsByTagName("title");
+        if ($title->length > 0) {
+            $data["title"] = $title->item(0)->textContent;
+        }
+        // Get meta description
+        $metaDescription = $dom->getElementsByTagName("meta");
+        foreach ($metaDescription as $meta) {
+            if ($meta->getAttribute("name") === "description") {
+                $data["meta_description"] = $meta->getAttribute("content");
+                break;
+            }
+        }
+        // Get meta keywords
+        foreach ($metaDescription as $meta) {
+            if ($meta->getAttribute("name") === "keywords") {
+                $data["meta_keywords"] = $meta->getAttribute("content");
+                break;
+            }
+        }
+        // Get the favicon
+        $favicon = $dom->getElementsByTagName("link");
+        foreach ($favicon as $link) {
+            if ($link->getAttribute("rel") === "icon") {
+                $data["favicon"] = $link->getAttribute("href");
+                break;
+            }
+        }
+        // Get image for social share
+        foreach ($metaDescription as $meta) {
+            if ($meta->getAttribute("property") === "og:image") {
+                $data["social_image"] = $meta->getAttribute("content");
+                break;
+            }
+        }
+
+        $data['ahsan-testing'] = 'okay';
+        // Clean up
+        curl_close($curl);
+        return $data;
     }
 }
