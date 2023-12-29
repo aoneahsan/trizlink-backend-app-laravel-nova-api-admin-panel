@@ -20,13 +20,12 @@ use Illuminate\Support\Facades\Gate;
 
 class SLAnalyticsController extends Controller
 {
-    /**
-     * Display the specified resource.
+     /**
+     * Display a listing of the resource.
      *
-     * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $type, $wsUniqueId, $slUniqueId)
+    public function index(Request $request, $type, $wsUniqueId, $slUniqueId)
     {
         try {
             $currentUser = $request->user();
@@ -70,17 +69,11 @@ class SLAnalyticsController extends Controller
                 ]);
             }
 
-            $item = SLAnalytics::where('shortLinkId', $shortLink->id)->first();
+            $items = SLAnalytics::where('shortLinkId', $shortLink->id)->get();
 
-            if ($item) {
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new SLAnalyticsResource($item)
-                ]);
-            } else {
-                return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['Shortlink analytics data not found!']
-                ]);
-            }
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'items' => SLAnalyticsResource::collection($items)
+            ]);
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }

@@ -13,7 +13,6 @@ use App\Http\Controllers\Zaions\User\UserEmailController;
 use App\Http\Controllers\Zaions\User\UserSettingController;
 use App\Http\Controllers\Zaions\WorkSpace\SharedWSController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkSpaceController;
-use App\Http\Controllers\Zaions\Workspace\WorkspaceMemberController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceTeamController;
 use App\Http\Controllers\Zaions\Workspace\MemberController;
@@ -225,16 +224,16 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         });
 
         // Workspace member
-        Route::controller(WorkspaceMemberController::class)->group(function () {
-            Route::post('/user/workspace/{workspaceId}/add-member', 'attachMember');
-            Route::delete('/user/workspace/{workspaceId}/remove-member/{memberId}', 'detachMember');
-            Route::get('/user/workspace/{workspaceId}/members', 'viewWorkspaceMembers');
-            Route::get(
-                '/user/workspace/user-collaborated',
-                'collaboratedWorkspaces'
-            );
-            Route::get('/user/workspace/{workspaceId}/user-collaborated-role', 'collaboratedWorkspaceRole');
-        });
+        // Route::controller(WorkspaceMemberController::class)->group(function () {
+        //     Route::post('/user/workspace/{workspaceId}/add-member', 'attachMember');
+        //     Route::delete('/user/workspace/{workspaceId}/remove-member/{memberId}', 'detachMember');
+        //     Route::get('/user/workspace/{workspaceId}/members', 'viewWorkspaceMembers');
+        //     Route::get(
+        //         '/user/workspace/user-collaborated',
+        //         'collaboratedWorkspaces'
+        //     );
+        //     Route::get('/user/workspace/{workspaceId}/user-collaborated-role', 'collaboratedWorkspaceRole');
+        // });
 
         // ShortLink
         Route::controller(ShortLinkController::class)->group(function () {
@@ -250,7 +249,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // ShortLink Analytics
         Route::controller(SLAnalyticsController::class)->group(function () {
-            Route::get('/user/{type}/{wsUniqueId}/sl/{slUniqueId}/analytics', 'show');
+            Route::get('/user/{type}/{wsUniqueId}/sl/{slUniqueId}/analytics', 'index');
         });
 
 
