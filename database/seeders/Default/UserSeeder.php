@@ -36,7 +36,6 @@ class UserSeeder extends Seeder
             'uniqueId' => uniqid(),
             'username' => 'ahsan',
             'slug' => 'ahsan',
-            // 'email' => env('ADMIN_EMAIL'),
             'email' => env('ADMIN_EMAIL'),
             'password' => Hash::make("asd123!@#"),
             'email_verified_at' => Carbon::now(),
