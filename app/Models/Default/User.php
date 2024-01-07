@@ -3,12 +3,17 @@
 namespace App\Models\Default;
 
 use App\Models\Default\Notification\UserNotificationSetting;
-use App\Models\Zaions\User\UserSetting;
+use App\Models\Default\UserSetting;
+use App\Models\ZLink\Plans\Transactions;
+use App\Models\ZLink\Plans\TransactionsLog;
+use App\Models\ZLink\Plans\UserSubscription;
+use App\Models\ZLink\Plans\UserSubscriptionLog;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\RolesEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -117,4 +122,38 @@ class User extends Authenticatable
     {
         return $this->morphMany(Attachment::class, 'attachable');
     }
+
+    // Subscription and Plan Relationships
+    public function subscription(): HasOne  {
+        return $this->hasOne(UserSubscription::class, 'userId', 'id');
+    }
+
+    public function transactions(): HasMany  {
+        return $this->hasMany(Transactions::class, 'userId', 'id');
+    }
+
+    public function userTransactionsLogs(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            TransactionsLog::class,
+            Transactions::class,
+            'userId', // Foreign key on the transactions table...
+            'transactionId', // Foreign key on the transactions_logs table...
+            'id', // Local key on the transactions table...
+            'id' // Local key on the transactions_logs table...
+        );
+    }
+
+    public function userSubscriptionLogs(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            UserSubscriptionLog::class,
+            UserSubscription::class,
+            'userId', // Foreign key on the user_subscription table...
+            'subscriptionId', // Foreign key on the user_subscription_log table...
+            'id', // Local key on the user_subscription table...
+            'id' // Local key on the user_subscription_log table...
+        );
+    }
+
 }

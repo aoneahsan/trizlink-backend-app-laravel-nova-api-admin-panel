@@ -30,6 +30,8 @@ use App\Http\Controllers\Zaions\ZLink\Label\SWSLabelController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LibBlockController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LibPredefinedDataController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LinkInBioController;
+use App\Http\Controllers\Zaions\ZLink\Plans\PlanController;
+use App\Http\Controllers\Zaions\ZLink\Plans\UserSubscriptionController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\ShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\CustomDomainController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\EmbededWidgetController;
@@ -37,6 +39,7 @@ use App\Http\Controllers\Zaions\Zlink\ShortLinks\SLAnalyticsController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\SWSShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\TimeSlot\SWSTimeSlotController;
 use App\Http\Controllers\Zaions\ZLink\TimeSlot\TimeSlotController;
+use App\Zaions\Enums\PlansEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -84,6 +87,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::post('/logout', 'logout');
         });
 
+        // Subscription 
+        Route::controller(UserSubscriptionController::class)->group(function () {
+            Route::post('/user/subscribe/{planType}', 'assignPlan');
+
+            Route::get('/user-subscription', 'userSubscription');
+
+            Route::put('/user/upgrade/subscribe/{planType}', 'upgradeUserSubscription');
+        });
+
         // File Upload Controller APIs
         Route::controller(FileUploadController::class)->group(function () {
             Route::post('/file-upload/getSingleFileUrl', 'getSingleFileUrl');
@@ -110,6 +122,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             // Route::get('/user/{token}', '')->name('password.reset');
             Route::post('/user/delete', 'destroy');
             Route::get('/user/ws-roles', 'getWSPermissions');
+            Route::get('/user/limits', 'limits');
         });
 
         // user emails routes
@@ -172,7 +185,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // Workspace
         Route::controller(WorkSpaceController::class)->group(function () {
             Route::get('/user/workspaces', 'index');
-            Route::get('/user/workspaces/page-number/{pageNumber}/limit/{paginationLimit}', 'index2');
+            Route::get('/user/workspaces/page-number/{pageNumber}/limit/{paginationLimit}', 'indexWithPagination');
             Route::post('/user/workspaces', 'store');
             Route::get('/user/workspaces/{itemId}', 'show');
             Route::put('/user/workspaces/{itemId}', 'update');
@@ -238,7 +251,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         // ShortLink
         Route::controller(ShortLinkController::class)->group(function () {
             Route::get('/user/workspaces/{workspaceId}/short-links', 'index');
-            Route::get('/user/workspaces/{workspaceId}/short-links/page-number/{pageNumber}/limit/{paginationLimit}', 'index2');
+            Route::get('/user/workspaces/{workspaceId}/short-links/page-number/{pageNumber}/limit/{paginationLimit}', 'indexWithPagination');
             Route::post('/user/workspaces/{workspaceId}/short-links', 'store');
             Route::get('/user/workspaces/{workspaceId}/short-links/{itemId}', 'show');
             Route::put('/user/workspaces/{workspaceId}/short-links/{itemId}', 'update');
@@ -466,5 +479,10 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     Route::controller(WSMemberController::class)->group(function () {
         Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
         Route::get('/user/ws-member/short-url/check/{shortUrlId}', 'shortUrlCheck');
+    });
+
+    // Plans
+    Route::controller(PlanController::class)->group(function () {
+        Route::get('/plans', 'index');
     });
 });

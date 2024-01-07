@@ -9,8 +9,10 @@ use App\Models\Default\WorkSpace;
 use App\Models\ZLink\ShortLinks\ShortLink;
 use App\Models\ZLink\ShortLinks\SLAnalytics;
 use App\Zaions\Enums\PermissionsEnum;
+use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Helpers\ZAccountHelpers;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -59,13 +61,12 @@ class ShortLinkController extends Controller
         }
     }
 
-    public function index2(Request $request, $workspaceId, $pageNumber, $paginationLimit)
+    public function indexWithPagination(Request $request, $workspaceId, $pageNumber, $paginationLimit)
     {
         try {
             $currentUser = $request->user();
 
             Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
 
             $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
 
@@ -104,7 +105,7 @@ class ShortLinkController extends Controller
                     'items' => ShortLinkResource::collection($itemsQuery),
                     'itemsCount' => $itemsCount,
                     'nextPage' => intval($pageNumber) + 1,
-                    'currentPage' => intval($pageNumber) 
+                    'currentPage' => intval($pageNumber)
                 ],
                 'status' => 200
             ]);
@@ -134,87 +135,96 @@ class ShortLinkController extends Controller
                 ]);
             }
 
-            $request->validate([
-                'type' => 'required|string|max:250',
-                'target' => 'required|json',
-                'title' => 'required|string|max:65',
-                'shortUrlPath' => 'nullable|string|max:6',
-                'shortUrlDomain' => 'required|string|max:250',
-                'featureImg' => 'nullable|json',
-                'description' => 'nullable|string|max:300',
-                'pixelIds' => 'nullable|string|max:250',
-                'utmTagInfo' => 'nullable|json',
-                // 'shortUrl' => 'nullable|json',
-                'folderId' => 'nullable|string',
-                'notes' => 'nullable|string|max:1000',
-                'tags' => 'nullable|json',
-                'abTestingRotatorLinks' => 'nullable|json',
-                'geoLocationRotatorLinks' => 'nullable|json',
-                'linkExpirationInfo' => 'nullable|json',
-                'password' => 'nullable|json',
-                'favicon' => 'nullable|string',
-                'isFavorite' => 'nullable|boolean',
-                'sortOrderNo' => 'nullable|integer',
-                'isActive' => 'nullable|boolean',
-                'extraAttributes' => 'nullable|json',
-            ]);
+            $itemsCount = ShortLink::where('workspaceId', $workspace->id)->count();
 
+            $shortLinkLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::shortLinks->value, $itemsCount);
 
-            $shortLinkUrlPath = $request->shortUrlPath;
-
-            if ($request->has('shortUrlPath') && Str::length($request->shortUrlPath) === 6) {
-                $checkShortUrlPath = ShortLink::where('shortUrlPath', $request->shortUrlPath)->first();
-
-                if ($checkShortUrlPath) {
-                    return ZHelpers::sendBackRequestFailedResponse([
-                        'shortUrlPath' => 'custom path has been taken.'
-                    ]);
-                }
-            } else {
-                do {
-                    $generatedShortUrlPath = ZHelpers::zGenerateRandomString();
-                    $checkShortUrlPath = ShortLink::where('shortUrlPath', $generatedShortUrlPath)->exists();
-
-                    $shortLinkUrlPath = $generatedShortUrlPath;
-                } while ($checkShortUrlPath);
-            }
-
-            $result = ShortLink::create([
-                'uniqueId' => uniqid(),
-                'createdBy' => $currentUser->id,
-                'workspaceId' => $workspace->id,
-
-                'type' => $request->has('type') ? $request->type : null,
-                'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : null,
-                'title' => $request->has('title') ? $request->title : null,
-                'featureImg' => $request->has('featureImg') ? ZHelpers::zJsonDecode($request->featureImg) : null,
-                'description' => $request->has('description') ? $request->description : null,
-                'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : null,
-                'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : null,
-                // 'shortUrl' =>  $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : null,
-                'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : null,
-                'shortUrlPath' => $shortLinkUrlPath,
-                'folderId' => $request->has('folderId') ? $request->folderId : null,
-                'notes' => $request->has('notes') ? $request->notes : null,
-                'tags' => $request->has('tags') ? ZHelpers::zJsonDecode($request->tags) : null,
-                'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : null,
-                'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : null,
-                'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : null,
-                'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : null,
-                'favicon' => $request->has('favicon') ? $request->favicon : null,
-                'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
-
-                'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
-                'isActive' => $request->has('isActive') ? $request->isActive : null,
-                'extraAttributes' =>  $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : null,
-            ]);
-
-            if ($result) {
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new ShortLinkResource($result)
+            if ($shortLinkLimit === true) {
+                $request->validate([
+                    'type' => 'required|string|max:250',
+                    'target' => 'required|json',
+                    'title' => 'required|string|max:65',
+                    'shortUrlPath' => 'nullable|string|max:6',
+                    'shortUrlDomain' => 'required|string|max:250',
+                    'featureImg' => 'nullable|json',
+                    'description' => 'nullable|string|max:300',
+                    'pixelIds' => 'nullable|string|max:250',
+                    'utmTagInfo' => 'nullable|json',
+                    // 'shortUrl' => 'nullable|json',
+                    'folderId' => 'nullable|string',
+                    'notes' => 'nullable|string|max:1000',
+                    'tags' => 'nullable|json',
+                    'abTestingRotatorLinks' => 'nullable|json',
+                    'geoLocationRotatorLinks' => 'nullable|json',
+                    'linkExpirationInfo' => 'nullable|json',
+                    'password' => 'nullable|json',
+                    'favicon' => 'nullable|string',
+                    'isFavorite' => 'nullable|boolean',
+                    'sortOrderNo' => 'nullable|integer',
+                    'isActive' => 'nullable|boolean',
+                    'extraAttributes' => 'nullable|json',
                 ]);
-            } else {
-                return ZHelpers::sendBackRequestFailedResponse([]);
+
+                $shortLinkUrlPath = $request->shortUrlPath;
+
+                if ($request->has('shortUrlPath') && Str::length($request->shortUrlPath) === 6) {
+                    $checkShortUrlPath = ShortLink::where('shortUrlPath', $request->shortUrlPath)->first();
+
+                    if ($checkShortUrlPath) {
+                        return ZHelpers::sendBackRequestFailedResponse([
+                            'shortUrlPath' => 'custom path has been taken.'
+                        ]);
+                    }
+                } else {
+                    do {
+                        $generatedShortUrlPath = ZHelpers::zGenerateRandomString();
+                        $checkShortUrlPath = ShortLink::where('shortUrlPath', $generatedShortUrlPath)->exists();
+
+                        $shortLinkUrlPath = $generatedShortUrlPath;
+                    } while ($checkShortUrlPath);
+                }
+
+                $result = ShortLink::create([
+                    'uniqueId' => uniqid(),
+                    'createdBy' => $currentUser->id,
+                    'workspaceId' => $workspace->id,
+
+                    'type' => $request->has('type') ? $request->type : null,
+                    'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : null,
+                    'title' => $request->has('title') ? $request->title : null,
+                    'featureImg' => $request->has('featureImg') ? ZHelpers::zJsonDecode($request->featureImg) : null,
+                    'description' => $request->has('description') ? $request->description : null,
+                    'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : null,
+                    'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : null,
+                    // 'shortUrl' =>  $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : null,
+                    'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : null,
+                    'shortUrlPath' => $shortLinkUrlPath,
+                    'folderId' => $request->has('folderId') ? $request->folderId : null,
+                    'notes' => $request->has('notes') ? $request->notes : null,
+                    'tags' => $request->has('tags') ? ZHelpers::zJsonDecode($request->tags) : null,
+                    'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : null,
+                    'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : null,
+                    'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : null,
+                    'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : null,
+                    'favicon' => $request->has('favicon') ? $request->favicon : null,
+                    'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
+
+                    'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
+                    'isActive' => $request->has('isActive') ? $request->isActive : null,
+                    'extraAttributes' =>  $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : null,
+                ]);
+
+                if ($result) {
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => new ShortLinkResource($result)
+                    ]);
+                } else {
+                    return ZHelpers::sendBackRequestFailedResponse([]);
+                }
+            }else{ 
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    'item' => ['You have reached the limit of short links you can create.']
+                ]);
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);

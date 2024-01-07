@@ -18,6 +18,9 @@ use Database\Seeders\ZLink\Analytics\UtmTagSeeder;
 use Database\Seeders\ZLink\LinkInBios\LibBlockSeeder;
 use Database\Seeders\ZLink\LinkInBios\LibPredefinedDataSeeder;
 use Database\Seeders\ZLink\LinkInBios\LinkInBioSeeder;
+use Database\Seeders\ZLink\Plans\PlanLimitSeeder;
+use Database\Seeders\ZLink\Plans\PlanSeeder;
+use Database\Seeders\ZLink\Plans\UserSubscriptionSeeder;
 use Database\Seeders\ZLink\ShortLinks\ShortLinkSeeder;
 use Database\Seeders\ZLink\SocialMedia\PostSeeder;
 use Illuminate\Database\Seeder;
@@ -34,6 +37,9 @@ class DatabaseSeeder extends Seeder
             RolePermissionsSeeder::class,
             SWSRoleAndPermissionsSeeder::class,
             UserSeeder::class,
+            PlanSeeder::class,
+            PlanLimitSeeder::class,
+            UserSubscriptionSeeder::class,
             WorkSpaceSeeder::class,
             WSTeamMemberSeeder::class,
             TaskSeeder::class,

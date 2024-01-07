@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Zaions\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\User\UserDataResource;
+use App\Http\Resources\Zaions\ZLink\Plans\PlanLimitResource;
 use App\Jobs\Zaions\Mail\SendMailJob;
 use App\Mail\OTPMail;
 use App\Models\Default\Notification\UserNotificationSetting;
@@ -12,9 +13,11 @@ use Illuminate\Database\Query\Builder;
 use App\Models\Default\UserEmail;
 use App\Models\Default\WSTeamMember;
 use App\Zaions\Enums\EmailStatusEnum;
+use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Enums\RoleTypesEnum;
 use App\Zaions\Enums\SignUpTypeEnum;
+use App\Zaions\Helpers\ZAccountHelpers;
 use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -943,5 +946,21 @@ class UserController extends Controller
             //throw $th;
             return ZHelpers::sendBackServerErrorResponse($th);
         }
+    }
+
+    public function limits(Request $request) {
+        try {
+            // Current logged in user
+            $currentUser = $request->user();
+
+            $items = ZAccountHelpers::currentUserServicesLimits($currentUser);
+
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'items' => PlanLimitResource::collection($items),
+                'itemsCount' => $items->count()
+            ]);
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }   
     }
 }

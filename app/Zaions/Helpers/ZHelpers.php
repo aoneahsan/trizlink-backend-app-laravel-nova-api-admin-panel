@@ -248,6 +248,17 @@ class ZHelpers
       'errors' => $errors,
       'data' => [],
       'success' => false,
+      'status' => 429,
+      'message' => 'You have reached the limit'
+    ], 429);
+  }
+
+  public static function sendBackReachedLimitResponse($errors)
+  {
+    return response()->json([
+      'errors' => $errors,
+      'data' => [],
+      'success' => false,
       'status' => 400,
       'message' => 'Invalid params send, please send all required request params.'
     ], 500);
@@ -390,6 +401,21 @@ class ZHelpers
     try {
       if ($value && is_string($value)) {
         return json_decode($value);
+      } else if (!$value) {
+        return null;
+      } else {
+        return $value;
+      }
+    } catch (\Throwable $th) {
+      return null;
+    }
+  }
+
+  public static function zJsonEncode($value)
+  {
+    try {
+      if ($value && is_string($value)) {
+        return json_encode($value);
       } else if (!$value) {
         return null;
       } else {
