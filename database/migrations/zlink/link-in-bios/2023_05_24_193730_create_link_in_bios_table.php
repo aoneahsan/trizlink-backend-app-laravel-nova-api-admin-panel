@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('link_in_bios', function (Blueprint $table) {
             $table->id();
             $table->string('uniqueId')->nullable();
-            $table->unsignedBigInteger('userId');
+            $table->unsignedBigInteger('createdBy');
             $table->unsignedBigInteger('workspaceId');
 
             $table->json('theme')->nullable();
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->boolean('isFavorite')->nullable();
 
 
-            $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('createdBy')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('workspaceId')->references('id')->on('work_spaces')->onDelete('cascade');
 
             $table->integer('sortOrderNo')->default(0)->nullable();

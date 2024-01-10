@@ -37,7 +37,7 @@ class LinkInBio extends Model
     // Relationship methods
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'userId', 'id');
+        return $this->belongsTo(User::class, 'createdBy', 'id');
     }
 
     public function workspace(): BelongsTo

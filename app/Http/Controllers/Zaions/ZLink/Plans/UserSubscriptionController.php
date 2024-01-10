@@ -76,7 +76,7 @@ class UserSubscriptionController extends Controller
         }
     }
 
-    public function upgradeUserSubscription(Request $request, $planType) {
+    public function upgradeUserSubscription(Request $request) {
         try {
             $currentUser = $request->user();
 

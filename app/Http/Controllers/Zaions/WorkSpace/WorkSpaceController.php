@@ -7,9 +7,11 @@ use App\Http\Resources\Zaions\WorkSpace\WorkSpaceResource;
 use App\Models\Default\Notification\WSNotificationSetting;
 use App\Models\Default\WorkSpace;
 use App\Zaions\Enums\PermissionsEnum;
+use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
 use App\Zaions\Enums\WSEnum;
+use App\Zaions\Helpers\ZAccountHelpers;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -103,6 +105,10 @@ class WorkSpaceController extends Controller
     public function store(Request $request)
     {
         try {
+            $currentUser = $request->user();
+
+            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
             $request->validate([
                 'title' => 'required|string|max:200',
                 'timezone' => 'nullable|string|max:200',
@@ -116,41 +122,47 @@ class WorkSpaceController extends Controller
                 'extraAttributes' => 'nullable|json',
             ]);
 
-            $currentUser = $request->user();
+            $itemsCount = WorkSpace::where('userId', $currentUser->id)->count();
+            $workspaceLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::workspace->value, $itemsCount);
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_workspace->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
-
-            $result = WorkSpace::create([
-                'uniqueId' => uniqid(),
-
-                'userId' => $currentUser->id,
-                'title' => $request->has('title') ? $request->title : null,
-                'timezone' => $request->has('timezone') ? $request->timezone : null,
-                'workspaceImage' => $request->has('workspaceImage') ? $request->workspaceImage : null,
-                'internalPost' => $request->has('internalPost') ? $request->internalPost : false,
-                'workspaceData' => $request->has('workspaceData') ? (is_string($request->workspaceData) ? json_decode($request->workspaceData) : $request->workspaceData) : null,
-                'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
-
-                'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
-                'isActive' => $request->has('isActive') ? $request->isActive : true,
-                'extraAttributes' => $request->has('extraAttributes') ? (is_string($request->extraAttributes) ? json_decode($request->extraAttributes) : $request->extraAttributes) : null,
-            ]);
-
-            if ($result) {
-
-                WSNotificationSetting::create([
+            if($workspaceLimit === true){
+                $result = WorkSpace::create([
                     'uniqueId' => uniqid(),
+    
                     'userId' => $currentUser->id,
-                    'workspaceId' => $result->id,
-                    'type' => WSEnum::personalWorkspace->value,
+                    'title' => $request->has('title') ? $request->title : null,
+                    'timezone' => $request->has('timezone') ? $request->timezone : null,
+                    'workspaceImage' => $request->has('workspaceImage') ? $request->workspaceImage : null,
+                    'internalPost' => $request->has('internalPost') ? $request->internalPost : false,
+                    'workspaceData' => $request->has('workspaceData') ? (is_string($request->workspaceData) ? json_decode($request->workspaceData) : $request->workspaceData) : null,
+                    'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
+    
+                    'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
+                    'isActive' => $request->has('isActive') ? $request->isActive : true,
+                    'extraAttributes' => $request->has('extraAttributes') ? (is_string($request->extraAttributes) ? json_decode($request->extraAttributes) : $request->extraAttributes) : null,
                 ]);
-                
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new WorkSpaceResource($result)
+    
+                if ($result) {
+    
+                    WSNotificationSetting::create([
+                        'uniqueId' => uniqid(),
+                        'userId' => $currentUser->id,
+                        'workspaceId' => $result->id,
+                        'type' => WSEnum::personalWorkspace->value,
+                    ]);
+                    
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => new WorkSpaceResource($result)
+                    ]);
+                } else {
+                    return ZHelpers::sendBackRequestFailedResponse([]);
+                }
+            }else {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    'item' => ['You have reached the limit of workspaces you can create.']
                 ]);
-            } else {
-                return ZHelpers::sendBackRequestFailedResponse([]);
             }
+            
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }

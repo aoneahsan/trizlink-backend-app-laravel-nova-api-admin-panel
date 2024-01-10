@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\ZLink\ShortLinks\ShortLinkResource;
 use App\Http\Resources\Zaions\Zlink\ShortLinks\SLPublicPageResource;
 use App\Models\Default\WorkSpace;
+use App\Models\Default\WSTeamMember;
 use App\Models\ZLink\ShortLinks\ShortLink;
 use App\Models\ZLink\ShortLinks\SLAnalytics;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\WSEnum;
+use App\Zaions\Enums\WSMemberAccountStatusEnum;
+use App\Zaions\Enums\WSPermissionsEnum;
 use App\Zaions\Helpers\ZAccountHelpers;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
@@ -27,15 +31,36 @@ class ShortLinkController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $workspaceId)
+    public function index(Request $request, $type, $uniqueId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_shortLink->name));
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to view any folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -43,32 +68,47 @@ class ShortLinkController extends Controller
                 ]);
             }
 
-            $itemsCount = ShortLink::where('workspaceId', $workspace->id)->count();
             $items = ShortLink::where('workspaceId', $workspace->id)->get();
 
-            return response()->json([
-                'success' => true,
-                'errors' => [],
-                'message' => 'Request Completed Successfully!',
-                'data' => [
-                    'items' => ShortLinkResource::collection($items),
-                    'itemsCount' => $itemsCount
-                ],
-                'status' => 200
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'items' => ShortLinkResource::collection($items),
+                'itemsCount' => $items->count()
             ]);
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }
 
-    public function indexWithPagination(Request $request, $workspaceId, $pageNumber, $paginationLimit)
+    public function indexWithPagination(Request $request, $type, $uniqueId, $pageNumber, $paginationLimit)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_shortLink->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to view any folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -97,17 +137,11 @@ class ShortLinkController extends Controller
             $itemsCount = ShortLink::where('workspaceId', $workspace->id)->count();
             // $items = ShortLink::where('workspaceId', $workspace->id)->get();
 
-            return response()->json([
-                'success' => true,
-                'errors' => [],
-                'message' => 'Request Completed Successfully!',
-                'data' => [
-                    'items' => ShortLinkResource::collection($itemsQuery),
-                    'itemsCount' => $itemsCount,
-                    'nextPage' => intval($pageNumber) + 1,
-                    'currentPage' => intval($pageNumber)
-                ],
-                'status' => 200
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'items' => ShortLinkResource::collection($itemsQuery),
+                'itemsCount' => $itemsCount,
+                'nextPage' => intval($pageNumber) + 1,
+                'currentPage' => intval($pageNumber)
             ]);
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
@@ -120,14 +154,36 @@ class ShortLinkController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $workspaceId)
+    public function store(Request $request, $type, $uniqueId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_shortLink->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to create any folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -221,7 +277,7 @@ class ShortLinkController extends Controller
                 } else {
                     return ZHelpers::sendBackRequestFailedResponse([]);
                 }
-            }else{ 
+            } else {
                 return ZHelpers::sendBackInvalidParamsResponse([
                     'item' => ['You have reached the limit of short links you can create.']
                 ]);
@@ -238,14 +294,36 @@ class ShortLinkController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $workspaceId, $itemId)
+    public function show(Request $request, $type, $uniqueId, $itemId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_shortLink->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to show folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::view_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -276,14 +354,36 @@ class ShortLinkController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $workspaceId, $itemId)
+    public function update(Request $request, $type, $uniqueId, $itemId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_shortLink->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to update folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -366,14 +466,36 @@ class ShortLinkController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $workspaceId, $itemId)
+    public function destroy(Request $request, $type, $uniqueId, $itemId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_shortLink->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to delete folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_shortLink->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -402,7 +524,7 @@ class ShortLinkController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function checkShortUrlPathAvailable(Request $request, $workspaceId, $value)
+    public function checkShortUrlPathAvailable(Request $request, $type, $uniqueId, $value)
     {
         try {
             $currentUser = $request->user();
@@ -411,7 +533,27 @@ class ShortLinkController extends Controller
                 // we are defining short url path length exeat 6 digit.
                 if ($value && Str::length($value) === 6) {
 
-                    $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+
+                    $workspace = null;
+
+                    if ($type === WSEnum::personalWorkspace->value) {
+                        // getting workspace
+                        $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+                    } else if ($type === WSEnum::shareWorkspace->value) {
+                        # first getting the member from member_table so we can get share workspace
+                        $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                        if (!$member) {
+                            return ZHelpers::sendBackNotFoundResponse([
+                                'item' => ['Share workspace not found!']
+                            ]);
+                        }
+
+                        # $member->inviterId => id of owner of the workspace
+                        $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+                    } else {
+                        return ZHelpers::sendBackBadRequestResponse([]);
+                    }
 
                     if (!$workspace) {
                         return ZHelpers::sendBackNotFoundResponse([

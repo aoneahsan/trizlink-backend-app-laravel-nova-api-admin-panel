@@ -4,7 +4,12 @@ namespace App\Zaions\Enums;
 
 enum PlanFeatures: string
 {
+  case workspace = 'workspace';
   case shortLinks = 'shortLinks';
+  case linkInBio = 'linkInBio';
+  case members = 'members';
+  case shortLinksFolder = 'shortLinksFolder';
+  case linksInBioFolder = 'linksInBioFolder';
   case redirects = 'redirects';
   case brandedLinks = 'brandedLinks';
   case autoBrandedLinks = 'autoBrandedLinks';

@@ -93,7 +93,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
             Route::get('/user-subscription', 'userSubscription');
 
-            Route::put('/user/upgrade/subscribe/{planType}', 'upgradeUserSubscription');
+            Route::put('/user/upgrade/subscribe', 'upgradeUserSubscription');
         });
 
         // File Upload Controller APIs
@@ -204,16 +204,16 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // Workspace Team member
         Route::controller(WSMemberController::class)->group(function () {
-            Route::get('/user/workspace/{workspaceId}/member', 'getAllInvitationData');
-            Route::post('/user/workspace/{workspaceId}/member/send-invitation', 'sendInvitation');
-            Route::put('/user/workspace/{workspaceId}/member/resend-invitation/{itemId}', 'resendInvitation');
-            Route::get('/user/workspace/{workspaceId}/member/{itemId}', 'getInvitationData');
+            Route::get('/user/{type}/{uniqueId}/member', 'getAllInvitationData');
+            Route::post('/user/{type}/{uniqueId}/member/send-invitation', 'sendInvitation');
+            Route::put('/user/{type}/{uniqueId}/member/resend-invitation/{itemId}', 'resendInvitation');
+            Route::get('/user/{type}/{uniqueId}/member/{itemId}', 'getInvitationData');
             // Route::put('/user/validate-and-update-invitation', 'validateAndUpdateInvitation');
-            Route::put('/user/workspace/{workspaceId}/update-invitation/{itemId}', 'updateInvitationStatus');
-            Route::put('/user/workspace/{workspaceId}/update-role/{itemId}', 'updateRole');
-            Route::put('/user/workspace/{workspaceId}/create-short-url/{itemId}', 'createShortLinkId');
+            Route::put('/user/{type}/{uniqueId}/update-invitation/{itemId}', 'updateInvitationStatus');
+            Route::put('/user/{type}/{uniqueId}/update-role/{itemId}', 'updateRole');
+            Route::put('/user/{type}/{uniqueId}/create-short-url/{itemId}', 'createShortLinkId');
 
-            Route::delete('/user/workspace/{workspaceId}/member/{itemId}', 'destroy');
+            Route::delete('/user/{type}/{uniqueId}/member/{itemId}', 'destroy');
         });
 
         Route::controller(SWSMemberController::class)->group(function () {
@@ -250,14 +250,15 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
         // ShortLink
         Route::controller(ShortLinkController::class)->group(function () {
-            Route::get('/user/workspaces/{workspaceId}/short-links', 'index');
-            Route::get('/user/workspaces/{workspaceId}/short-links/page-number/{pageNumber}/limit/{paginationLimit}', 'indexWithPagination');
-            Route::post('/user/workspaces/{workspaceId}/short-links', 'store');
-            Route::get('/user/workspaces/{workspaceId}/short-links/{itemId}', 'show');
-            Route::put('/user/workspaces/{workspaceId}/short-links/{itemId}', 'update');
-            Route::delete('/user/workspaces/{workspaceId}/short-links/{itemId}', 'destroy');
+            // Route::get('/user/{type}/{uniqueId}/link-in-bio', 'index');
+            Route::get('/user/{type}/{uniqueId}/short-links', 'index');
+            Route::get('/user/{type}/{uniqueId}/short-links/page-number/{pageNumber}/limit/{paginationLimit}', 'indexWithPagination');
+            Route::post('/user/{type}/{uniqueId}/short-links', 'store');
+            Route::get('/user/{type}/{uniqueId}/short-links/{itemId}', 'show');
+            Route::put('/user/{type}/{uniqueId}/short-links/{itemId}', 'update');
+            Route::delete('/user/{type}/{uniqueId}/short-links/{itemId}', 'destroy');
 
-            Route::get('/user/workspaces/{workspaceId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
+            Route::get('/user/{type}/{uniqueId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
         });
 
         // ShortLink Analytics
@@ -336,7 +337,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             // Route::put('/user/workspaces/{workspaceId}/folder/{itemId}', 'update');
             Route::delete('/user/{type}/{uniqueId}/folder/{itemId}', 'destroy');
             // Route::delete('/user/workspaces/{workspaceId}/folder/{itemId}', 'destroy');
-            Route::get('/user/workspaces/{workspaceId}/get/shortLink/folders', 'getShortLinksFolders');
+            Route::get('/user/{type}/{uniqueId}/get/shortLink/folders', 'getShortLinksFolders');
             Route::get('/user/{type}/{uniqueId}/get/linkInBio/folders', 'getLinkInBioFolders');
         });
 

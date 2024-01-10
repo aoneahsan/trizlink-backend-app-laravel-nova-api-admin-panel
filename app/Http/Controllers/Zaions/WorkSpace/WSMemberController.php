@@ -12,11 +12,15 @@ use App\Models\Default\WSTeamMember;
 use App\Notifications\Workspace\Team\WSTeamMemberInvitation;
 use App\Zaions\Enums\NotificationTypeEnum;
 use App\Zaions\Enums\PermissionsEnum;
+use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
 use App\Zaions\Enums\RolesEnum;
 use App\Zaions\Enums\SignUpTypeEnum;
+use App\Zaions\Enums\WSEnum;
 use App\Zaions\Enums\WSMemberAccountStatusEnum;
+use App\Zaions\Enums\WSPermissionsEnum;
+use App\Zaions\Helpers\ZAccountHelpers;
 use App\Zaions\Helpers\ZHelpers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -28,13 +32,36 @@ class WSMemberController extends Controller
 {
 
     //
-    public function getAllInvitationData(Request $request, $workspaceId)
+    public function getAllInvitationData(Request $request, $type, $uniqueId)
     {
         try {
             $currentUser = $request->user();
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+            $workspace = null;
+
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_ws_member->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to viewAny member.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if ($workspace) {
                 $items = WSTeamMember::where('workspaceId', $workspace->id)->get();
@@ -56,25 +83,57 @@ class WSMemberController extends Controller
     }
 
     //
-    public function sendInvitation(Request $request, $workspaceId)
+    public function sendInvitation(Request $request, $type, $uniqueId)
     {
         try {
             $currentUser = $request->user();
+            
+            $workspace = null;
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::send_invitation_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::send_invitation_ws_member->name));
 
-            $request->validate([
-                'email' => 'required|string|max:65',
-                'role' => 'required|string|max:65',
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
 
-                'sortOrderNo' => 'nullable|integer',
-                'isActive' => 'nullable|boolean',
-                'extraAttributes' => 'nullable|json',
-            ]);
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
 
-            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+                # First of all checking if member has permission to viewAny member.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::send_invitation_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
-            if ($workspace) {
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
+            
+            if(!$workspace){
+                return ZHelpers::sendBackNotFoundResponse([
+                    'item' => ['workspace not found!']
+                ]);
+            }
+
+            $itemsCount = WSTeamMember::where('workspaceId', $workspace->id)->count();
+            $wsMembersLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::members->value, $itemsCount);
+
+            
+            if ($wsMembersLimit === true) {
+                $request->validate([
+                    'email' => 'required|string|max:65',
+                    'role' => 'required|string|max:65',
+    
+                    'sortOrderNo' => 'nullable|integer',
+                    'isActive' => 'nullable|boolean',
+                    'extraAttributes' => 'nullable|json',
+                ]);
+
                 $item = WSTeamMember::where('email', $request->email)->where('workspaceId', $workspace->id)->first();
 
                 if ($item) {
@@ -155,7 +214,6 @@ class WSMemberController extends Controller
 
                         return ZHelpers::sendBackRequestCompletedResponse([
                             'item' => new WSMemberResource($wsTeamMemberInvite),
-                            'test' => $memberNotificationSetting->invitationNotification['inApp']
                         ]);
                     } else {
                         return ZHelpers::sendBackRequestFailedResponse([]);
@@ -165,9 +223,9 @@ class WSMemberController extends Controller
                         'item' => ['invalid role!']
                     ]);
                 }
-            } else {
-                return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['workspace not found!']
+            }else {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    'item' => ['You have reached the limit of members you can invite.']
                 ]);
             }
         } catch (\Throwable $th) {
@@ -177,16 +235,37 @@ class WSMemberController extends Controller
     }
 
     // 
-    public function resendInvitation(Request $request, $workspaceId, $itemId)
+    public function resendInvitation(Request $request, $type, $uniqueId, $itemId)
     {
         try {
             //code...
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::resend_invitation_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::resend_invitation_ws_member->name));
 
-            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to viewAny member.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::resend_invitation_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if ($workspace) {
 
@@ -256,14 +335,36 @@ class WSMemberController extends Controller
         }
     }
 
-    public function getInvitationData(Request $request, $workspaceId, $itemId)
+    public function getInvitationData(Request $request, $type, $uniqueId, $itemId)
     {
         try {
             $currentUser = $request->user();
+            
+            $workspace = null;
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_ws_member->name));
 
-            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to viewAny member.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::view_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if ($workspace) {
                 $invitation = WSTeamMember::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
@@ -288,22 +389,43 @@ class WSMemberController extends Controller
         }
     }
 
-    public function updateInvitationStatus(Request $request, $workspaceId, $invitationId)
+    public function updateInvitationStatus(Request $request, $type, $uniqueId, $invitationId)
     {
         try {
             $currentUser = $request->user();
+            $workspace = null;
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_ws_member->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to viewAny member.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             $request->validate([
                 'status' => 'required|string',
             ]);
 
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->first();
-
             if ($workspace) {
                 // Getting the invitation.
-                $invitation = WSTeamMember::where('memberId', $currentUser->id)->where('uniqueId', $invitationId)->where('workspaceId', $workspace->id)->first();
+                $invitation = WSTeamMember::where('uniqueId', $invitationId)->where('workspaceId', $workspace->id)->first();
 
                 // Checking in invitation is not null.
                 if ($invitation) {
@@ -351,7 +473,6 @@ class WSMemberController extends Controller
                         $invitation->update([
                             'accountStatus' => WSMemberAccountStatusEnum::cancel->value,
                             'wilToken' => null,
-                            'make' => $inviterNotificationSetting->invitationNotification
                         ]);
                     }
 
@@ -383,14 +504,36 @@ class WSMemberController extends Controller
      * @param  int  $itemId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $workspaceId, $itemId)
+    public function destroy(Request $request, $type, $uniqueId, $itemId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::delete_ws_member->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to viewAny member.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::delete_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if ($workspace) {
                 $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();
@@ -421,18 +564,40 @@ class WSMemberController extends Controller
         }
     }
 
-    public function updateRole(Request $request, $workspaceId, $itemId)
+    public function updateRole(Request $request, $type, $uniqueId, $itemId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_memberRole_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
+
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::update_memberRole_ws_member->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to viewAny member.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_memberRole_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             $request->validate([
                 'role' => 'required|string',
             ]);
-
-            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
 
             if ($workspace) {
 
@@ -471,14 +636,36 @@ class WSMemberController extends Controller
         }
     }
 
-    public function createShortLinkId(Request $request,  $workspaceId, $itemId)
+    public function createShortLinkId(Request $request, $type, $uniqueId, $itemId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_shortUrl_ws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            $workspace = WorkSpace::where('userId', $currentUser->id)->where('uniqueId', $workspaceId)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::create_shortUrl_ws_member->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to viewAny member.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::create_shortUrl_sws_member->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if ($workspace) {
                 $item = WSTeamMember::where('workspaceId', $workspace->id)->where('uniqueId', $itemId)->first();

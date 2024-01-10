@@ -9,11 +9,13 @@ use App\Models\Default\WSTeamMember;
 use App\Models\ZLink\Common\Folder;
 use App\Zaions\Enums\FolderModalsEnum;
 use App\Zaions\Enums\PermissionsEnum;
+use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
 use App\Zaions\Enums\WSEnum;
 use App\Zaions\Enums\WSMemberAccountStatusEnum;
 use App\Zaions\Enums\WSPermissionsEnum;
+use App\Zaions\Helpers\ZAccountHelpers;
 use App\Zaions\Helpers\ZHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -288,6 +290,8 @@ class FolderController extends Controller
                 ]);
             }
 
+
+
             $request->validate([
                 'title' => 'required|string|max:250',
                 'icon' => 'nullable|string|max:250',
@@ -305,17 +309,36 @@ class FolderController extends Controller
             # Accounting to modal getting data. shortlink/link-in-bio
             switch ($request->folderForModel) {
                 case FolderModalsEnum::shortlink->value:
-                    # Checking if member has permission to view any short-link folders.
-                    Gate::allowIf($isShareWs ? $member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_sl_folder->name) : $currentUser->hasPermissionTo(PermissionsEnum::create_sl_folder->name), $isShareWs ? ResponseMessagesEnum::Unauthorized->name : null, $isShareWs ?  ResponseCodesEnum::Unauthorized->name : null);
+                    $itemsCount = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::shortlink->name)->count();
+                    $shortLinkFoldersLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::shortLinksFolder->value, $itemsCount);
 
-                    return $this->createFolder($request, $currentUser->id, $workspace->id);
+                    if ($shortLinkFoldersLimit === true) {
+                        # Checking if member has permission to view any short-link folders.
+                        Gate::allowIf($isShareWs ? $member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_sl_folder->name) : $currentUser->hasPermissionTo(PermissionsEnum::create_sl_folder->name), $isShareWs ? ResponseMessagesEnum::Unauthorized->name : null, $isShareWs ?  ResponseCodesEnum::Unauthorized->name : null);
+
+                        return $this->createFolder($request, $currentUser->id, $workspace->id);
+                    } else {
+                        return ZHelpers::sendBackInvalidParamsResponse([
+                            'item' => ['You have reached the limit of short links folders you can create.']
+                        ]);
+                    }
                     break;
 
                 case FolderModalsEnum::linkInBio->value:
-                    # Checking if member has permission to view any link-in-bio folders.
+                    $itemsCount = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::linkInBio->name)->count();
+                    $linkInBioFoldersLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::linksInBioFolder->value, $itemsCount);
+
+                    if ($linkInBioFoldersLimit === true) {
+                        # Checking if member has permission to view any link-in-bio folders.
                     Gate::allowIf($isShareWs ? $member->memberRole->hasPermissionTo(WSPermissionsEnum::create_sws_lib_folder->name) : $currentUser->hasPermissionTo(PermissionsEnum::create_lib_folder->name), $isShareWs ? ResponseMessagesEnum::Unauthorized->name : null, $isShareWs ? ResponseCodesEnum::Unauthorized->name : null);
 
                     return $this->createFolder($request, $currentUser->id, $workspace->id);
+                    } else {
+                        return ZHelpers::sendBackInvalidParamsResponse([
+                            'item' => ['You have reached the limit of link in bio folders you can create.']
+                        ]);
+                    }
+                    
                     break;
 
                 default:
@@ -381,7 +404,7 @@ class FolderController extends Controller
                         ]);
                     }
 
-                    Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::update_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+                    Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::view_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
 
                     # $member->inviterId => id of owner of the workspace
                     $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
@@ -625,15 +648,36 @@ class FolderController extends Controller
         }
     }
 
-    public function getShortLinksFolders(Request $request, $workspaceId)
+    public function getShortLinksFolders(Request $request, $type, $uniqueId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            // getting workspace
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_folder->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to view any folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -641,34 +685,47 @@ class FolderController extends Controller
                 ]);
             }
 
-            $itemsCount = Folder::where('workspaceId', $workspaceId)->where('folderForModel', FolderModalsEnum::shortlink->name)->count();
-
             $items = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::shortlink->name)->get();
 
-            return response()->json([
-                'success' => true,
-                'errors' => [],
-                'message' => 'Request Completed Successfully!',
-                'data' => [
-                    'items' => FolderResource::collection($items),
-                    'itemsCount' => $itemsCount
-                ],
-                'status' => 200
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'items' => FolderResource::collection($items),
+                'itemsCount' => $items->count()
             ]);
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }
 
-    public function getLinkInBioFolders(Request $request, $workspaceId)
+    public function getLinkInBioFolders(Request $request, $type, $uniqueId)
     {
         try {
             $currentUser = $request->user();
 
-            Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+            $workspace = null;
 
-            // getting workspace
-            $workspace = WorkSpace::where('uniqueId', $workspaceId)->where('userId', $currentUser->id)->first();
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::viewAny_folder->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to view any folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::viewAny_sws_folder->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
 
             if (!$workspace) {
                 return ZHelpers::sendBackNotFoundResponse([
@@ -676,19 +733,11 @@ class FolderController extends Controller
                 ]);
             }
 
-            $itemsCount = Folder::where('workspaceId', $workspaceId)->where('folderForModel', FolderModalsEnum::linkInBio->name)->count();
-
             $items = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::linkInBio->name)->get();
 
-            return response()->json([
-                'success' => true,
-                'errors' => [],
-                'message' => 'Request Completed Successfully!',
-                'data' => [
-                    'items' => FolderResource::collection($items),
-                    'itemsCount' => $itemsCount
-                ],
-                'status' => 200
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'items' => FolderResource::collection($items),
+                'itemsCount' => $items->count()
             ]);
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
