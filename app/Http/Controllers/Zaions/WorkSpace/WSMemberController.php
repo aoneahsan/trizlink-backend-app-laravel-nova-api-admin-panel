@@ -121,7 +121,7 @@ class WSMemberController extends Controller
             }
 
             $itemsCount = WSTeamMember::where('workspaceId', $workspace->id)->count();
-            $wsMembersLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::members->value, $itemsCount);
+            $wsMembersLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::members->value, $itemsCount);
 
             
             if ($wsMembersLimit === true) {

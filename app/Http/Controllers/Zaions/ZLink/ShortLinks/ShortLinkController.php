@@ -193,7 +193,7 @@ class ShortLinkController extends Controller
 
             $itemsCount = ShortLink::where('workspaceId', $workspace->id)->count();
 
-            $shortLinkLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::shortLinks->value, $itemsCount);
+            $shortLinkLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::shortLinks->value, $itemsCount);
 
             if ($shortLinkLimit === true) {
                 $request->validate([

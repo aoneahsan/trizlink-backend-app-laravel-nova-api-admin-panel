@@ -290,8 +290,6 @@ class FolderController extends Controller
                 ]);
             }
 
-
-
             $request->validate([
                 'title' => 'required|string|max:250',
                 'icon' => 'nullable|string|max:250',
@@ -310,7 +308,7 @@ class FolderController extends Controller
             switch ($request->folderForModel) {
                 case FolderModalsEnum::shortlink->value:
                     $itemsCount = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::shortlink->name)->count();
-                    $shortLinkFoldersLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::shortLinksFolder->value, $itemsCount);
+                    $shortLinkFoldersLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::shortLinksFolder->value, $itemsCount);
 
                     if ($shortLinkFoldersLimit === true) {
                         # Checking if member has permission to view any short-link folders.
@@ -326,7 +324,7 @@ class FolderController extends Controller
 
                 case FolderModalsEnum::linkInBio->value:
                     $itemsCount = Folder::where('workspaceId', $workspace->id)->where('folderForModel', FolderModalsEnum::linkInBio->name)->count();
-                    $linkInBioFoldersLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::linksInBioFolder->value, $itemsCount);
+                    $linkInBioFoldersLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::linksInBioFolder->value, $itemsCount);
 
                     if ($linkInBioFoldersLimit === true) {
                         # Checking if member has permission to view any link-in-bio folders.

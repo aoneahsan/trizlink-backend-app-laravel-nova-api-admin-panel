@@ -4,15 +4,22 @@ namespace App\Http\Controllers\Zaions\WorkSpace;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\WorkSpace\WorkSpaceResource;
+use App\Http\Resources\Zaions\ZLink\Plans\PlanLimitResource;
 use App\Models\Default\Notification\WSNotificationSetting;
 use App\Models\Default\WorkSpace;
+use App\Models\Default\WSTeamMember;
+use App\Models\ZLink\Plans\Plan;
+use App\Models\ZLink\Plans\WSSubscription;
 use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\SubscriptionTimeLine;
 use App\Zaions\Enums\WSEnum;
+use App\Zaions\Enums\WSMemberAccountStatusEnum;
 use App\Zaions\Helpers\ZAccountHelpers;
 use App\Zaions\Helpers\ZHelpers;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -111,6 +118,7 @@ class WorkSpaceController extends Controller
 
             $request->validate([
                 'title' => 'required|string|max:200',
+                'plan' => 'required|string|max:200',
                 'timezone' => 'nullable|string|max:200',
                 'workspaceImage' => 'nullable|string',
                 'internalPost' => 'nullable|boolean',
@@ -125,10 +133,18 @@ class WorkSpaceController extends Controller
             $itemsCount = WorkSpace::where('userId', $currentUser->id)->count();
             $workspaceLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::workspace->value, $itemsCount);
 
-            if($workspaceLimit === true){
+            if ($workspaceLimit === true) {
+                $plan = Plan::where('name', $request->plan)->first();
+
+                if(!$plan){
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Selected plan was not found.']
+                    ]);
+                }
+
                 $result = WorkSpace::create([
                     'uniqueId' => uniqid(),
-    
+
                     'userId' => $currentUser->id,
                     'title' => $request->has('title') ? $request->title : null,
                     'timezone' => $request->has('timezone') ? $request->timezone : null,
@@ -136,33 +152,44 @@ class WorkSpaceController extends Controller
                     'internalPost' => $request->has('internalPost') ? $request->internalPost : false,
                     'workspaceData' => $request->has('workspaceData') ? (is_string($request->workspaceData) ? json_decode($request->workspaceData) : $request->workspaceData) : null,
                     'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
-    
+
                     'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
                     'isActive' => $request->has('isActive') ? $request->isActive : true,
                     'extraAttributes' => $request->has('extraAttributes') ? (is_string($request->extraAttributes) ? json_decode($request->extraAttributes) : $request->extraAttributes) : null,
                 ]);
-    
+
                 if ($result) {
-    
+                   
                     WSNotificationSetting::create([
                         'uniqueId' => uniqid(),
                         'userId' => $currentUser->id,
                         'workspaceId' => $result->id,
                         'type' => WSEnum::personalWorkspace->value,
                     ]);
-                    
+
+                    WSSubscription::create([
+                        'uniqueId' => uniqid(),
+                        'userId' => $currentUser->id,
+                        'workspaceId' => $result->id,
+                        'planId' => $plan->id,
+                        'workspaceId' => $result->id,
+                        'startedAt' => Carbon::now(),
+                        'endedAt' => Carbon::now(),
+                        'amount' => 0,
+                        'duration' => SubscriptionTimeLine::monthly->value,
+                    ]); 
+
                     return ZHelpers::sendBackRequestCompletedResponse([
                         'item' => new WorkSpaceResource($result)
                     ]);
                 } else {
                     return ZHelpers::sendBackRequestFailedResponse([]);
                 }
-            }else {
+            } else {
                 return ZHelpers::sendBackInvalidParamsResponse([
                     'item' => ['You have reached the limit of workspaces you can create.']
                 ]);
             }
-            
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
@@ -318,6 +345,51 @@ class WorkSpaceController extends Controller
             }
         } catch (\Throwable $th) {
             //throw $th;
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+
+    public function limits(Request $request, $type, $itemId)
+    {
+        try {
+            // Current logged in user
+            $currentUser = $request->user();
+
+            $workspace = null;
+
+            if ($type === WSEnum::personalWorkspace->value) {
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $itemId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $itemId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            $items = ZAccountHelpers::WorkspaceServicesLimits($workspace);
+
+            return ZHelpers::sendBackRequestCompletedResponse([
+                'items' => PlanLimitResource::collection($items),
+                'itemsCount' => $items->count()
+            ]);
+        } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }

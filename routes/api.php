@@ -32,6 +32,7 @@ use App\Http\Controllers\Zaions\ZLink\LinkInBios\LibPredefinedDataController;
 use App\Http\Controllers\Zaions\ZLink\LinkInBios\LinkInBioController;
 use App\Http\Controllers\Zaions\ZLink\Plans\PlanController;
 use App\Http\Controllers\Zaions\ZLink\Plans\UserSubscriptionController;
+use App\Http\Controllers\Zaions\Zlink\Plans\WSSubscriptionController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\ShortLinkController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\CustomDomainController;
 use App\Http\Controllers\Zaions\ZLink\ShortLinks\EmbededWidgetController;
@@ -95,6 +96,8 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
 
             Route::put('/user/upgrade/subscribe', 'upgradeUserSubscription');
         });
+        
+
 
         // File Upload Controller APIs
         Route::controller(FileUploadController::class)->group(function () {
@@ -191,7 +194,14 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::put('/user/workspaces/{itemId}', 'update');
             Route::delete('/user/workspaces/{itemId}', 'destroy');
             Route::put('/user/workspaces/update-is-favorite/{itemId}', 'updateIsFavorite');
+            Route::get('/user/{type}/{itemId}/limits', 'limits');
         });
+
+        Route::controller(WSSubscriptionController::class)->group(function () {
+            Route::post('/user/workspaces/{wsUniqueId}/subscribe', 'assignPlan'); 
+            Route::get('/user/{type}/{wsUniqueId}/ws-subscription', 'workspaceSubscription'); 
+            Route::put('/user/workspaces/{wsUniqueId}/update/subscribe', 'upgradeUserSubscription'); 
+         });
 
         // Workspace Team
         Route::controller(WorkspaceTeamController::class)->group(function () {

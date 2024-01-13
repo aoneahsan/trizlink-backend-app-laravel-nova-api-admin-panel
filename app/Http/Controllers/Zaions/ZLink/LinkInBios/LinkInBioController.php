@@ -120,7 +120,7 @@ class LinkInBioController extends Controller
             }
 
             $itemsCount = LinkInBio::where('workspaceId', $workspace->id)->count();
-            $linkInBioFoldersLimit = ZAccountHelpers::currentUserServicesLimits($currentUser, PlanFeatures::linkInBio->value, $itemsCount);
+            $linkInBioFoldersLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::linkInBio->value, $itemsCount);
 
             if($linkInBioFoldersLimit === true){
                 $validate = [

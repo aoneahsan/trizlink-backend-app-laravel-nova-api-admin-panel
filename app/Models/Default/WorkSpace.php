@@ -6,6 +6,8 @@ use App\Models\ZLink\Analytics\Pixel;
 use App\Models\ZLink\Analytics\UtmTag;
 use App\Models\ZLink\Common\Folder;
 use App\Models\ZLink\LinkInBios\LinkInBio;
+use App\Models\ZLink\Plans\UserSubscription;
+use App\Models\ZLink\Plans\WSSubscription;
 use App\Models\ZLink\ShortLinks\ShortLink;
 use App\Models\ZLink\TimeSlot\TimeSlot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Nova\Actions\Actionable;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -67,5 +70,11 @@ class WorkSpace extends Model
     public function UTMTag(): MorphToMany
     {
         return $this->morphedByMany(UtmTag::class, 'modal', 'workspace_modal_connections');
+    }
+
+    // Subscription and Plan Relationships
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(WSSubscription::class, 'workspaceID', 'id');
     }
 }

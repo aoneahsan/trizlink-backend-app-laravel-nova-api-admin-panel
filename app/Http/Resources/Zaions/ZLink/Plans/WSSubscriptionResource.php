@@ -14,6 +14,17 @@ class WSSubscriptionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->uniqueId,
+            'name' => $this->plan['name'] ? $this->plan['name'] : null,
+            'startedAt' => $this->startedAt,
+            'endedAt' => $this->endedAt,
+            'amount' => $this->amount,
+            'duration' => $this->duration,
+            'isActive' => $this->isActive,
+            'extraAttributes' => $this->extraAttributes,
+            'createdAt' => $this->created_at->diffForHumans(),
+            'updatedAt' => $this->updated_at->diffForHumans()
+        ];
     }
 }

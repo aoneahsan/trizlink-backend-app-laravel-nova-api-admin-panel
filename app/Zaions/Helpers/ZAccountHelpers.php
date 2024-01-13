@@ -4,6 +4,7 @@ namespace App\Zaions\Helpers;
 
 use App\Http\Resources\Zaions\ZLink\Plans\PlanLimitResource;
 use App\Models\Default\User;
+use App\Models\Default\WorkSpace;
 use App\Models\ZLink\Plans\PlanLimit;
 use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\SubscriptionTimeLine;
@@ -16,7 +17,8 @@ class ZAccountHelpers
      * Get current logged in user all/single services/service limits.
      * $name: $name will be PlanFeatures enum e.g, shortLink, if $name pass then it will fetch that service data only else it will fetch all services data.
      */
-    static public function currentUserServicesLimits(User $user, $name = null, $currentServiceLimit = null) {
+    static public function currentUserServicesLimits(User $user, $name = null, $currentServiceLimit = null)
+    {
         try {
             // If no specific service name, return all services
             $services = $user->subscription->planLimits;
@@ -25,18 +27,58 @@ class ZAccountHelpers
                 // If a specific service name is provided, filter by that service
                 $services = $services->where('name', $name)->first();
 
-                if($currentServiceLimit !== null){
+                if ($currentServiceLimit !== null) {
                     $subscriptionStartedTime = Carbon::parse($user->subscription->startedAt);
                     $servicesTimeLine = $services->timeLine;
                     $endDate = null;
 
-                    if($servicesTimeLine === SubscriptionTimeLine::monthly->value){
+                    if ($servicesTimeLine === SubscriptionTimeLine::monthly->value) {
                         $endDate = Carbon::parse($subscriptionStartedTime)->addDays(30);
-                    }else if($servicesTimeLine === SubscriptionTimeLine::yearly->value){
+                    } else if ($servicesTimeLine === SubscriptionTimeLine::yearly->value) {
                         $endDate = Carbon::parse($subscriptionStartedTime)->addYear(1);
                     }
 
-                    if(Carbon::now()->isAfter($subscriptionStartedTime) && Carbon::now()->isBefore($endDate) && $currentServiceLimit < $services->maxLimit){
+                    if (Carbon::now()->isAfter($subscriptionStartedTime) && Carbon::now()->isBefore($endDate) && $currentServiceLimit < $services->maxLimit) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+
+            return $services;
+        } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+
+    /** 
+     * Get current logged in user workspace all/single services/service limits.
+     * $name: $name will be PlanFeatures enum e.g, shortLink, if $name pass then it will fetch that service data only else it will fetch all services data.
+     */
+    static public function WorkspaceServicesLimits(WorkSpace $workspace, $name = null, $currentServiceLimit = null)
+    {
+        try {
+            // If no specific service name, return all services
+            $services = $workspace->subscription->planLimits;
+
+            if ($name) {
+                // If a specific service name is provided, filter by that service
+                $services = $services->where('name', $name)->first();
+
+                if ($currentServiceLimit !== null) {
+                    $subscriptionStartedTime = Carbon::parse($workspace->subscription->startedAt);
+                    $servicesTimeLine = $services->timeLine;
+                    $endDate = null;
+
+                    if ($servicesTimeLine === SubscriptionTimeLine::monthly->value) {
+                        $endDate = Carbon::parse($subscriptionStartedTime)->addDays(30);
+                    } else if ($servicesTimeLine === SubscriptionTimeLine::yearly->value) {
+                        $endDate = Carbon::parse($subscriptionStartedTime)->addYear(1);
+                    }
+
+                    if (Carbon::now()->isAfter($subscriptionStartedTime) && Carbon::now()->isBefore($endDate) && $currentServiceLimit < $services->maxLimit) {
                         return true;
                     } else {
                         return false;
