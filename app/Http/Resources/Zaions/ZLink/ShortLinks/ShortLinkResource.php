@@ -28,6 +28,7 @@ class ShortLinkResource extends JsonResource
             'folderId' => $this->folderId,
             'notes' => $this->notes,
             'tags' => $this->tags,
+            'status' => $this->status,
             'abTestingRotatorLinks' => $this->abTestingRotatorLinks,
             'geoLocationRotatorLinks' => $this->geoLocationRotatorLinks,
             'linkExpirationInfo' => $this->linkExpirationInfo,

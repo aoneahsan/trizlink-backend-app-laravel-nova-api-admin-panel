@@ -198,9 +198,9 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
         });
 
         Route::controller(WSSubscriptionController::class)->group(function () {
-            Route::post('/user/workspaces/{wsUniqueId}/subscribe', 'assignPlan'); 
+            Route::post('/user/workspace/{wsUniqueId}/subscribe', 'assignPlan'); 
             Route::get('/user/{type}/{wsUniqueId}/ws-subscription', 'workspaceSubscription'); 
-            Route::put('/user/workspaces/{wsUniqueId}/update/subscribe', 'upgradeUserSubscription'); 
+            Route::put('/user/workspace/{wsUniqueId}/update/subscription', 'upgradeUserSubscription'); 
          });
 
         // Workspace Team

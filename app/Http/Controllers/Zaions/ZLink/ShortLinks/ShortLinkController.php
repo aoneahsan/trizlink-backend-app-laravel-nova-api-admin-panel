@@ -13,6 +13,7 @@ use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\StatusEnum;
 use App\Zaions\Enums\WSEnum;
 use App\Zaions\Enums\WSMemberAccountStatusEnum;
 use App\Zaions\Enums\WSPermissionsEnum;
@@ -116,6 +117,34 @@ class ShortLinkController extends Controller
                 ]);
             }
 
+            $shortLinkLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::shortLinks->value);
+
+            if ($shortLinkLimit->maxLimit) {
+                $shortLinksToDisable = ShortLink::where('workspaceId', $workspace->id)
+                    // ->where('isActive', true)
+                    ->skip($shortLinkLimit->maxLimit)
+                    ->take(PHP_INT_MAX)
+                    ->get();
+
+                // $shortLinksToEnable = ShortLink::where('workspaceId', $workspace->id)
+                //     ->take($shortLinkLimit->maxLimit)
+                //     ->get();
+
+                // Update short links to disable
+                foreach ($shortLinksToDisable as $shortLink) {
+                    $shortLink->update([
+                        'status' => StatusEnum::draft->value,
+                    ]);
+                }
+            }
+
+            // // Update short links to enable
+            // foreach ($shortLinksToEnable as $shortLink) {
+            //     $shortLink->update([
+            //         'isActive' => true,
+            //     ]);
+            // }
+
             $itemsQuery = ShortLink::query()->where('workspaceId', $workspace->id);
             $paginationOffset = '';
 
@@ -191,13 +220,14 @@ class ShortLinkController extends Controller
                 ]);
             }
 
-            $itemsCount = ShortLink::where('workspaceId', $workspace->id)->count();
+            $itemsCount = ShortLink::where('workspaceId', $workspace->id)->where('status', StatusEnum::publish->value)->count();
 
             $shortLinkLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::shortLinks->value, $itemsCount);
 
-            if ($shortLinkLimit === true) {
+            if ($shortLinkLimit === true || $request->status !== StatusEnum::publish->value) {
                 $request->validate([
                     'type' => 'required|string|max:250',
+                    'status' => 'required|string|max:250',
                     'target' => 'required|json',
                     'title' => 'required|string|max:65',
                     'shortUrlPath' => 'nullable|string|max:6',
@@ -246,6 +276,7 @@ class ShortLinkController extends Controller
                     'workspaceId' => $workspace->id,
 
                     'type' => $request->has('type') ? $request->type : null,
+                    'status' => $request->has('status') ? $request->status : StatusEnum::draft->value,
                     'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : null,
                     'title' => $request->has('title') ? $request->title : null,
                     'featureImg' => $request->has('featureImg') ? ZHelpers::zJsonDecode($request->featureImg) : null,
@@ -266,7 +297,7 @@ class ShortLinkController extends Controller
                     'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
 
                     'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
-                    'isActive' => $request->has('isActive') ? $request->isActive : null,
+                    'isActive' => $request->has('isActive') ? $request->isActive : true,
                     'extraAttributes' =>  $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : null,
                 ]);
 
@@ -284,9 +315,9 @@ class ShortLinkController extends Controller
             }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
-            // return ZHelpers::sendBackRequestFailedResponse($th);
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -393,6 +424,7 @@ class ShortLinkController extends Controller
 
             $request->validate([
                 'type' => 'required|string|max:250',
+                'status' => 'required|string|max:250',
                 'target' => 'required|json',
                 'title' => 'required|string|max:65',
                 'featureImg' => 'nullable|json',
@@ -417,42 +449,53 @@ class ShortLinkController extends Controller
                 'extraAttributes' => 'nullable|json',
             ]);
 
-            $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+            $itemsCount = ShortLink::where('workspaceId', $workspace->id)->where('status', StatusEnum::publish->value)->count();
 
-            if ($item) {
-                $item->update([
-                    'type' => $request->has('type') ? $request->type : $item->type,
-                    'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : $item->target,
-                    'title' => $request->has('title') ? $request->title : $item->title,
-                    'featureImg' => $request->has('featureImg') ? ZHelpers::zJsonDecode($request->featureImg) : $item->featureImg,
-                    'description' => $request->has('description') ? $request->description : $item->description,
-                    'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : $item->pixelIds,
-                    'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : $item->utmTagInfo,
-                    'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : $item->shortUrlDomain,
-                    'shortUrlPath' => $request->has('shortUrlPath') ? $request->shortUrlPath : $item->shortUrlPath,
-                    'folderId' => $request->has('folderId') ? $request->folderId : $item->folderId,
-                    'notes' => $request->has('notes') ? $request->notes : $item->notes,
-                    'tags' => $request->has('tags') ?  ZHelpers::zJsonDecode($request->tags) : $item->tags,
-                    'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : $item->abTestingRotatorLinks,
-                    'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : $item->geoLocationRotatorLinks,
-                    'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : $item->linkExpirationInfo,
-                    'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : $item->password,
-                    'favicon' => $request->has('favicon') ? $request->favicon : $item->favicon,
-                    'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : $item->isFavorite,
+            $shortLinkLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::shortLinks->value, $itemsCount);
 
-                    'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo :
-                        $item->sortOrderNo,
-                    'isActive' => $request->has('isActive') ? $item->isActive : $request->isActive,
-                    'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
-                ]);
-
+            if ($shortLinkLimit === true || $request->status !== StatusEnum::publish->value) {
                 $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new ShortLinkResource($item)
-                ]);
+
+                if ($item) {
+                    $item->update([
+                        'type' => $request->has('type') ? $request->type : $item->type,
+                        'status' => $request->has('status') ? $request->status : $item->status,
+                        'target' => $request->has('target') ? ZHelpers::zJsonDecode($request->target) : $item->target,
+                        'title' => $request->has('title') ? $request->title : $item->title,
+                        'featureImg' => $request->has('featureImg') ? ZHelpers::zJsonDecode($request->featureImg) : $item->featureImg,
+                        'description' => $request->has('description') ? $request->description : $item->description,
+                        'pixelIds' => $request->has('pixelIds') ? $request->pixelIds : $item->pixelIds,
+                        'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : $item->utmTagInfo,
+                        'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : $item->shortUrlDomain,
+                        'shortUrlPath' => $request->has('shortUrlPath') ? $request->shortUrlPath : $item->shortUrlPath,
+                        'folderId' => $request->has('folderId') ? $request->folderId : $item->folderId,
+                        'notes' => $request->has('notes') ? $request->notes : $item->notes,
+                        'tags' => $request->has('tags') ?  ZHelpers::zJsonDecode($request->tags) : $item->tags,
+                        'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : $item->abTestingRotatorLinks,
+                        'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : $item->geoLocationRotatorLinks,
+                        'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : $item->linkExpirationInfo,
+                        'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : $item->password,
+                        'favicon' => $request->has('favicon') ? $request->favicon : $item->favicon,
+                        'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : $item->isFavorite,
+
+                        'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo :
+                            $item->sortOrderNo,
+                        'isActive' => $request->has('isActive') ? $item->isActive : $request->isActive,
+                        'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
+                    ]);
+
+                    $item = ShortLink::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => new ShortLinkResource($item)
+                    ]);
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Shortlink not found!']
+                    ]);
+                }
             } else {
-                return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['Shortlink not found!']
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    'item' => ['You have reached the limit of short links you can create.']
                 ]);
             }
         } catch (\Throwable $th) {
