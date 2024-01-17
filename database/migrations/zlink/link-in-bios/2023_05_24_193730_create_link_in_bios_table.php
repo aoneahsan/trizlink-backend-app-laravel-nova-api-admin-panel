@@ -23,6 +23,7 @@ return new class extends Migration
             $table->json('poweredBy')->nullable();
             $table->string('linkInBioTitle')->nullable();
             $table->json('featureImg')->nullable();
+            $table->string('status')->nullable(); // publish, draft, private, etc.
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->json('pixelIds')->nullable();

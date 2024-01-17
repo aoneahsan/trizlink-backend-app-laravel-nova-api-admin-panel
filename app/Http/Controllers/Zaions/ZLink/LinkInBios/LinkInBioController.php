@@ -12,6 +12,7 @@ use App\Zaions\Enums\PermissionsEnum;
 use App\Zaions\Enums\PlanFeatures;
 use App\Zaions\Enums\ResponseCodesEnum;
 use App\Zaions\Enums\ResponseMessagesEnum;
+use App\Zaions\Enums\StatusEnum;
 use App\Zaions\Enums\WSEnum;
 use App\Zaions\Enums\WSMemberAccountStatusEnum;
 use App\Zaions\Enums\WSPermissionsEnum;
@@ -62,6 +63,22 @@ class LinkInBioController extends Controller
                 return ZHelpers::sendBackNotFoundResponse([
                     "item" => ['Workspace not found!']
                 ]);
+            }
+
+            $linkInBioLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::linkInBio->value);
+
+            if ($linkInBioLimit->maxLimit) {
+                $linkInBiosToDisable = LinkInBio::where('workspaceId', $workspace->id)
+                    ->skip($linkInBioLimit->maxLimit)
+                    ->take(PHP_INT_MAX)
+                    ->get();
+
+                // Update link in bios to disable
+                foreach ($linkInBiosToDisable as $linkInBio) {
+                    $linkInBio->update([
+                        'status' => StatusEnum::draft->value,
+                    ]);
+                }
             }
 
             $itemsCount = LinkInBio::where('workspaceId', $workspace->id)->count();
@@ -119,52 +136,54 @@ class LinkInBioController extends Controller
                 ]);
             }
 
-            $itemsCount = LinkInBio::where('workspaceId', $workspace->id)->count();
-            $linkInBioFoldersLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::linkInBio->value, $itemsCount);
+            $itemsCount = LinkInBio::where('workspaceId', $workspace->id)->where('status', StatusEnum::publish->value)->count();
+            $linkInBioLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::linkInBio->value, $itemsCount);
 
-            if($linkInBioFoldersLimit === true){
-                $validate = [
-                    'linkInBioTitle' => 'required|string',
-                    'featureImg' => 'nullable|json',
-                    'title' => 'nullable|string',
-                    'description' => 'nullable|string',
-                    'pixelIds' => 'nullable|json',
-                    'utmTagInfo' => 'nullable|json',
-                    'shortUrl' => 'nullable|json',
-                    'shortUrlDomain' => 'required|string|max:250',
-                    'folderId' => 'nullable|string',
-                    'notes' => 'nullable|string',
-                    'tags' => 'nullable|json',
-                    'abTestingRotatorLinks' => 'nullable|json',
-                    'geoLocationRotatorLinks' => 'nullable|json',
-                    'linkExpirationInfo' => 'nullable|json',
-                    'password' => 'nullable|json',
-                    'favicon' => 'nullable|json',
-                    'theme' => 'nullable|json',
-                    'settings' => 'nullable|json',
-                    'poweredBy' => 'nullable|json',
-                    'sortOrderNo' => 'nullable|integer',
-                    'isActive' => 'nullable|boolean',
-                    'extraAttributes' => 'nullable|json',
-                ];
-    
-                $request->validate($validate);
-    
+            $validate = [
+                'linkInBioTitle' => 'required|string',
+                'status' => 'nullable|string|max:250',
+                'featureImg' => 'nullable|json',
+                'title' => 'nullable|string',
+                'description' => 'nullable|string',
+                'pixelIds' => 'nullable|json',
+                'utmTagInfo' => 'nullable|json',
+                'shortUrl' => 'nullable|json',
+                'shortUrlDomain' => 'required|string|max:250',
+                'folderId' => 'nullable|string',
+                'notes' => 'nullable|string',
+                'tags' => 'nullable|json',
+                'abTestingRotatorLinks' => 'nullable|json',
+                'geoLocationRotatorLinks' => 'nullable|json',
+                'linkExpirationInfo' => 'nullable|json',
+                'password' => 'nullable|json',
+                'favicon' => 'nullable|json',
+                'theme' => 'nullable|json',
+                'settings' => 'nullable|json',
+                'poweredBy' => 'nullable|json',
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ];
+
+            $request->validate($validate);
+
+            if ($linkInBioLimit === true || $request->status !== StatusEnum::publish->value) {
                 $shortLinkUrlPath = '';
-    
+
                 do {
                     $generatedShortUrlPath = ZHelpers::zGenerateRandomString();
                     $checkShortUrlPath = LinkInBio::where('shortUrlPath', $generatedShortUrlPath)->exists();
-    
+
                     $shortLinkUrlPath = $generatedShortUrlPath;
                 } while ($checkShortUrlPath);
-    
+
                 $result = LinkInBio::create([
                     'uniqueId' => uniqid(),
                     'createdBy' => $currentUser->id,
                     'workspaceId' => $workspace->id,
-    
+
                     'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : null,
+                    'status' => $request->has('status') ? $request->status : StatusEnum::draft->value,
                     'shortUrlPath' => $shortLinkUrlPath,
                     'linkInBioTitle' => $request->has('linkInBioTitle') ? $request->linkInBioTitle : null,
                     'featureImg' => $request->has('featureImg') ?  ZHelpers::zJsonDecode($request->featureImg) : null,
@@ -181,14 +200,14 @@ class LinkInBioController extends Controller
                     'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : null,
                     'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : null,
                     'favicon' => $request->has('favicon') ? ZHelpers::zJsonDecode($request->favicon) : null,
-    
+
                     'theme' => $request->has('theme') ?  ZHelpers::zJsonDecode($request->theme) : null,
                     'settings' => $request->has('settings') ? ZHelpers::zJsonDecode($request->settings) : null,
                     'poweredBy' => $request->has('poweredBy') ? ZHelpers::zJsonDecode($request->poweredBy) : null,
                     'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : null,
                     'isActive' => $request->has('isActive') ? $request->isActive : null,
                 ]);
-    
+
                 if ($result) {
                     return ZHelpers::sendBackRequestCompletedResponse([
                         'item' => new LinkInBioResource($result)
@@ -201,7 +220,6 @@ class LinkInBioController extends Controller
                     'item' => ['You have reached the limit of link-in-bio\'s you can create.']
                 ]);
             }
-
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
@@ -313,6 +331,7 @@ class LinkInBioController extends Controller
 
             $validate = [
                 'linkInBioTitle' => 'required|string',
+                'status' => 'nullable|string|max:250',
                 'featureImg' => 'nullable|json',
                 'title' => 'nullable|string',
                 'description' => 'nullable|string',
@@ -337,41 +356,51 @@ class LinkInBioController extends Controller
 
             $request->validate($validate);
 
-            $item = LinkInBio::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+            $itemsCount = LinkInBio::where('workspaceId', $workspace->id)->where('status', StatusEnum::publish->value)->count();
 
-            if ($item) {
-                $item->update([
-                    'linkInBioTitle' => $request->has('linkInBioTitle') ? $request->linkInBioTitle : $item->linkInBioTitle,
-                    'featureImg' => $request->has('featureImg') ?  ZHelpers::zJsonDecode($request->featureImg) : $item->featureImg,
-                    'title' => $request->has('title') ? $request->title : $item->title,
-                    'description' => $request->has('description') ? $request->description : $item->description,
-                    'pixelIds' => $request->has('pixelIds') ? ZHelpers::zJsonDecode($request->pixelIds) : $item->pixelIds,
-                    'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : $item->utmTagInfo,
-                    'shortUrl' => $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : $item->shortUrl,
-                    'folderId' => $request->has('folderId') ? $request->folderId : $item->folderId,
-                    'notes' => $request->has('notes') ? $request->notes : $item->notes,
-                    'tags' => $request->has('tags') ? ZHelpers::zJsonDecode($request->tags) : $item->tags,
-                    'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : $item->abTestingRotatorLinks,
-                    'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : $item->geoLocationRotatorLinks,
-                    'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : $item->linkExpirationInfo,
-                    'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : $item->password,
-                    'favicon' => $request->has('favicon') ? ZHelpers::zJsonDecode($request->favicon) : $item->favicon,
-
-                    'theme' => $request->has('theme') ?  ZHelpers::zJsonDecode($request->theme) : $item->theme,
-                    'settings' => $request->has('settings') ? ZHelpers::zJsonDecode($request->settings) : $item->settings,
-                    'poweredBy' => $request->has('poweredBy') ? ZHelpers::zJsonDecode($request->poweredBy) : $item->poweredBy,
-                    'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
-                    'isActive' => $request->has('isActive') ? $request->isActive : $item->isActive,
-                ]);
-
+            $linkInBiosLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::linkInBio->value, $itemsCount);
+            if ($linkInBiosLimit === true || $request->status !== StatusEnum::publish->value) {
                 $item = LinkInBio::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
 
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'item' => new LinkInBioResource($item)
-                ]);
+                if ($item) {
+                    $item->update([
+                        'linkInBioTitle' => $request->has('linkInBioTitle') ? $request->linkInBioTitle : $item->linkInBioTitle,
+                        'status' => $request->has('status') ? $request->status : $item->status,
+                        'featureImg' => $request->has('featureImg') ?  ZHelpers::zJsonDecode($request->featureImg) : $item->featureImg,
+                        'title' => $request->has('title') ? $request->title : $item->title,
+                        'description' => $request->has('description') ? $request->description : $item->description,
+                        'pixelIds' => $request->has('pixelIds') ? ZHelpers::zJsonDecode($request->pixelIds) : $item->pixelIds,
+                        'utmTagInfo' => $request->has('utmTagInfo') ? ZHelpers::zJsonDecode($request->utmTagInfo) : $item->utmTagInfo,
+                        'shortUrl' => $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : $item->shortUrl,
+                        'folderId' => $request->has('folderId') ? $request->folderId : $item->folderId,
+                        'notes' => $request->has('notes') ? $request->notes : $item->notes,
+                        'tags' => $request->has('tags') ? ZHelpers::zJsonDecode($request->tags) : $item->tags,
+                        'abTestingRotatorLinks' => $request->has('abTestingRotatorLinks') ? ZHelpers::zJsonDecode($request->abTestingRotatorLinks) : $item->abTestingRotatorLinks,
+                        'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : $item->geoLocationRotatorLinks,
+                        'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : $item->linkExpirationInfo,
+                        'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : $item->password,
+                        'favicon' => $request->has('favicon') ? ZHelpers::zJsonDecode($request->favicon) : $item->favicon,
+
+                        'theme' => $request->has('theme') ?  ZHelpers::zJsonDecode($request->theme) : $item->theme,
+                        'settings' => $request->has('settings') ? ZHelpers::zJsonDecode($request->settings) : $item->settings,
+                        'poweredBy' => $request->has('poweredBy') ? ZHelpers::zJsonDecode($request->poweredBy) : $item->poweredBy,
+                        'extraAttributes' => $request->has('extraAttributes') ? ZHelpers::zJsonDecode($request->extraAttributes) : $item->extraAttributes,
+                        'isActive' => $request->has('isActive') ? $request->isActive : $item->isActive,
+                    ]);
+
+                    $item = LinkInBio::where('uniqueId', $itemId)->where('workspaceId', $workspace->id)->first();
+
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => new LinkInBioResource($item)
+                    ]);
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Link-in-bio not found!']
+                    ]);
+                }
             } else {
-                return ZHelpers::sendBackNotFoundResponse([
-                    'item' => ['Link-in-bio not found!']
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    'item' => ['You have reached the limit of link-in-bio\'s you can create.']
                 ]);
             }
         } catch (\Throwable $th) {

@@ -223,34 +223,34 @@ class ShortLinkController extends Controller
             $itemsCount = ShortLink::where('workspaceId', $workspace->id)->where('status', StatusEnum::publish->value)->count();
 
             $shortLinkLimit = ZAccountHelpers::WorkspaceServicesLimits($workspace, PlanFeatures::shortLinks->value, $itemsCount);
+            
+            $request->validate([
+                'type' => 'required|string|max:250',
+                'status' => 'required|string|max:250',
+                'target' => 'required|json',
+                'title' => 'required|string|max:65',
+                'shortUrlPath' => 'nullable|string|max:6',
+                'shortUrlDomain' => 'required|string|max:250',
+                'featureImg' => 'nullable|json',
+                'description' => 'nullable|string|max:300',
+                'pixelIds' => 'nullable|string|max:250',
+                'utmTagInfo' => 'nullable|json',
+                // 'shortUrl' => 'nullable|json',
+                'folderId' => 'nullable|string',
+                'notes' => 'nullable|string|max:1000',
+                'tags' => 'nullable|json',
+                'abTestingRotatorLinks' => 'nullable|json',
+                'geoLocationRotatorLinks' => 'nullable|json',
+                'linkExpirationInfo' => 'nullable|json',
+                'password' => 'nullable|json',
+                'favicon' => 'nullable|string',
+                'isFavorite' => 'nullable|boolean',
+                'sortOrderNo' => 'nullable|integer',
+                'isActive' => 'nullable|boolean',
+                'extraAttributes' => 'nullable|json',
+            ]);
 
             if ($shortLinkLimit === true || $request->status !== StatusEnum::publish->value) {
-                $request->validate([
-                    'type' => 'required|string|max:250',
-                    'status' => 'required|string|max:250',
-                    'target' => 'required|json',
-                    'title' => 'required|string|max:65',
-                    'shortUrlPath' => 'nullable|string|max:6',
-                    'shortUrlDomain' => 'required|string|max:250',
-                    'featureImg' => 'nullable|json',
-                    'description' => 'nullable|string|max:300',
-                    'pixelIds' => 'nullable|string|max:250',
-                    'utmTagInfo' => 'nullable|json',
-                    // 'shortUrl' => 'nullable|json',
-                    'folderId' => 'nullable|string',
-                    'notes' => 'nullable|string|max:1000',
-                    'tags' => 'nullable|json',
-                    'abTestingRotatorLinks' => 'nullable|json',
-                    'geoLocationRotatorLinks' => 'nullable|json',
-                    'linkExpirationInfo' => 'nullable|json',
-                    'password' => 'nullable|json',
-                    'favicon' => 'nullable|string',
-                    'isFavorite' => 'nullable|boolean',
-                    'sortOrderNo' => 'nullable|integer',
-                    'isActive' => 'nullable|boolean',
-                    'extraAttributes' => 'nullable|json',
-                ]);
-
                 $shortLinkUrlPath = $request->shortUrlPath;
 
                 if ($request->has('shortUrlPath') && Str::length($request->shortUrlPath) === 6) {

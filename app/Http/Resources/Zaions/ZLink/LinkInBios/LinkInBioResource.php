@@ -18,6 +18,7 @@ class LinkInBioResource extends JsonResource
         return [
             'id' => $this->uniqueId,
             'theme' => $this->theme,
+            'status' => $this->status,
             'settings' => $this->settings,
             'poweredBy' => $this->poweredBy,
 
