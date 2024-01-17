@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['https://trizlink.com/api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
