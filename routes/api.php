@@ -269,6 +269,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::delete('/user/{type}/{uniqueId}/short-links/{itemId}', 'destroy');
 
             Route::get('/user/{type}/{uniqueId}/sl/is-path-available/{value}', 'checkShortUrlPathAvailable');
+            Route::get('/user/{type}/{uniqueId}/short-links/preview/{privateUrlPath}', 'getTargetInfoByPrivateUrl');
         });
 
         // ShortLink Analytics

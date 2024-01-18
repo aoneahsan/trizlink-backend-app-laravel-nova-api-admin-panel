@@ -27,6 +27,7 @@ return new class extends Migration
             $table->json('utmTagInfo')->nullable();
             $table->string('shortUrlDomain')->nullable(); // "zaions.com"
             $table->string('shortUrlPath')->nullable(); // "/zaions"
+            $table->string('privateUrlPath')->nullable(); // "/zaions" but will not include analytic and owner and member can view it and can't be updated
             $table->string('status')->nullable(); // publish, draft, private, etc.
             $table->text('notes')->nullable();
             $table->string('tags')->nullable();

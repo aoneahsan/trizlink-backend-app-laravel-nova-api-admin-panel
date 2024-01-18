@@ -79,6 +79,7 @@ enum WSPermissionsEnum: string
   case view_sws_shortLink = 'view_sws_shortLink';
   case create_sws_shortLink = 'create_sws_shortLink';
   case update_sws_shortLink = 'update_sws_shortLink';
+  case view_sws_by_private_link = 'view_sws_by_private_link';
   case delete_sws_shortLink = 'delete_sws_shortLink';
   case replicate_sws_shortLink = 'replicate_sws_shortLink';
   case restore_sws_shortLink = 'restore_sws_shortLink';

@@ -210,6 +210,7 @@ class RolePermissionsSeeder extends Seeder
         $addShortLinkPermission = Permission::create(['name' => PermissionsEnum::create_shortLink->name]);
         $updateShortLinkPermission = Permission::create(['name' => PermissionsEnum::update_shortLink->name]);
         $deleteShortLinkPermission = Permission::create(['name' => PermissionsEnum::delete_shortLink->name]);
+        $viewByPrivatePermission = Permission::create(['name' => PermissionsEnum::view_by_private_link->name]);
         $replicateShortLinkPermission = Permission::create(['name' => PermissionsEnum::replicate_shortLink->name]);
         $restoreShortLinkPermission = Permission::create(['name' => PermissionsEnum::restore_shortLink->name]);
         $forceDeleteShortLinkPermission = Permission::create(['name' => PermissionsEnum::forceDelete_shortLink->name]);
@@ -520,6 +521,7 @@ class RolePermissionsSeeder extends Seeder
             $addShortLinkPermission,
             $updateShortLinkPermission,
             $deleteShortLinkPermission,
+            $viewByPrivatePermission,
             $replicateShortLinkPermission,
             $restoreShortLinkPermission,
             $forceDeleteShortLinkPermission,

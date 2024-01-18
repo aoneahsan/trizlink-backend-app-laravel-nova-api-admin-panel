@@ -117,6 +117,7 @@ class SWSRoleAndPermissionsSeeder extends Seeder
     $viewSWSShortLinkPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_shortLink->name]);
     $addSWSShortLinkPermission = Permission::create(['name' => WSPermissionsEnum::create_sws_shortLink->name]);
     $updateSWSShortLinkPermission = Permission::create(['name' => WSPermissionsEnum::update_sws_shortLink->name]);
+    $viewSWSByPrivateLinkPermission = Permission::create(['name' => WSPermissionsEnum::view_sws_by_private_link->name]);
     $deleteSWSShortLinkPermission = Permission::create(['name' => WSPermissionsEnum::delete_sws_shortLink->name]);
     $replicateSWSShortLinkPermission = Permission::create(['name' => WSPermissionsEnum::replicate_sws_shortLink->name]);
     $restoreSWSShortLinkPermission = Permission::create(['name' => WSPermissionsEnum::restore_sws_shortLink->name]);
@@ -243,6 +244,7 @@ class SWSRoleAndPermissionsSeeder extends Seeder
       $viewSWSShortLinkPermission,
       $addSWSShortLinkPermission,
       $updateSWSShortLinkPermission,
+      $viewSWSByPrivateLinkPermission,
       $deleteSWSShortLinkPermission,
       $replicateSWSShortLinkPermission,
       $restoreSWSShortLinkPermission,

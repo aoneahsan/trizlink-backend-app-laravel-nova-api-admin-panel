@@ -25,6 +25,7 @@ class ShortLinkResource extends JsonResource
             'utmTagInfo' => $this->utmTagInfo,
             'shortUrlDomain' => $this->shortUrlDomain,
             'shortUrlPath' => $this->shortUrlPath,
+            'privateUrlPath' => $this->privateUrlPath,
             'folderId' => $this->folderId,
             'notes' => $this->notes,
             'tags' => $this->tags,

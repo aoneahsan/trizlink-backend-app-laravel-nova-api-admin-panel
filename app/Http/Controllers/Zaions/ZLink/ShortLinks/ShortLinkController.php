@@ -252,6 +252,7 @@ class ShortLinkController extends Controller
 
             if ($shortLinkLimit === true || $request->status !== StatusEnum::publish->value) {
                 $shortLinkUrlPath = $request->shortUrlPath;
+                $privateUrlPath = '';
 
                 if ($request->has('shortUrlPath') && Str::length($request->shortUrlPath) === 6) {
                     $checkShortUrlPath = ShortLink::where('shortUrlPath', $request->shortUrlPath)->first();
@@ -270,6 +271,14 @@ class ShortLinkController extends Controller
                     } while ($checkShortUrlPath);
                 }
 
+                // Generating Private Url
+                do {
+                    $generatedPrivateUrlPath = ZHelpers::zGenerateRandomString();
+                    $checkPrivateUrlPath = ShortLink::where('privateUrlPath', $generatedPrivateUrlPath)->exists();
+
+                    $privateUrlPath = $generatedPrivateUrlPath;
+                } while ($checkPrivateUrlPath);
+
                 $result = ShortLink::create([
                     'uniqueId' => uniqid(),
                     'createdBy' => $currentUser->id,
@@ -286,6 +295,7 @@ class ShortLinkController extends Controller
                     // 'shortUrl' =>  $request->has('shortUrl') ? ZHelpers::zJsonDecode($request->shortUrl) : null,
                     'shortUrlDomain' => $request->has('shortUrlDomain') ? $request->shortUrlDomain : null,
                     'shortUrlPath' => $shortLinkUrlPath,
+                    'privateUrlPath' => $privateUrlPath,
                     'folderId' => $request->has('folderId') ? $request->folderId : null,
                     'notes' => $request->has('notes') ? $request->notes : null,
                     'tags' => $request->has('tags') ? ZHelpers::zJsonDecode($request->tags) : null,
@@ -637,6 +647,66 @@ class ShortLinkController extends Controller
                 ]);
             }
         } catch (\Throwable $th) {
+            return ZHelpers::sendBackServerErrorResponse($th);
+        }
+    }
+
+    public function getTargetInfoByPrivateUrl(Request $request, $type, $uniqueId, $privateUrlPath)
+    {
+        try {
+            $currentUser = $request->user();
+
+            $workspace = null;
+
+            if ($type === WSEnum::personalWorkspace->value) {
+                Gate::allowIf($currentUser->hasPermissionTo(PermissionsEnum::view_by_private_link->name));
+
+                // getting workspace
+                $workspace = WorkSpace::where('uniqueId', $uniqueId)->where('userId', $currentUser->id)->first();
+            } else if ($type === WSEnum::shareWorkspace->value) {
+                # first getting the member from member_table so we can get share workspace
+                $member = WSTeamMember::where('uniqueId', $uniqueId)->where('memberId', $currentUser->id)->where('accountStatus', WSMemberAccountStatusEnum::accepted->value)->with('workspace', 'memberRole')->first();
+
+                if (!$member) {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'item' => ['Share workspace not found!']
+                    ]);
+                }
+
+                # First of all checking if member has permission to delete folders.
+                Gate::allowIf($member->memberRole->hasPermissionTo(WSPermissionsEnum::view_sws_by_private_link->name), ResponseMessagesEnum::Unauthorized->name, ResponseCodesEnum::Unauthorized->name);
+
+                # $member->inviterId => id of owner of the workspace
+                $workspace = WorkSpace::where('uniqueId', $member->workspace->uniqueId)->where('userId', $member->inviterId)->first();
+            } else {
+                return ZHelpers::sendBackBadRequestResponse([]);
+            }
+
+            if (!$workspace) {
+                return ZHelpers::sendBackNotFoundResponse([
+                    "item" => ['Workspace not found!']
+                ]);
+            }
+
+            if ($privateUrlPath && Str::length($privateUrlPath) === 6) {
+                $item = ShortLink::where('workspaceId', $workspace->id)->where('shortUrlPath', $privateUrlPath)->first();
+
+                if ($item) {
+                    return ZHelpers::sendBackRequestCompletedResponse([
+                        'item' => new SLPublicPageResource($item)
+                    ]);
+                } else {
+                    return ZHelpers::sendBackNotFoundResponse([
+                        'shortLink' => 'Short link not found.'
+                    ]);
+                }
+            } else {
+                return ZHelpers::sendBackInvalidParamsResponse([
+                    'urlPath' => 'invalid url path.'
+                ]);
+            }
+        } catch (\Throwable $th) {
+
             return ZHelpers::sendBackServerErrorResponse($th);
         }
     }

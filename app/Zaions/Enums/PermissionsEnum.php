@@ -235,6 +235,7 @@ enum PermissionsEnum: string
   case create_shortLink = 'create_shortLink';
   case update_shortLink = 'update_shortLink';
   case delete_shortLink = 'delete_shortLink';
+  case view_by_private_link = 'view_by_private_link';
   case replicate_shortLink = 'replicate_shortLink';
   case restore_shortLink = 'restore_shortLink';
   case forceDelete_shortLink = 'forceDelete_shortLink';
