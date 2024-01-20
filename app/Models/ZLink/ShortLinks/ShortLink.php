@@ -27,6 +27,7 @@ class ShortLink extends Model
         'password' => 'array',
         'featureImg'=> 'array',
         'tags'=> 'array',
+        'favicon'=> 'array',
 
     ];
 

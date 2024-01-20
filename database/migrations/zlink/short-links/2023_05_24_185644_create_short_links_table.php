@@ -35,7 +35,7 @@ return new class extends Migration
             $table->json('geoLocationRotatorLinks')->nullable();
             $table->json('linkExpirationInfo')->nullable();
             $table->json('password')->nullable();
-            $table->string('favicon')->nullable();
+            $table->json('favicon')->nullable();
             $table->boolean('isFavorite')->nullable();
 
             $table->boolean('isActive')->default(true)->nullable();

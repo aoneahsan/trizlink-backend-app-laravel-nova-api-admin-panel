@@ -243,7 +243,7 @@ class ShortLinkController extends Controller
                 'geoLocationRotatorLinks' => 'nullable|json',
                 'linkExpirationInfo' => 'nullable|json',
                 'password' => 'nullable|json',
-                'favicon' => 'nullable|string',
+                'favicon' => 'nullable|json',
                 'isFavorite' => 'nullable|boolean',
                 'sortOrderNo' => 'nullable|integer',
                 'isActive' => 'nullable|boolean',
@@ -303,7 +303,7 @@ class ShortLinkController extends Controller
                     'geoLocationRotatorLinks' => $request->has('geoLocationRotatorLinks') ? ZHelpers::zJsonDecode($request->geoLocationRotatorLinks) : null,
                     'linkExpirationInfo' => $request->has('linkExpirationInfo') ? ZHelpers::zJsonDecode($request->linkExpirationInfo) : null,
                     'password' => $request->has('password') ? ZHelpers::zJsonDecode($request->password) : null,
-                    'favicon' => $request->has('favicon') ? $request->favicon : null,
+                    'favicon' => $request->has('favicon') ? ZHelpers::zJsonDecode($request->favicon) : null,
                     'isFavorite' => $request->has('isFavorite') ? $request->isFavorite : false,
 
                     'sortOrderNo' => $request->has('sortOrderNo') ? $request->sortOrderNo : null,
@@ -689,7 +689,7 @@ class ShortLinkController extends Controller
             }
 
             if ($privateUrlPath && Str::length($privateUrlPath) === 6) {
-                $item = ShortLink::where('workspaceId', $workspace->id)->where('shortUrlPath', $privateUrlPath)->first();
+                $item = ShortLink::where('workspaceId', $workspace->id)->where('privateUrlPath', $privateUrlPath)->first();
 
                 if ($item) {
                     return ZHelpers::sendBackRequestCompletedResponse([
