@@ -45,9 +45,9 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "axios": "^1.6.2",
-    "laravel-vite-plugin": "^0.8.1",
-    "vite": "^5.0.10"
+    "axios": "^1.6.5",
+    "laravel-vite-plugin": "^1.0.1",
+    "vite": "^5.0.12"
   },
   "packageManager": "pnpm@8.12.1"
 }
