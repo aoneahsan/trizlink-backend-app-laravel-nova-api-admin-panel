@@ -5,7 +5,6 @@ use App\Http\Controllers\Zaions\Common\FileUploadController;
 use App\Http\Controllers\Zaions\Notification\NotificationController;
 use App\Http\Controllers\Zaions\Notification\USNotificationSettingController;
 use App\Http\Controllers\Zaions\Notification\WSNotificationSettingController;
-use App\Http\Controllers\Zaions\StaticPageController;
 use App\Http\Controllers\Zaions\Testing\TestController;
 use App\Http\Controllers\Zaions\User\SWSUserSettingController;
 use App\Http\Controllers\Zaions\User\UserController;
@@ -15,7 +14,6 @@ use App\Http\Controllers\Zaions\WorkSpace\SharedWSController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkSpaceController;
 use App\Http\Controllers\Zaions\WorkSpace\WorkspaceModalConnectionsController;
 use App\Http\Controllers\Zaions\Workspace\WorkspaceTeamController;
-use App\Http\Controllers\Zaions\Workspace\MemberController;
 use App\Http\Controllers\Zaions\Workspace\SWSMemberController;
 use App\Http\Controllers\Zaions\WorkSpace\WSMemberController;
 use App\Http\Controllers\Zaions\ZLink\Analytics\PixelController;
@@ -54,6 +52,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/test', function () {
+    return response()->json(['message' => 'Hello World!']);
+})->middleware('throttle:5,1');
 
 
 Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function () {
@@ -101,7 +103,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user', 'index');
             Route::get('/user/role/permissions', 'getUserPermissions');
             Route::put('/user/update-account-info', 'updateAccountInfo');
-            Route::put('/user/password-resend-otp', 'resendPassword');
+            Route::put('/user/password-resend-otp', 'resendPassword')->middleware('throttle:2,5');
             Route::put('/user/update-user-status', 'updateUserStatus');
             Route::put('/user/update-password', 'updatePassword');
             Route::put('/user/validate-password', 'validateCurrentPassword');
@@ -117,7 +119,7 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/list-emails', 'index');
             Route::post('/user/add-email', 'addEmail');
             Route::put('/user/confirm-email-otp/{itemId}', 'confirmOtp');
-            Route::put('/user/resend-email-otp/{itemId}', 'resendOtp');
+            Route::put('/user/resend-email-otp/{itemId}', 'resendOtp')->middleware('throttle:2,5');
             Route::put('/user/make-email-primary/{itemId}', 'makeEmailPrimary');
             Route::delete('/user/delete-email/{itemId}', 'deleteEmail');
         });
@@ -163,10 +165,6 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
             Route::get('/user/notification/type/{type}', 'allNotification');
             Route::put('/user/notification/markAsRead/{id}', 'markAsRead');
             Route::put('/user/notification/markAllAsRead', 'markAllAsRead');
-            // Route::post('/user/settings', 'store');
-            // Route::get('/user/settings/{type}/{workspaceId}', 'show');
-            // Route::put('/user/settings/{itemId}', 'update');
-            // Route::delete('/user/settings/{itemId}', 'destroy');
         });
 
         // Workspace
@@ -451,13 +449,13 @@ Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function (
     });
 
     Route::controller(UserController::class)->group(function () {
-        Route::put('/user/send-otp', 'generateOtp');
+        Route::put('/user/send-otp', 'generateOtp')->middleware('throttle:2,5');
         // Route::put('/user/confirm-otp', 'confirmOtp');
         Route::put('/user/set-password', 'setPassword');
         Route::post('/user/username/check', 'checkIfUsernameIsAvailable');
-        Route::post('/user/send-signup-otp', 'sendSignUpOTP');
-        Route::put('/user/resend-user-otp', 'resendOTP');
-        Route::put('/user/send-forget-password-otp', 'sendForgetPasswordOTP');
+        Route::post('/user/send-signup-otp', 'sendSignUpOTP')->middleware('throttle:2,5');
+        Route::put('/user/resend-user-otp', 'resendOTP')->middleware('throttle:1,5');
+        Route::put('/user/send-forget-password-otp', 'sendForgetPasswordOTP')->middleware('throttle:2,5');
         Route::put('/user/set-username-password', 'setUsernamePassword');
         Route::put('/user/confirm-otp', 'confirmSignUpOtp');
     });
