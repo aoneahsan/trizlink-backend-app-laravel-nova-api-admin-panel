@@ -58,7 +58,7 @@ Route::get('/test', function () {
 })->middleware('throttle:5,1');
 
 
-Route::middleware(['api'])->name('zlink.')->prefix('zlink/v1')->group(function () {
+Route::middleware(['api'])->name('trizlink.')->prefix('trizlink/v1')->group(function () {
     // Test Routes
     Route::controller(TestController::class)->group(function () {
         Route::get('/notify-user', 'notifyUser');
