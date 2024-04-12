@@ -103,7 +103,7 @@ Route::middleware(['api'])->name('trizlink.')->prefix('trizlink/v1')->group(func
             Route::get('/user', 'index');
             Route::get('/user/role/permissions', 'getUserPermissions');
             Route::put('/user/update-account-info', 'updateAccountInfo');
-            Route::put('/user/password-resend-otp', 'resendPassword')->middleware('throttle:2,5');
+            Route::put('/user/password-resend-otp', 'resendPassword')->middleware('throttle:3,4');
             Route::put('/user/update-user-status', 'updateUserStatus');
             Route::put('/user/update-password', 'updatePassword');
             Route::put('/user/validate-password', 'validateCurrentPassword');
@@ -119,7 +119,7 @@ Route::middleware(['api'])->name('trizlink.')->prefix('trizlink/v1')->group(func
             Route::get('/user/list-emails', 'index');
             Route::post('/user/add-email', 'addEmail');
             Route::put('/user/confirm-email-otp/{itemId}', 'confirmOtp');
-            Route::put('/user/resend-email-otp/{itemId}', 'resendOtp')->middleware('throttle:2,5');
+            Route::put('/user/resend-email-otp/{itemId}', 'resendOtp')->middleware('throttle:3,4');
             Route::put('/user/make-email-primary/{itemId}', 'makeEmailPrimary');
             Route::delete('/user/delete-email/{itemId}', 'deleteEmail');
         });
@@ -449,13 +449,13 @@ Route::middleware(['api'])->name('trizlink.')->prefix('trizlink/v1')->group(func
     });
 
     Route::controller(UserController::class)->group(function () {
-        Route::put('/user/send-otp', 'generateOtp')->middleware('throttle:2,5');
+        Route::put('/user/send-otp', 'generateOtp')->middleware('throttle:3,4');
         // Route::put('/user/confirm-otp', 'confirmOtp');
         Route::put('/user/set-password', 'setPassword');
         Route::post('/user/username/check', 'checkIfUsernameIsAvailable');
-        Route::post('/user/send-signup-otp', 'sendSignUpOTP')->middleware('throttle:2,5');
-        Route::put('/user/resend-user-otp', 'resendOTP')->middleware('throttle:2,5');
-        Route::put('/user/send-forget-password-otp', 'sendForgetPasswordOTP')->middleware('throttle:2,5');
+        Route::post('/user/send-signup-otp', 'sendSignUpOTP')->middleware('throttle:3,4');
+        Route::put('/user/resend-user-otp', 'resendOTP')->middleware('throttle:3,4');
+        Route::put('/user/send-forget-password-otp', 'sendForgetPasswordOTP')->middleware('throttle:3,4');
         Route::put('/user/set-username-password', 'setUsernamePassword');
         Route::put('/user/confirm-otp', 'confirmSignUpOtp');
     });
