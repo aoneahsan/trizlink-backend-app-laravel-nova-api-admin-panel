@@ -9,9 +9,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class WSTeamMemberInvitation extends Notification implements ShouldQueue
+class WSTeamMemberInvitation extends Notification
 {
-    use Queueable;
 
     /**
      * Create a new notification instance.

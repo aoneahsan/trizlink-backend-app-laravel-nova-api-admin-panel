@@ -454,7 +454,7 @@ Route::middleware(['api'])->name('trizlink.')->prefix('trizlink/v1')->group(func
         Route::put('/user/set-password', 'setPassword');
         Route::post('/user/username/check', 'checkIfUsernameIsAvailable');
         Route::post('/user/send-signup-otp', 'sendSignUpOTP')->middleware('throttle:2,5');
-        Route::put('/user/resend-user-otp', 'resendOTP')->middleware('throttle:1,5');
+        Route::put('/user/resend-user-otp', 'resendOTP')->middleware('throttle:2,5');
         Route::put('/user/send-forget-password-otp', 'sendForgetPasswordOTP')->middleware('throttle:2,5');
         Route::put('/user/set-username-password', 'setUsernamePassword');
         Route::put('/user/confirm-otp', 'confirmSignUpOtp');
