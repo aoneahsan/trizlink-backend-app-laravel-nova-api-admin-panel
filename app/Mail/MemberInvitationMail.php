@@ -4,10 +4,10 @@ namespace App\Mail;
 
 use App\Models\Default\User;
 use App\Models\Default\WorkSpace;
-use App\Models\Default\WorkspaceTeam;
-use App\Zaions\Helpers\ZHelpers;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+// use App\Models\Default\WorkspaceTeam;
+// use App\Zaions\Helpers\ZHelpers;
+// use Illuminate\Bus\Queueable;
+// use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -35,9 +35,9 @@ class MemberInvitationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new \Illuminate\Mail\Mailables\Address('developer@zaions.com', 'MTI'),
+            from: new \Illuminate\Mail\Mailables\Address(env('MAIL_FROM_ADDRESS'), 'Trizlink SaaS App'),
             to: $this->invitedUser->email,
-            subject: 'Member Invitation Mail',
+            subject: 'Member Invite Email - Trizlink - Url Shortener SaaS App',
         );
     }
 

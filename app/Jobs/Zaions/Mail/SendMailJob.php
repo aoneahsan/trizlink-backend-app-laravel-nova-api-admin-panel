@@ -35,8 +35,6 @@ class SendMailJob
         $team,
         $urlSafeEncodedId
     ): void {
-        //
-        // Mail::send(new OTPMail($this->user));
         Mail::send(new MemberInvitationMail(
             $currentUser,
             $memberUser,

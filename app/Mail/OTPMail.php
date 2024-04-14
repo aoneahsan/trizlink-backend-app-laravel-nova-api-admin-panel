@@ -2,8 +2,8 @@
 
 namespace App\Mail;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+// use Illuminate\Bus\Queueable;
+// use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -30,9 +30,9 @@ class OTPMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new \Illuminate\Mail\Mailables\Address('developer@zaions.com', 'MTI'),
+            from: new \Illuminate\Mail\Mailables\Address(env('MAIL_FROM_ADDRESS'), 'OTP Code for Verification - Trizlink - Url Shortener SaaS App'),
             to: $this->user->email,
-            subject: $this->subject,
+            subject: $this->subject . ' - Trizlink - Url Shortener SaaS App',
         );
     }
 
