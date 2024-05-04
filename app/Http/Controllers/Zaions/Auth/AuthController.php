@@ -24,6 +24,7 @@ use Laravel\Socialite\Facades\Socialite;
 use App\Zaions\Enums\SignUpTypeEnum;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 class AuthController extends Controller
 {
@@ -213,21 +214,30 @@ class AuthController extends Controller
                 EncryptKeysEnum::accessToken->value => 'required|string',
                 EncryptKeysEnum::time->value => 'required|string',
             ]);
-            
 
-            $response = Http::get('https://www.googleapis.com/oauth2/v3/userinfo', [
-                'access_token' => $request->{EncryptKeysEnum::accessToken->value},
+            $client = new Client([
+                'verify' => storage_path('app/cacert.pem')  // Path to your cacert.pem file
             ]);
 
-            
+            $response = Http::withOptions([
+                'base_uri' => 'https://www.googleapis.com',
+                'http_client' => $client,
+            ])->acceptJson()->withHeaders([
+                'Authorization' => 'Bearer ' . $request->{EncryptKeysEnum::accessToken->value}
+            ])->get('https://www.googleapis.com/oauth2/v1/userinfo', [
+                'alt' => 'json',
+                // 'access_token' => $request->{EncryptKeysEnum::accessToken->value}
+            ]);
+
+
 
             if ($response->successful()) {
                 $userInfo = $response->json();
 
-                if($userInfo){
+                if ($userInfo) {
                     $userExist = User::where('email', $userInfo['email'])->where('signUpType', SignUpTypeEnum::normal->value)->first();
 
-                    if($userExist){
+                    if ($userExist) {
                         $token = $userExist->createToken('auth');
 
                         return response()->json([
@@ -240,7 +250,7 @@ class AuthController extends Controller
                             'message' => 'Request Completed Successfully!',
                             'status' => 201
                         ], 201);
-                    }else {
+                    } else {
                         return response()->json([
                             'success' => false,
                             'errors' => [
@@ -254,7 +264,6 @@ class AuthController extends Controller
                     }
                 }
             }
-
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
