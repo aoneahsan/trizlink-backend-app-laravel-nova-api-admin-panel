@@ -26,9 +26,9 @@ class TestingController extends Controller
         // Test check if user is super admin
         // $user = $request->user();
         // dd(Carbon::now()->addMinutes(config('zLinkConfig.optExpireAddTime'))->toDateTimeString());
-//         $isShareWs = false;
-//         $response = Gate::allowIf($isShareWs ? true : true, $isShareWs ? ResponseMessagesEnum::Unauthorized->name : null, $isShareWs ?  ResponseCodesEnum::Unauthorized->name : null);;
-// dd($response);
+        //         $isShareWs = false;
+        //         $response = Gate::allowIf($isShareWs ? true : true, $isShareWs ? ResponseMessagesEnum::Unauthorized->name : null, $isShareWs ?  ResponseCodesEnum::Unauthorized->name : null);;
+        // dd($response);
         // Test - working with Carbon date and time
         // $carbonNow = Carbon::now($request->user()?->userTimezone);
         // $carbonNow = Carbon::now();
@@ -127,5 +127,10 @@ class TestingController extends Controller
             //throw $th;
             return ZHelpers::sendBackServerErrorResponse($th);
         }
+    }
+
+    function testingHttpsApiCall()
+    {
+        return response()->json(['data' => 'working']);
     }
 }
