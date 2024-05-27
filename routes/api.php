@@ -74,10 +74,8 @@ Route::middleware(['api'])->name('trizlink.')->prefix('trizlink/v1')->group(func
     // Guest Routes
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login');
-        Route::post('/social-login', 'socialLogin');
+        Route::post('/social-login/google', 'socialLoginGoogle');
         Route::post('/register', 'register');
-        Route::post('/auth/google/redirect', 'googleRedirect');
-        Route::post('/auth/google/callback', 'googleCallback');
     });
 
     // API - Authenticated Routes

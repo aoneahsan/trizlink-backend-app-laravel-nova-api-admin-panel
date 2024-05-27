@@ -178,36 +178,7 @@ class AuthController extends Controller
         return response()->json(['data' => true]);
     }
 
-
-    public function googleRedirect()
-    {
-        try {
-            //code...
-            return Socialite::driver('google')->redirect();
-        } catch (\Throwable $th) {
-            //throw $th;
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
-
-    public function googleCallback()
-    {
-        try {
-            //code...
-            $user = Socialite::driver('google')->user();
-
-            if ($user) {
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'user' => $user
-                ]);
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
-
-    public function socialLogin(Request $request)
+    public function socialLoginGoogle(Request $request)
     {
         try {
             $request->validate([
@@ -215,28 +186,28 @@ class AuthController extends Controller
                 EncryptKeysEnum::time->value => 'required|string',
             ]);
 
+            $userAccessToken = $request->{EncryptKeysEnum::accessToken->value};
+
             $client = new Client([
                 'verify' => false  // Path to your cacert.pem file
             ]);
-            // return response()->json(['data' => '$response', 'token' => $request->{EncryptKeysEnum::accessToken->value}]);
+            // return response()->json(['data' => '$response', 'token' => $userAccessToken]);
 
             // $response = $client->get('https://www.googleapis.com/oauth2/v1/userinfo', [
             //     'headers' => [
-            //         'Authorization' => 'Bearer ' . $request->{EncryptKeysEnum::accessToken->value}
-            //     ],]);
+            //         'Authorization' => 'Bearer ' . $userAccessToken
+            //     ],
+            // ]);
 
-            $response = Http::withOptions([
-                'debug' => true,
-                'verifiy_host' => false,
-            ])->withHeaders([
-                'Authorization' => 'Bearer ' . 'ya29.a0AXooCgv8aauaeByzQXfLNMWFiFsCHKfFS1Ct8M_KXcth8AsE399xbkqMcocHrPO4epxUOSR65EDXNa6vOG9r-4qZADpBhEHQ8n2ZH1GnwR3Whm0WzpTyw7ohxb2h2GY2e1olSjSeXOzL4xHb3eInTHWFJqNLYp6h5QaCgYKAfASARASFQHGX2MiAa_xjTz28LsFSOdJh6eGNg0169'
-            ])->get('https://www.googleapis.com/oauth2/v1/userinfo', [
-                'alt' => 'json',
-                // 'access_token' => $request->{EncryptKeysEnum::accessToken->value}
-            ]);
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])
+                ->withToken($userAccessToken)
+                ->withoutVerifying()
+                ->get('https://www.googleapis.com/oauth2/v1/userinfo');
 
-
-            return response()->json(['data' => $response, 'token' => $request->{EncryptKeysEnum::accessToken->value}]);
+            return response()->json(['data' => $response->json(), 'token' => $userAccessToken]);
 
             // if ($response->successful()) {
             //     $userInfo = $response->json();
