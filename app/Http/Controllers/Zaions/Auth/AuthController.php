@@ -216,54 +216,61 @@ class AuthController extends Controller
             ]);
 
             $client = new Client([
-                'verify' => storage_path('app/cacert.pem')  // Path to your cacert.pem file
+                'verify' => false  // Path to your cacert.pem file
             ]);
+            // return response()->json(['data' => '$response', 'token' => $request->{EncryptKeysEnum::accessToken->value}]);
+
+            // $response = $client->get('https://www.googleapis.com/oauth2/v1/userinfo', [
+            //     'headers' => [
+            //         'Authorization' => 'Bearer ' . $request->{EncryptKeysEnum::accessToken->value}
+            //     ],]);
 
             $response = Http::withOptions([
-                'base_uri' => 'https://www.googleapis.com',
-                'http_client' => $client,
-            ])->acceptJson()->withHeaders([
-                'Authorization' => 'Bearer ' . $request->{EncryptKeysEnum::accessToken->value}
+                'debug' => true,
+                'verifiy_host' => false,
+            ])->withHeaders([
+                'Authorization' => 'Bearer ' . 'ya29.a0AXooCgv8aauaeByzQXfLNMWFiFsCHKfFS1Ct8M_KXcth8AsE399xbkqMcocHrPO4epxUOSR65EDXNa6vOG9r-4qZADpBhEHQ8n2ZH1GnwR3Whm0WzpTyw7ohxb2h2GY2e1olSjSeXOzL4xHb3eInTHWFJqNLYp6h5QaCgYKAfASARASFQHGX2MiAa_xjTz28LsFSOdJh6eGNg0169'
             ])->get('https://www.googleapis.com/oauth2/v1/userinfo', [
                 'alt' => 'json',
                 // 'access_token' => $request->{EncryptKeysEnum::accessToken->value}
             ]);
 
 
+            return response()->json(['data' => $response, 'token' => $request->{EncryptKeysEnum::accessToken->value}]);
 
-            if ($response->successful()) {
-                $userInfo = $response->json();
+            // if ($response->successful()) {
+            //     $userInfo = $response->json();
 
-                if ($userInfo) {
-                    $userExist = User::where('email', $userInfo['email'])->where('signUpType', SignUpTypeEnum::normal->value)->first();
+            //     if ($userInfo) {
+            //         $userExist = User::where('email', $userInfo['email'])->where('signUpType', SignUpTypeEnum::normal->value)->first();
 
-                    if ($userExist) {
-                        $token = $userExist->createToken('auth');
+            //         if ($userExist) {
+            //             $token = $userExist->createToken('auth');
 
-                        return response()->json([
-                            'success' => true,
-                            'errors' => [],
-                            'data' => [
-                                'user' => new UserDataResource($userExist),
-                                'token' => $token
-                            ],
-                            'message' => 'Request Completed Successfully!',
-                            'status' => 201
-                        ], 201);
-                    } else {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => [
-                                'email' => ['No User found with this email.'],
-                                'message' => ['Try signing up or use a different email.'],
-                            ],
-                            'data' => [],
-                            'message' => 'Request Failed.',
-                            'status' => 400
-                        ], 400);
-                    }
-                }
-            }
+            //             return response()->json([
+            //                 'success' => true,
+            //                 'errors' => [],
+            //                 'data' => [
+            //                     'user' => new UserDataResource($userExist),
+            //                     'token' => $token
+            //                 ],
+            //                 'message' => 'Request Completed Successfully!',
+            //                 'status' => 201
+            //             ], 201);
+            //         } else {
+            //             return response()->json([
+            //                 'success' => false,
+            //                 'errors' => [
+            //                     'email' => ['No User found with this email.'],
+            //                     'message' => ['Try signing up or use a different email.'],
+            //                 ],
+            //                 'data' => [],
+            //                 'message' => 'Request Failed.',
+            //                 'status' => 400
+            //             ], 400);
+            //         }
+            //     }
+            // }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
