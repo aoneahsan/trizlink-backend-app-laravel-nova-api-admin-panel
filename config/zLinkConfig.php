@@ -14,6 +14,6 @@ return [
   /*
   * items default limit.
   */
-  'defaultLimit' => 30
+  'defaultLimit' => 10
   
 ];
