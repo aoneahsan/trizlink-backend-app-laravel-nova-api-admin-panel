@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd76b805e8cfd9abdd6dd8c1bc666b18",
+    "content-hash": "aac50c5b16fd9ad55f352fb4e3e0315a",
     "packages": [
         {
             "name": "alexazartsev/heroicon",
