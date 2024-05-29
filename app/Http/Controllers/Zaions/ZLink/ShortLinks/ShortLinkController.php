@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Zaions\ZLink\ShortLinks;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Zaions\ZLink\ShortLinks\ShortLinkResource;
-use App\Http\Resources\Zaions\Zlink\ShortLinks\SLPublicPageResource;
+use App\Http\Resources\Zaions\ZLink\ShortLinks\SLPublicPageResource;
 use App\Models\Default\WorkSpace;
 use App\Models\ZLink\ShortLinks\ShortLink;
 use App\Models\ZLink\ShortLinks\SLAnalytics;
