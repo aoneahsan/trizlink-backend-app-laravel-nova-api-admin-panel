@@ -6,6 +6,7 @@ use App\Http\Controllers\Zaions\Notification\NotificationController;
 use App\Http\Controllers\Zaions\Notification\USNotificationSettingController;
 use App\Http\Controllers\Zaions\Notification\WSNotificationSettingController;
 use App\Http\Controllers\Zaions\Testing\TestController;
+use App\Http\Controllers\Zaions\TestingController;
 use App\Http\Controllers\Zaions\User\SWSUserSettingController;
 use App\Http\Controllers\Zaions\User\UserController;
 use App\Http\Controllers\Zaions\User\UserEmailController;
@@ -57,6 +58,10 @@ Route::get('/test', function () {
     return response()->json(['message' => 'Hello World!']);
 })->middleware('throttle:5,1');
 
+Route::controller(TestingController::class)->group(function () {
+    Route::post('/test-https-api-call', 'testingHttpsApiCall');
+});
+
 
 Route::middleware(['api'])->name('trizlink.')->prefix('trizlink/v1')->group(function () {
     // Test Routes
@@ -69,10 +74,8 @@ Route::middleware(['api'])->name('trizlink.')->prefix('trizlink/v1')->group(func
     // Guest Routes
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login');
-        Route::post('/social-login', 'socialLogin');
+        Route::post('/social-login/google', 'socialLoginGoogle');
         Route::post('/register', 'register');
-        Route::post('/auth/google/redirect', 'googleRedirect');
-        Route::post('/auth/google/callback', 'googleCallback');
     });
 
     // API - Authenticated Routes

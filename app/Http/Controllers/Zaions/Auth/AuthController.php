@@ -178,36 +178,7 @@ class AuthController extends Controller
         return response()->json(['data' => true]);
     }
 
-
-    public function googleRedirect()
-    {
-        try {
-            //code...
-            return Socialite::driver('google')->redirect();
-        } catch (\Throwable $th) {
-            //throw $th;
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
-
-    public function googleCallback()
-    {
-        try {
-            //code...
-            $user = Socialite::driver('google')->user();
-
-            if ($user) {
-                return ZHelpers::sendBackRequestCompletedResponse([
-                    'user' => $user
-                ]);
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-            return ZHelpers::sendBackServerErrorResponse($th);
-        }
-    }
-
-    public function socialLogin(Request $request)
+    public function socialLoginGoogle(Request $request)
     {
         try {
             $request->validate([
@@ -215,55 +186,62 @@ class AuthController extends Controller
                 EncryptKeysEnum::time->value => 'required|string',
             ]);
 
+            $userAccessToken = $request->{EncryptKeysEnum::accessToken->value};
+
             $client = new Client([
-                'verify' => storage_path('app/cacert.pem')  // Path to your cacert.pem file
+                'verify' => false  // Path to your cacert.pem file
             ]);
+            // return response()->json(['data' => '$response', 'token' => $userAccessToken]);
 
-            $response = Http::withOptions([
-                'base_uri' => 'https://www.googleapis.com',
-                'http_client' => $client,
-            ])->acceptJson()->withHeaders([
-                'Authorization' => 'Bearer ' . $request->{EncryptKeysEnum::accessToken->value}
-            ])->get('https://www.googleapis.com/oauth2/v1/userinfo', [
-                'alt' => 'json',
-                // 'access_token' => $request->{EncryptKeysEnum::accessToken->value}
-            ]);
+            // $response = $client->get('https://www.googleapis.com/oauth2/v1/userinfo', [
+            //     'headers' => [
+            //         'Authorization' => 'Bearer ' . $userAccessToken
+            //     ],
+            // ]);
 
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])
+                ->withToken($userAccessToken)
+                ->withoutVerifying()
+                ->get('https://www.googleapis.com/oauth2/v1/userinfo');
 
+            return response()->json(['data' => $response->json(), 'token' => $userAccessToken]);
 
-            if ($response->successful()) {
-                $userInfo = $response->json();
+            // if ($response->successful()) {
+            //     $userInfo = $response->json();
 
-                if ($userInfo) {
-                    $userExist = User::where('email', $userInfo['email'])->where('signUpType', SignUpTypeEnum::normal->value)->first();
+            //     if ($userInfo) {
+            //         $userExist = User::where('email', $userInfo['email'])->where('signUpType', SignUpTypeEnum::normal->value)->first();
 
-                    if ($userExist) {
-                        $token = $userExist->createToken('auth');
+            //         if ($userExist) {
+            //             $token = $userExist->createToken('auth');
 
-                        return response()->json([
-                            'success' => true,
-                            'errors' => [],
-                            'data' => [
-                                'user' => new UserDataResource($userExist),
-                                'token' => $token
-                            ],
-                            'message' => 'Request Completed Successfully!',
-                            'status' => 201
-                        ], 201);
-                    } else {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => [
-                                'email' => ['No User found with this email.'],
-                                'message' => ['Try signing up or use a different email.'],
-                            ],
-                            'data' => [],
-                            'message' => 'Request Failed.',
-                            'status' => 400
-                        ], 400);
-                    }
-                }
-            }
+            //             return response()->json([
+            //                 'success' => true,
+            //                 'errors' => [],
+            //                 'data' => [
+            //                     'user' => new UserDataResource($userExist),
+            //                     'token' => $token
+            //                 ],
+            //                 'message' => 'Request Completed Successfully!',
+            //                 'status' => 201
+            //             ], 201);
+            //         } else {
+            //             return response()->json([
+            //                 'success' => false,
+            //                 'errors' => [
+            //                     'email' => ['No User found with this email.'],
+            //                     'message' => ['Try signing up or use a different email.'],
+            //                 ],
+            //                 'data' => [],
+            //                 'message' => 'Request Failed.',
+            //                 'status' => 400
+            //             ], 400);
+            //         }
+            //     }
+            // }
         } catch (\Throwable $th) {
             return ZHelpers::sendBackServerErrorResponse($th);
         }
