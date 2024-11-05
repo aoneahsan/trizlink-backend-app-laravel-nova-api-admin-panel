@@ -187,8 +187,8 @@ enum PermissionsEnum: string
   case restore_USSettings = 'restore_USSettings';
   case forceDelete_USSettings = 'forceDelete_USSettings';
 
-  
-  // User Notifications Settings
+
+    // User Notifications Settings
   case viewAny_USNotificationSettings = 'viewAny_USNotificationSettings';
   case view_USNotificationSettings = 'view_USNotificationSettings';
   case create_USNotificationSettings = 'create_USNotificationSettings';
@@ -198,7 +198,7 @@ enum PermissionsEnum: string
   case restore_USNotificationSettings = 'restore_USNotificationSettings';
   case forceDelete_USNotificationSettings = 'forceDelete_USNotificationSettings';
 
-  // Workspace Notifications Settings
+    // Workspace Notifications Settings
   case viewAny_WSNotificationSettings = 'viewAny_WSNotificationSettings';
   case view_WSNotificationSettings = 'view_WSNotificationSettings';
   case create_WSNotificationSettings = 'create_WSNotificationSettings';
